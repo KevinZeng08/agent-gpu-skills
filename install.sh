@@ -64,6 +64,8 @@ SKILLS[cuda-skill]="cuda_skill"
 SKILLS[triton-skill]="triton_skill"
 SKILLS[cutlass-skill]="cutlass_skill"
 SKILLS[sglang-skill]="sglang_skill"
+SKILLS[cutedsl-skill]="cutedsl_skill"
+SKILLS[ncu-analysis]="ncu-analysis"
 
 install_to_agent() {
     local agent=$1
@@ -171,6 +173,11 @@ verify_agent() {
     local SGLANG_REPO="$SKILL_DIR/sglang-skill/repos/sglang"
     check "$SGLANG_REPO/python/sglang/srt" "SGLang SRT core"
     check "$SGLANG_REPO/sgl-kernel/csrc" "sgl-kernel CUDA source"
+
+    check "$SKILL_DIR/cutedsl-skill/references/add-inline-ptx.md" "CuTeDSL: add-inline-ptx"
+    check "$SKILL_DIR/cutedsl-skill/references/tma-guide.md" "CuTeDSL: tma-guide"
+
+    check "$SKILL_DIR/ncu-analysis/SKILL.md" "NCU Analysis"
 
     echo "  验证: $PASS 通过, $FAIL 失败"
     echo ""

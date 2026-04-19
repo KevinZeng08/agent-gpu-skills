@@ -6,7 +6,9 @@ GPU 开发 Agent Skill 集合，适用于 Cursor / Claude Code / Codex / Gemini 
 |:------|:-----|:---------|
 | **cuda-skill** | 底层 (PTX/CUDA C++) | 查 PTX 指令、CUDA API、Programming Guide，nsys/ncu 分析 |
 | **cutlass-skill** | 中间层 (CUTLASS/CuTeDSL) | 写 CUTLASS/CuTe kernel，查 CuTeDSL 示例 |
+| **cutedsl-skill** | 中间层 (CuTeDSL) | CuTeDSL kernel 开发，TMA、SMEM layout、inline PTX 集成、调试技巧 |
 | **triton-skill** | 高层 (Python DSL) | 写 Triton/Gluon 内核，查教程和示例 |
+| **ncu-analysis** | 分析工具 (Nsight Compute) | NCU profiling、.ncu-rep 分析、kernel 性能瓶颈定位 |
 | **sglang-skill** | 应用层 (LLM Serving) | SGLang 推理引擎开发，KV cache、Attention backend |
 
 ## 安装
@@ -74,6 +76,16 @@ agent-gpu-skills/
 ├── cutlass_skill/
 │   ├── SKILL.md
 │   └── repos/cutlass/               # sparse checkout (~62MB, .gitignore)
+├── cutedsl_skill/
+│   ├── SKILL.md
+│   └── references/
+│       ├── add-inline-ptx.md         # CuTeDSL inline PTX 集成模式
+│       ├── debugging-smem-values.md  # SMEM 调试技巧
+│       └── tma-guide.md              # TMA 工作流指南
+├── ncu-analysis/
+│   ├── SKILL.md
+│   ├── references/                   # NCU 分析参考文档
+│   └── scripts/                      # NCU 分析脚本
 └── sglang_skill/
     ├── SKILL.md
     └── repos/sglang/                # sparse checkout (~44MB, .gitignore)
