@@ -14,7 +14,7 @@ GPU 开发 Agent Skill 集合，适用于 Cursor / Claude Code / Codex / Gemini 
 ## 安装
 
 ```bash
-git clone https://github.com/slowlyC/agent-gpu-skills.git
+git clone https://github.com/KevinZeng08/agent-gpu-skills.git
 cd agent-gpu-skills
 
 # 1. 获取外部源码 repo (sparse checkout, ~130MB)
