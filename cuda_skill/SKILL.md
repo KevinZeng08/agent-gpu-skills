@@ -38,6 +38,8 @@ references/
 ├── cuda-driver.md         # Driver API search guide
 ├── nsys-guide.md          # Nsight Systems quick reference
 ├── ncu-guide.md           # Nsight Compute quick reference
+├── gpu_spec.md            # Source-checked GPU specs and CUDA CC mapping
+├── cross-proxy-fence.md   # Memory ordering across CUDA proxy/fence domains
 ├── debugging-tools.md     # compute-sanitizer, cuda-gdb
 ├── nvtx-patterns.md       # NVTX instrumentation
 └── performance-traps.md   # Bank conflicts, coalescing
