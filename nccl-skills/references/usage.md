@@ -1,0 +1,72 @@
+# Using NCCL
+
+Using NCCL is similar to using any other library in your code:
+
+1. Install the NCCL library on your system
+2. Modify your application to link to that library
+3. Include the header file nccl.h in your application
+4. Create a communicator (see [Creating a Communicator](usage/communicators.md#communicator-label))
+5. Use NCCL collective communication primitives to perform data communication. You can familiarize yourself with the [NCCL API](api.md#api-label) documentation to maximize your usage performance.
+
+Collective communication primitives are common patterns of data transfer among a group of CUDA devices. A communication algorithm involves many processors that are communicating together.
+Each CUDA device is identified within the communication group by a zero-based index or rank. Each rank uses a communicator object to refer to the collection of GPUs that are intended to work together.
+The creation of a communicator is the first step needed before launching any communication operation.
+
+* [Creating a Communicator](usage/communicators.md)
+  * [Creating a communicator with options](usage/communicators.md#creating-a-communicator-with-options)
+  * [Creating a communicator using multiple ncclUniqueIds](usage/communicators.md#creating-a-communicator-using-multiple-nccluniqueids)
+  * [Shrinking a communicator](usage/communicators.md#shrinking-a-communicator)
+  * [Growing a communicator](usage/communicators.md#growing-a-communicator)
+  * [Creating more communicators](usage/communicators.md#creating-more-communicators)
+  * [Using multiple NCCL communicators concurrently](usage/communicators.md#using-multiple-nccl-communicators-concurrently)
+  * [Finalizing a communicator](usage/communicators.md#finalizing-a-communicator)
+  * [Destroying a communicator](usage/communicators.md#destroying-a-communicator)
+* [Error handling and communicator abort](usage/communicators.md#error-handling-and-communicator-abort)
+  * [Asynchronous errors and error handling](usage/communicators.md#asynchronous-errors-and-error-handling)
+* [Fault Tolerance](usage/communicators.md#fault-tolerance)
+* [Quality of Service](usage/communicators.md#quality-of-service)
+* [Collective Operations](usage/collectives.md)
+  * [AllReduce](usage/collectives.md#allreduce)
+  * [Broadcast](usage/collectives.md#broadcast)
+  * [Reduce](usage/collectives.md#reduce)
+  * [AllGather](usage/collectives.md#allgather)
+  * [ReduceScatter](usage/collectives.md#reducescatter)
+  * [AlltoAll](usage/collectives.md#alltoall)
+  * [Gather](usage/collectives.md#gather)
+  * [Scatter](usage/collectives.md#scatter)
+* [Data Pointers](usage/data.md)
+* [CUDA Stream Semantics](usage/streams.md)
+  * [Mixing Multiple Streams within the same ncclGroupStart/End() group](usage/streams.md#mixing-multiple-streams-within-the-same-ncclgroupstart-end-group)
+* [Group Calls](usage/groups.md)
+  * [Management Of Multiple GPUs From One Thread](usage/groups.md#management-of-multiple-gpus-from-one-thread)
+  * [Aggregated Operations (2.2 and later)](usage/groups.md#aggregated-operations-2-2-and-later)
+  * [Group Operation Ordering Semantics](usage/groups.md#group-operation-ordering-semantics)
+  * [Nonblocking Group Operation](usage/groups.md#nonblocking-group-operation)
+* [Point-to-point communication](usage/p2p.md)
+  * [Two-sided communication](usage/p2p.md#two-sided-communication)
+  * [One-sided communication](usage/p2p.md#one-sided-communication)
+* [Thread Safety](usage/threadsafety.md)
+* [In-place Operations](usage/inplace.md)
+* [Using NCCL with CUDA Graphs](usage/cudagraph.md)
+  * [Requirements and Limitations](usage/cudagraph.md#requirements-and-limitations)
+* [User Buffer Registration](usage/bufferreg.md)
+  * [NVLink Sharp Buffer Registration](usage/bufferreg.md#nvlink-sharp-buffer-registration)
+  * [IB Sharp Buffer Registration](usage/bufferreg.md#ib-sharp-buffer-registration)
+  * [General Buffer Registration](usage/bufferreg.md#general-buffer-registration)
+  * [Buffer Registration, GPU Direct RDMA, and MPS with MLOPart](usage/bufferreg.md#buffer-registration-gpu-direct-rdma-and-mps-with-mlopart)
+  * [Buffer Registration and PXN](usage/bufferreg.md#buffer-registration-and-pxn)
+  * [Memory Allocator](usage/bufferreg.md#memory-allocator)
+  * [Window Registration](usage/bufferreg.md#window-registration)
+  * [Zero-CTA Optimization](usage/bufferreg.md#zero-cta-optimization)
+* [Device-Initiated Communication](usage/deviceapi.md)
+  * [Device API](usage/deviceapi.md#device-api)
+  * [Requirements](usage/deviceapi.md#requirements)
+  * [Cross-Version Compatibility](usage/deviceapi.md#cross-version-compatibility)
+  * [Host-Side Setup](usage/deviceapi.md#host-side-setup)
+  * [Simple LSA Kernel](usage/deviceapi.md#simple-lsa-kernel)
+  * [Multimem Device Kernel](usage/deviceapi.md#multimem-device-kernel)
+  * [Thread Groups](usage/deviceapi.md#thread-groups)
+  * [Teams](usage/deviceapi.md#teams)
+  * [Segment Types](usage/deviceapi.md#segment-types)
+  * [Host-Accessible Device Pointer Functions](usage/deviceapi.md#host-accessible-device-pointer-functions)
+  * [GIN Device Kernel](usage/deviceapi.md#gin-device-kernel)

@@ -66,6 +66,7 @@ SKILLS[cutlass-skill]="cutlass_skill"
 SKILLS[sglang-skill]="sglang_skill"
 SKILLS[cutedsl-skill]="cutedsl_skill"
 SKILLS[ncu-analysis]="ncu-analysis"
+SKILLS[nccl-skill]="nccl-skills"
 
 install_to_agent() {
     local agent=$1
@@ -118,6 +119,7 @@ install_to_agent() {
                 basename="$(basename "$item")"
                 [ "$basename" = "SKILL.md" ] && continue
                 [[ "$basename" == update-*.sh ]] && continue
+                [[ "$basename" == build_*.sh ]] && continue
                 ln -sf "$item" "$target/$basename"
                 echo "  已链接: $basename"
             done
@@ -178,6 +180,9 @@ verify_agent() {
     check "$SKILL_DIR/cutedsl-skill/references/tma-guide.md" "CuTeDSL: tma-guide"
 
     check "$SKILL_DIR/ncu-analysis/SKILL.md" "NCU Analysis"
+
+    check "$SKILL_DIR/nccl-skill/references/env.md" "NCCL: NCCL_* 环境变量"
+    check "$SKILL_DIR/nccl-skill/references/api/comms.md" "NCCL: C API (comms)"
 
     echo "  验证: $PASS 通过, $FAIL 失败"
     echo ""
