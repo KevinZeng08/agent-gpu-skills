@@ -187,8 +187,8 @@ The docs describe behavior; the source explains it. Run
 (tag `v2.30.7-1`) into `repos/nccl/` for side-by-side reading:
 
 ```bash
-nccl-skills/update-nccl.sh           # sparse: key dirs only (~12 MB)
-nccl-skills/update-nccl.sh --full    # whole repo
+nccl_skill/update-nccl.sh            # sparse: key dirs only (~12 MB)
+nccl_skill/update-nccl.sh --full     # whole repo
 ```
 
 Source map (`repos/nccl/`):

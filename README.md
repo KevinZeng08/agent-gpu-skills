@@ -90,7 +90,7 @@ agent-gpu-skills/
 ├── sglang_skill/
 │   ├── SKILL.md
 │   └── repos/sglang/                # sparse checkout (~44MB, .gitignore)
-└── nccl-skills/
+└── nccl_skill/
     ├── SKILL.md
     ├── README.md
     ├── build_nccl_skill.sh          # 从 NCCL 仓库文档源重新生成 references/
@@ -99,7 +99,7 @@ agent-gpu-skills/
     └── repos/nccl/                  # NCCL 源码 (~12MB, .gitignore)
 ```
 
-各 skill 的 `repos/` 源码目录（含 `nccl-skills/repos/nccl/`）通过 `.gitignore` 排除，用 `bash update-repos.sh` 重建。
+各 skill 的 `repos/` 源码目录（含 `nccl_skill/repos/nccl/`）通过 `.gitignore` 排除，用 `bash update-repos.sh` 重建。
 
 ## cuda-skill
 
@@ -158,14 +158,14 @@ NVIDIA NCCL 2.30.7 用户指南的离线 Markdown 镜像（已随仓库提交）
 
 | 内容 | 路径 |
 |:-----|:-----|
-| 主题索引 + 搜索配方 | `nccl-skills/references/INDEX.md` |
-| C API 参考 (comms/colls/types/device_*/...) | `nccl-skills/references/api/` |
-| `NCCL_*` 环境变量 | `nccl-skills/references/env.md` |
-| nccl4py Python 绑定 | `nccl-skills/references/nccl4py/` |
-| 排查指南 (gpu/网络/perf/ras/...) | `nccl-skills/references/troubleshooting/` |
-| NCCL 源码 (可选) | `nccl-skills/repos/nccl/` |
+| 主题索引 + 搜索配方 | `nccl_skill/references/INDEX.md` |
+| C API 参考 (comms/colls/types/device_*/...) | `nccl_skill/references/api/` |
+| `NCCL_*` 环境变量 | `nccl_skill/references/env.md` |
+| nccl4py Python 绑定 | `nccl_skill/references/nccl4py/` |
+| 排查指南 (gpu/网络/perf/ras/...) | `nccl_skill/references/troubleshooting/` |
+| NCCL 源码 (可选) | `nccl_skill/repos/nccl/` |
 
-文档随仓库提交，无需额外拉取。源码用 `bash update-repos.sh nccl`（或 `nccl-skills/update-nccl.sh`）拉取到 `repos/nccl/`。如需从 NCCL 仓库文档源重新生成 `references/`，运行 `nccl-skills/build_nccl_skill.sh`（需要 NCCL 仓库的 `docs/userguide/source`，开销较大，不在 `install.sh` 中执行）。
+文档随仓库提交，无需额外拉取。源码用 `bash update-repos.sh nccl`（或 `nccl_skill/update-nccl.sh`）拉取到 `repos/nccl/`。如需从 NCCL 仓库文档源重新生成 `references/`，运行 `nccl_skill/build_nccl_skill.sh`（需要 NCCL 仓库的 `docs/userguide/source`，开销较大，不在 `install.sh` 中执行）。
 
 ## 致谢
 

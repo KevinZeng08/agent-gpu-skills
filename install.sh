@@ -66,7 +66,7 @@ SKILLS[cutlass-skill]="cutlass_skill"
 SKILLS[sglang-skill]="sglang_skill"
 SKILLS[cutedsl-skill]="cutedsl_skill"
 SKILLS[ncu-analysis]="ncu-analysis"
-SKILLS[nccl-skill]="nccl-skills"
+SKILLS[nccl-skill]="nccl_skill"
 
 install_to_agent() {
     local agent=$1

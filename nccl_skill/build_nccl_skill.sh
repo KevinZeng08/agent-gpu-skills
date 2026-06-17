@@ -3,7 +3,7 @@
 # Regenerate the NCCL documentation skill references from the in-repo doc source.
 #
 # This drives Sphinx + sphinx-markdown-builder over docs/userguide/source and
-# emits a clean, grep-able Markdown mirror into nccl-skills/references/.
+# emits a clean, grep-able Markdown mirror into nccl_skill/references/.
 #
 # Why Sphinx instead of a hand-rolled RST converter: the Python bindings pages
 # (nccl4py/*) use Sphinx autodoc, so their text lives in Python docstrings, not
@@ -12,7 +12,7 @@
 # package without building the C extension.
 #
 # Usage:
-#   nccl-skills/build_nccl_skill.sh
+#   nccl_skill/build_nccl_skill.sh
 #
 # Hand-written files (SKILL.md, README.md, references/INDEX.md) are NOT touched;
 # only generated documentation pages and image assets are (re)written.

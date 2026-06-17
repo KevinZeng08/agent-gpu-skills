@@ -1,12 +1,12 @@
 # Sparse-checkout repos (use update-repos.sh to restore)
-# covers triton_skill/repos/, cutlass_skill/repos/, sglang_skill/repos/, nccl-skills/repos/
+# covers triton_skill/repos/, cutlass_skill/repos/, sglang_skill/repos/, nccl_skill/repos/
 */repos/
 
 # Python
 __pycache__/
 *.pyc
 
-# Local venvs (e.g. nccl-skills/build_nccl_skill.sh)
+# Local venvs (e.g. nccl_skill/build_nccl_skill.sh)
 */.venv/
 
 # OS

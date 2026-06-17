@@ -13,7 +13,7 @@ Source documentation:
 ## Layout
 
 ```
-nccl-skills/
+nccl_skill/
   SKILL.md              # entry point: trigger terms, quick-reference, search recipes
   README.md             # this file
   build_nccl_skill.sh   # regenerates references/ from the in-repo doc source
@@ -55,9 +55,9 @@ To let the agent co-read NCCL source with the documentation, fetch the matching
 source (tag `v2.30.7-1`) into `repos/nccl/`:
 
 ```bash
-nccl-skills/update-nccl.sh           # sparse checkout of key dirs (~12 MB)
-nccl-skills/update-nccl.sh --full    # whole repo
-nccl-skills/update-nccl.sh --ref master   # a different tag/branch
+nccl_skill/update-nccl.sh            # sparse checkout of key dirs (~12 MB)
+nccl_skill/update-nccl.sh --full     # whole repo
+nccl_skill/update-nccl.sh --ref master   # a different tag/branch
 ```
 
 It clones `src/`, `bindings/nccl4py/`, `makefiles/`, `docs/examples/`, and
@@ -73,9 +73,9 @@ symlink it into a skills directory:
 
 ```bash
 # personal (all projects)
-cp -r nccl-skills ~/.cursor/skills/nccl
+cp -r nccl_skill ~/.cursor/skills/nccl
 # or project-scoped
-cp -r nccl-skills .cursor/skills/nccl
+cp -r nccl_skill .cursor/skills/nccl
 ```
 
 ## Regenerating
@@ -86,7 +86,7 @@ NCCL version in [`makefiles/version.mk`](../makefiles/version.mk). Re-run after
 the docs change:
 
 ```bash
-nccl-skills/build_nccl_skill.sh
+nccl_skill/build_nccl_skill.sh
 ```
 
 The script:

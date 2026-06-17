@@ -11,8 +11,8 @@
 #   sglang_skill/repos/sglang/
 #
 # nccl 有专门的拉取脚本（固定 tag + 回退逻辑），源码存放在:
-#   nccl-skills/repos/nccl/
-# 本脚本对 nccl 直接委托给 nccl-skills/update-nccl.sh。
+#   nccl_skill/repos/nccl/
+# 本脚本对 nccl 直接委托给 nccl_skill/update-nccl.sh。
 
 set -e
 
@@ -55,10 +55,10 @@ clone_or_update() {
 update_nccl() {
     echo ""
     echo "=== nccl ==="
-    if [ -x "$SCRIPT_DIR/nccl-skills/update-nccl.sh" ]; then
-        bash "$SCRIPT_DIR/nccl-skills/update-nccl.sh"
+    if [ -x "$SCRIPT_DIR/nccl_skill/update-nccl.sh" ]; then
+        bash "$SCRIPT_DIR/nccl_skill/update-nccl.sh"
     else
-        echo "  跳过: nccl-skills/update-nccl.sh 不存在"
+        echo "  跳过: nccl_skill/update-nccl.sh 不存在"
     fi
 }
 
@@ -133,7 +133,7 @@ esac
 
 echo ""
 echo "=== 总览 ==="
-for sk in triton_skill cutlass_skill sglang_skill nccl-skills; do
+for sk in triton_skill cutlass_skill sglang_skill nccl_skill; do
     if [ -d "$SCRIPT_DIR/$sk/repos" ]; then
         du -sh "$SCRIPT_DIR/$sk/repos/"*/ 2>/dev/null
     fi

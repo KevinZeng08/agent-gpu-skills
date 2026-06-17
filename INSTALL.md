@@ -57,7 +57,7 @@ bash update-repos.sh
 bash update-repos.sh triton
 bash update-repos.sh cutlass
 bash update-repos.sh sglang
-bash update-repos.sh nccl     # 委托给 nccl-skills/update-nccl.sh
+bash update-repos.sh nccl     # 委托给 nccl_skill/update-nccl.sh
 
 # 更新 CUDA 文档库
 uv run scrape_docs.py all --force
