@@ -67,6 +67,7 @@ SKILLS[sglang-skill]="sglang_skill"
 SKILLS[cutedsl-skill]="cutedsl_skill"
 SKILLS[ncu-analysis]="ncu-analysis"
 SKILLS[nccl-skill]="nccl_skill"
+SKILLS[nvshmem-skill]="nvshmem_skill"
 
 install_to_agent() {
     local agent=$1
@@ -120,6 +121,8 @@ install_to_agent() {
                 [ "$basename" = "SKILL.md" ] && continue
                 [[ "$basename" == update-*.sh ]] && continue
                 [[ "$basename" == build_*.sh ]] && continue
+                [[ "$basename" == build_*.py ]] && continue
+                [ "$basename" = ".cache-html" ] && continue
                 ln -sf "$item" "$target/$basename"
                 echo "  已链接: $basename"
             done
@@ -183,6 +186,9 @@ verify_agent() {
 
     check "$SKILL_DIR/nccl-skill/references/env.md" "NCCL: NCCL_* 环境变量"
     check "$SKILL_DIR/nccl-skill/references/api/comms.md" "NCCL: C API (comms)"
+
+    check "$SKILL_DIR/nvshmem-skill/references/env.md" "NVSHMEM: NVSHMEM_* 环境变量"
+    check "$SKILL_DIR/nvshmem-skill/references/api/rma.md" "NVSHMEM: C API (rma)"
 
     echo "  验证: $PASS 通过, $FAIL 失败"
     echo ""

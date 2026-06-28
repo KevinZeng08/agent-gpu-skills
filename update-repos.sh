@@ -3,16 +3,17 @@
 # 用法: bash update-repos.sh [repo_name]
 #
 # 不带参数: 更新所有 repo
-# 带参数:   只更新指定 repo (triton / cutlass / sglang / nccl)
+# 带参数:   只更新指定 repo (triton / cutlass / sglang / nccl / nvshmem)
 #
 # repo 存放在各自 skill 目录的 repos/ 下:
 #   triton_skill/repos/triton/
 #   cutlass_skill/repos/cutlass/
 #   sglang_skill/repos/sglang/
 #
-# nccl 有专门的拉取脚本（固定 tag + 回退逻辑），源码存放在:
+# nccl / nvshmem 有专门的拉取脚本（固定 tag + 回退逻辑），源码存放在:
 #   nccl_skill/repos/nccl/
-# 本脚本对 nccl 直接委托给 nccl_skill/update-nccl.sh。
+#   nvshmem_skill/repos/nvshmem/
+# 本脚本对 nccl / nvshmem 直接委托给各自的 update-*.sh。
 
 set -e
 
@@ -59,6 +60,16 @@ update_nccl() {
         bash "$SCRIPT_DIR/nccl_skill/update-nccl.sh"
     else
         echo "  跳过: nccl_skill/update-nccl.sh 不存在"
+    fi
+}
+
+update_nvshmem() {
+    echo ""
+    echo "=== nvshmem ==="
+    if [ -x "$SCRIPT_DIR/nvshmem_skill/update-nvshmem.sh" ]; then
+        bash "$SCRIPT_DIR/nvshmem_skill/update-nvshmem.sh"
+    else
+        echo "  跳过: nvshmem_skill/update-nvshmem.sh 不存在"
     fi
 }
 
@@ -118,22 +129,26 @@ case "$TARGET" in
     nccl)
         update_nccl
         ;;
+    nvshmem)
+        update_nvshmem
+        ;;
     all)
         clone_or_update "triton" "triton_skill" "https://github.com/triton-lang/triton.git" "main" "${triton_dirs[@]}"
         clone_or_update "cutlass" "cutlass_skill" "https://github.com/NVIDIA/cutlass.git" "main" "${cutlass_dirs[@]}"
         clone_or_update "sglang" "sglang_skill" "https://github.com/sgl-project/sglang.git" "main" "${sglang_dirs[@]}"
         update_nccl
+        update_nvshmem
         ;;
     *)
         echo "未知 repo: $TARGET"
-        echo "用法: bash update-repos.sh [triton|cutlass|sglang|nccl|all]"
+        echo "用法: bash update-repos.sh [triton|cutlass|sglang|nccl|nvshmem|all]"
         exit 1
         ;;
 esac
 
 echo ""
 echo "=== 总览 ==="
-for sk in triton_skill cutlass_skill sglang_skill nccl_skill; do
+for sk in triton_skill cutlass_skill sglang_skill nccl_skill nvshmem_skill; do
     if [ -d "$SCRIPT_DIR/$sk/repos" ]; then
         du -sh "$SCRIPT_DIR/$sk/repos/"*/ 2>/dev/null
     fi
