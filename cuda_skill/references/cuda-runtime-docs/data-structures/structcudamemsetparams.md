@@ -1,4 +1,4 @@
-# 7.58. cudaMemsetParams
+# 7.59. cudaMemsetParams
 
 **Source:** structcudaMemsetParams.html#structcudaMemsetParams
 

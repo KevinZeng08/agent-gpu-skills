@@ -4,7 +4,7 @@
 This chapter contains a summary of the recommendations for optimization that are explained in this document.
 
 
-##  19.1. Overall Performance Optimization Strategies 
+##  19.1. Overall Performance Optimization Strategies
 
 Performance optimization revolves around three basic strategies:
 

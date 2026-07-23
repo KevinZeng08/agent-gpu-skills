@@ -1,4 +1,4 @@
-# 7.66. cudaTextureDesc
+# 7.67. cudaTextureDesc
 
 **Source:** structcudaTextureDesc.html#structcudaTextureDesc
 

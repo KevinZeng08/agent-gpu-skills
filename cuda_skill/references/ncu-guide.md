@@ -1,293 +1,99 @@
-# Nsight Compute (ncu) Reference
+# Nsight Compute 2026.2.1 Quick Guide
 
-## Table of Contents
+Nsight Compute explains why a selected CUDA kernel behaves as measured. Use Nsight Systems first when the slow region or launch is not yet known.
 
-- [Overview](#overview) — Detailed kernel analysis and metrics
-- [Basic Commands](#basic-commands) — Profile kernels, save reports, metric sets
-- [Metric Sets](#metric-sets) — basic, full, memory, compute, launch, occupancy, roofline, source
-- [Sections](#sections) — LaunchStatistics, Occupancy, MemoryWorkloadAnalysis, ComputeWorkloadAnalysis, SchedulerStatistics
-- [Key Metrics Explained](#key-metrics-explained) — SpeedOfLight, Occupancy, Memory/Compute Throughput
-- [Output Formats](#output-formats) — CSV, page format, summary
-- [Filtering and Selection](#filtering-and-selection) — By kernel name, invocation, range
-- [Analysis Patterns](#analysis-patterns) — Memory vs compute bound, coalescing, bank conflicts, occupancy, source-level
-- [Specific Metrics Query](#specific-metrics-query) — Query and use individual metrics
-- [Expert System Caveats](#expert-system-caveats) — Use recommendations with caution
-- [Troubleshooting](#troubleshooting) — Common issues
+This guide follows the latest official snapshot recorded in MANIFEST.md. It is not tied to the NCU version installed on the current machine.
 
-## Overview
+## Discover the active tool
 
-ncu answers: "Why is this kernel slow?" Use it for detailed kernel analysis: memory throughput, compute utilization, occupancy, roofline analysis.
+Sets, section identifiers, metrics, and chip support vary by release and architecture. Query before constructing a profile command:
 
-**Warning:** ncu adds significant overhead. Profile specific kernels, not entire applications.
+    ncu --version
+    ncu --list-sets
+    ncu --list-sections
+    ncu --query-metrics
 
-## Basic Commands
+For full metric suffixes:
 
-```bash
-# Profile all kernels (slow)
-ncu ./program
+    ncu --query-metrics-mode suffix --metrics sm__throughput
 
-# Profile specific kernel by name
-ncu --kernel-name "myKernel" ./program
+Use ncu-docs/NsightComputeCli.md for CLI semantics and ncu-docs/ProfilingGuide.md for metric interpretation.
 
-# Profile kernel by regex
-ncu --kernel-name-base "regex:.*Reduce.*" ./program
+## Start narrow
 
-# Skip first N invocations, profile next M
-ncu --kernel-name "myKernel" --launch-skip 10 --launch-count 5 ./program
+    ncu --kernel-name regex:myKernel +      --launch-count 1 +      -o my-kernel +      ./program
 
-# Save to file
-ncu -o report ./program
+If the same kernel appears during warmup:
 
-# Print to stdout
-ncu --print-summary per-kernel ./program
-```
+    ncu --kernel-name regex:myKernel +      --launch-skip 10 +      --launch-count 1 +      -o my-kernel +      ./program
 
-## Metric Sets
+Use exact input, launch configuration, clocks, and software build when comparing reports.
 
-Pre-defined metric collections:
+## Choose data by question
 
-```bash
---set basic       # Essential metrics (fast)
---set full        # Everything (slow, comprehensive)
---set memory      # Memory subsystem focus
---set compute     # Compute throughput focus
---set launch      # Launch configuration
---set occupancy   # Occupancy analysis
---set roofline    # Roofline model data
---set source      # Per-source-line metrics (needs -lineinfo)
-```
+The default basic set is a useful first pass. Add only the sections needed for the current hypothesis:
 
-**Recommendation:** Start with `--set basic`, deep-dive with specific sections.
+    ncu --list-sections
+    ncu --section LaunchStats +      --section Occupancy +      --kernel-name regex:myKernel +      -o launch-and-occupancy +      ./program
 
-## Sections
+Before copying a section identifier from an older note, confirm it with --list-sections. Current identifiers such as LaunchStats and SchedulerStats differ from names used in some older notes.
 
-Fine-grained metric groups:
+Use --set full only when the collection cost and replay behavior are acceptable. Full collection can require many passes and can perturb cache state or application behavior.
 
-```bash
-ncu --section LaunchStatistics ./program
-ncu --section Occupancy ./program
-ncu --section MemoryWorkloadAnalysis ./program
-ncu --section ComputeWorkloadAnalysis ./program
-ncu --section SchedulerStatistics ./program
-ncu --section WarpStateStatistics ./program
-ncu --section SpeedOfLight ./program
-ncu --section SourceCounters ./program
-```
+## Metric selection
 
-Combine multiple:
-```bash
-ncu --section Occupancy --section MemoryWorkloadAnalysis ./program
-```
+Prefer sections for exploratory analysis because they include related metrics and rules. Use explicit metrics for stable automated experiments:
 
-## Key Metrics Explained
+    ncu --query-metrics-mode suffix --metrics METRIC_BASE
+    ncu --metrics FULL_METRIC_NAME +      --kernel-name regex:myKernel +      --launch-count 1 +      ./program
 
-### SpeedOfLight (SOL)
+Do not assume a metric exists across all GPUs. Metric names, suffixes, and availability depend on the chip and NCU release.
 
-Shows how close kernel is to theoretical peak:
+## Interpret in layers
 
-- **SM [%]** — Compute throughput vs peak
-- **Memory [%]** — Memory throughput vs peak
+Read the report in this order:
 
-Interpretation:
-- High SM, Low Memory → Compute bound
-- Low SM, High Memory → Memory bound
-- Low both → Latency bound (bad)
+- launch dimensions, register use, shared memory, and achieved occupancy;
+- compute and memory throughput relative to the measured workload;
+- instruction mix and issue behavior;
+- memory traffic, access pattern, and cache behavior;
+- warp stalls and scheduler state;
+- source or SASS correlation when line information is available.
 
-### Occupancy
+High occupancy is not automatically good, and low occupancy is not automatically the bottleneck. Connect each metric to elapsed time and a testable hypothesis.
 
-- **Theoretical Occupancy** — Max possible given resources
-- **Achieved Occupancy** — Actual average active warps
-- **Limiting Factor** — What constrains occupancy (registers, shared mem, block size)
+## Reports and comparison
 
-Low achieved vs theoretical = scheduling issues, not resource limits.
+    ncu --import my-kernel.ncu-rep
+    ncu --csv --page raw --import my-kernel.ncu-rep
 
-### Memory Throughput
+Keep before and after reports:
 
-- **DRAM Throughput** — Global memory bandwidth utilization
-- **L2 Throughput** — L2 cache utilization
-- **L1 Throughput** — L1/shared memory utilization
+    ncu --kernel-name regex:myKernel -o before ./program_before
+    ncu --kernel-name regex:myKernel -o after ./program_after
 
-Key questions:
-- Is memory coalesced? (Check "Memory Workload Analysis")
-- Cache hit rates?
-- Shared memory bank conflicts?
+Compare the same kernel invocation and input. If code generation changed, also compare ptxas resource output and SASS.
 
-### Compute Throughput
+## Common collection problems
 
-- **SM Busy** — % time SMs have work
-- **Warp Cycles per Issued Instruction** — Lower is better
-- **Eligible Warps per Scheduler** — Higher is better
+**No kernel matched**
 
-### Launch Statistics
+Check --kernel-name-base and use a quoted regex. List or inspect actual demangled names before widening the filter.
 
-- **Grid Size** — Total blocks
-- **Block Size** — Threads per block
-- **Registers/Thread** — Register usage
-- **Shared Memory/Block** — Static + dynamic shared mem
-- **Theoretical Occupancy** — Max warps limited by resources
+**Permission error**
 
-## Output Formats
+Performance-counter access may be restricted by the driver or system policy. Follow the official deployment guidance rather than changing permissions blindly.
 
-```bash
-# CSV (for scripting)
-ncu --csv ./program > metrics.csv
+**Too many replays or unstable values**
 
-# CSV with specific metrics
-ncu --csv --metrics sm__throughput.avg_pct_of_peak_sustained_elapsed ./program
+Collect fewer sections, isolate one launch, control application state, and consider whether replay changes caches or synchronization.
 
-# Page format (human readable)
-ncu --page raw ./program    # Raw metrics
-ncu --page details ./program # With descriptions
+**Unsupported metric**
 
-# Print summary
-ncu --print-summary per-kernel ./program
-ncu --print-summary per-gpu ./program
-```
+Query metrics for the active device or chip. Do not replace it with a similarly named metric without reading its definition.
 
-## Filtering and Selection
+## Source lookup
 
-```bash
-# By kernel name
---kernel-name "exact_name"
---kernel-name-base "regex:pattern"
-
-# By invocation
---launch-skip N      # Skip first N launches
---launch-count M     # Profile M launches
-
-# By kernel ID (from previous runs)
---kernel-id N
-
-# Range
---launch-skip 100 --launch-count 10  # Invocations 100-109
-```
-
-## Analysis Patterns
-
-### Pattern: Memory vs Compute Bound
-
-```bash
-ncu --section SpeedOfLight --kernel-name "myKernel" ./program
-```
-
-Look at SM% vs Memory%:
-- SM >> Memory → Compute bound, optimize arithmetic
-- Memory >> SM → Memory bound, optimize access patterns
-- Both low → Latency bound, improve occupancy
-
-### Pattern: Coalescing Analysis
-
-```bash
-ncu --section MemoryWorkloadAnalysis --kernel-name "myKernel" ./program
-```
-
-Check MemoryWorkloadAnalysis section for sector/request ratios and theoretical vs actual throughput.
-
-**Specific metrics for coalescing:**
-```bash
-ncu --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum ./program
-# Divide sectors by requests: 1-4 is good, 8-16 is poor, 32+ is very poor
-```
-
-Signs of poor coalescing:
-- High sector/request ratios
-- Low memory throughput despite high memory traffic
-
-### Pattern: Bank Conflicts Analysis
-
-```bash
-ncu --section SchedulerStatistics --kernel-name "myKernel" ./program
-```
-
-Check "Warp Stall" breakdown to see if stalls are memory-related.
-
-**Specific metrics for bank conflicts:**
-```bash
-ncu --metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum \
-    --metrics l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum \
-    ./program
-# Divide conflicts by wavefronts to get average conflicts per operation
-# >1 per operation indicates significant conflicts
-```
-
-### Pattern: Occupancy Investigation
-
-```bash
-ncu --section Occupancy --section LaunchStatistics --kernel-name "myKernel" ./program
-```
-
-If occupancy is limited by:
-- **Registers** → Use `--maxrregcount` or `__launch_bounds__`
-- **Shared memory** → Reduce shared mem or use smaller blocks
-- **Block size** → Adjust block dimensions
-
-### Pattern: Source-Level Analysis
-
-Compile with `-lineinfo -G`, then:
-```bash
-ncu --set source --kernel-name "myKernel" ./program
-```
-
-Shows metrics per source line. Useful for:
-- Finding hot spots within kernel
-- Identifying specific memory access issues
-
-### Pattern: Compare Kernel Versions
-
-```bash
-# Profile both
-ncu -o before --kernel-name "myKernel" ./program_before
-ncu -o after --kernel-name "myKernel" ./program_after
-
-# Compare (GUI required for visual diff)
-# Or export CSV and diff
-```
-
-## Specific Metrics Query
-
-```bash
-# List available metrics
-ncu --query-metrics
-
-# Profile specific metrics
-ncu --metrics sm__throughput.avg_pct_of_peak_sustained_elapsed,\
-dram__throughput.avg_pct_of_peak_sustained_elapsed ./program
-
-# Common useful metrics
---metrics sm__throughput.avg_pct_of_peak_sustained_elapsed  # SM utilization
---metrics dram__throughput.avg_pct_of_peak_sustained_elapsed # Memory bandwidth
---metrics sm__warps_active.avg_pct_of_peak_sustained_elapsed # Active warps
---metrics launch__occupancy_limit_registers               # Reg-limited occupancy
---metrics launch__occupancy_limit_shared_mem              # Smem-limited occupancy
---metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum # Bank conflicts (loads)
---metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum # Bank conflicts (stores)
---metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum  # Memory sectors (coalescing)
---metrics l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum # Memory requests (coalescing)
-```
-
-## Expert System Caveats
-
-ncu includes an "expert system" that provides recommendations. **Use with caution:**
-
-- Recommendations are heuristic-based, not always applicable
-- May suggest conflicting optimizations
-- Always verify with actual profiling after changes
-- Context matters — what works for one kernel may hurt another
-
-Treat recommendations as hypotheses to test, not prescriptions.
-
-## Troubleshooting
-
-**"No kernels profiled"**
-- Check kernel name spelling (exact match required)
-- Use `--kernel-name-base "regex:.*"` to see all kernels
-- Verify kernel actually runs
-
-**Very slow profiling**
-- Use `--set basic` instead of `--set full`
-- Profile fewer kernel invocations with `--launch-count`
-- Skip warmup with `--launch-skip`
-
-**Missing source information**
-- Compile with `-lineinfo` (release) or `-G` (debug)
-- Ensure binary matches source
+    rg -n -i 'sets and sections|replay' ncu-docs/ProfilingGuide.md
+    rg -n -- '--kernel-name|--list-sections|--query-metrics' +      ncu-docs/NsightComputeCli.md
+    rg -n 'Updates in 2026.2.1' ncu-docs/ReleaseNotes.md

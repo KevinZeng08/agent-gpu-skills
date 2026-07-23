@@ -15,6 +15,8 @@ int clusterSchedulingPolicyPreference
 
 size_t constSizeBytes
 
+int deviceNodeUpdateStatus
+
 size_t localSizeBytes
 
 int maxDynamicSharedSizeBytes
@@ -31,7 +33,7 @@ int ptxVersion
 
 int requiredClusterWidth
 
-int reserved[15]
+int reserved[14]
 
 size_t sharedSizeBytes
 
@@ -62,6 +64,11 @@ size_t cudaFuncAttributes::constSizeBytes
 
 
 The size in bytes of user-allocated constant memory required by this function.
+
+int cudaFuncAttributes::deviceNodeUpdateStatus
+
+
+Whether the function can be updated on device. 1 means device node update is supported, 0 is unsupported or driver is too old to check the value.
 
 size_t cudaFuncAttributes::localSizeBytes
 
@@ -113,7 +120,7 @@ The required cluster width/height/depth in blocks. The values must either all be
 
 If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return cudaErrorNotPermitted. See cudaFuncSetAttribute
 
-int cudaFuncAttributes::reserved[15]
+int cudaFuncAttributes::reserved[14]
 
 
 Reserved for future use.

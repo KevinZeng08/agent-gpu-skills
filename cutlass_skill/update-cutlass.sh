@@ -1,9 +1,9 @@
 #!/bin/bash
-# 从 GitHub 获取/更新 CUTLASS 源码（sparse checkout，只拉需要的目录）
-# 用法: bash update-cutlass.sh [--full]
+# Fetch or update the CUTLASS source from GitHub using sparse checkout.
+# Usage: bash update-cutlass.sh [--full]
 #
-# 默认使用 sparse checkout，只拉 ~30MB 的关键目录
-# --full  拉取完整仓库（depth=1）
+# Sparse checkout fetches only the required paths by default.
+# --full fetches the full repository with depth=1.
 
 set -e
 
@@ -17,34 +17,34 @@ if [ "$1" = "--full" ]; then
     FULL_MODE=true
 fi
 
-# sparse checkout 的目录列表
+# Sparse-checkout paths.
 SPARSE_DIRS=(
     # CuTeDSL Python DSL
     "python/CuTeDSL"
     "python/pycute"
     "python/cutlass_library"
-    # CuTeDSL 和 C++ 示例
+    # CuTeDSL and C++ examples
     "examples"
-    # CuTe 和 CUTLASS 头文件
+    # CuTe and CUTLASS headers
     "include"
-    # 工具
+    # Tools
     "tools/library"
     "tools/util"
 )
 
 if [ -d "$REPO_DIR/.git" ]; then
-    echo "更新 CUTLASS 源码..."
+    echo "Updating the CUTLASS source..."
     cd "$REPO_DIR"
     git pull --ff-only origin "$BRANCH" 2>/dev/null || git pull origin "$BRANCH"
-    echo "更新完成."
+    echo "Update complete."
 else
-    echo "首次 clone CUTLASS 源码..."
+    echo "Cloning the CUTLASS source for the first time..."
 
     if [ "$FULL_MODE" = true ]; then
-        echo "模式: 完整 clone（depth=1）"
+        echo "Mode: full clone (depth=1)."
         git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$REPO_DIR"
     else
-        echo "模式: sparse checkout（只拉关键目录）"
+        echo "Mode: sparse checkout (required paths only)."
         git clone --filter=blob:none --no-checkout --depth 1 --branch "$BRANCH" "$REPO_URL" "$REPO_DIR"
         cd "$REPO_DIR"
         git sparse-checkout init --cone
@@ -52,12 +52,12 @@ else
         git checkout "$BRANCH"
     fi
 
-    echo "Clone 完成."
+    echo "Clone complete."
 fi
 
-# 验证
+# Validate the checkout.
 echo ""
-echo "--- 验证 ---"
+echo "--- Validation ---"
 PASS=0
 FAIL=0
 
@@ -66,7 +66,7 @@ check() {
         echo "  OK: $2"
         PASS=$((PASS + 1))
     else
-        echo "  缺失: $2"
+        echo "  Missing: $2"
         FAIL=$((FAIL + 1))
     fi
 }
@@ -81,6 +81,6 @@ check "$REPO_DIR/include/cute/layout.hpp" "CuTe headers"
 check "$REPO_DIR/include/cutlass/gemm" "CUTLASS GEMM headers"
 
 echo ""
-echo "验证: $PASS 通过, $FAIL 失败"
+echo "Validation: $PASS passed, $FAIL failed."
 
-du -sh "$REPO_DIR" 2>/dev/null | awk '{print "仓库大小: "$1}'
+du -sh "$REPO_DIR" 2>/dev/null | awk '{print "Repository size: "$1}'

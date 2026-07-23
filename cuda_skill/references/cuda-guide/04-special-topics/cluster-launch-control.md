@@ -34,23 +34,23 @@ For example, in convolution kernels, a prologue for calculating convolution coef
 
 [![Cluster Launch Control Flow](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/cluster_launch_control.png) ](../_images/cluster_launch_control.png)
 
-Figure 51 Cluster Launch Control Flow
+Figure 54 Cluster Launch Control Flow
 
 With cluster launch control, a thread block attempts to cancel the launch of another thread block that has not started executing yet. If the cancellation request succeeds, it “steals” the other thread block’s work by using its index to perform the task. The cancellation will fail if there are no more thread block indices available or for other reasons, such as a higher-priority kernel being scheduled. In the latter case, if a thread block exits after a cancellation failure, the scheduler can start executing the higher-priority kernel, after which it will continue scheduling the remaining thread blocks of the current kernel for execution. The [figure](#cluster-launch-control-diagram) above presents the execution flow of this procedure.
 
 The table below summarizes advantages and disadvantages of the three approaches:
 
-|  **Fixed Work per Thread Block** |  **Fixed Number of Thread Blocks** |  **Cluster Launch Control**  
----|---|---|---  
-Reduced overheads |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**  
-Preemption |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**  
-Load balancing |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**  
-  
+|  **Fixed Work per Thread Block** |  **Fixed Number of Thread Blocks** |  **Cluster Launch Control**
+---|---|---|---
+Reduced overheads |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**
+Preemption |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**
+Load balancing |  **\\(\textcolor{lime}{\textbf{V}}\\)** |  **\\(\textcolor{red}{\textbf{X}}\\)** |  **\\(\textcolor{lime}{\textbf{V}}\\)**
+
 ## 4.12.1. API Details
 
 Cancelling a thread block via the cluster launch control API is done asynchronously and synchronized using a shared memory barrier, following a programming pattern similar to [asynchronous data copies](../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies).
 
-The API, available through [libcu++](https://nvidia.github.io/cccl/libcudacxx/ptx_api.html), provides:
+The API, available through [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/ptx_api.html), provides:
 
   * A request instruction that writes encoded cancellation results to a `__shared__` variable.
 
@@ -71,40 +71,40 @@ The cancellation process involves five steps:
 
 
   1. Declare variables for thread block cancellation:
-         
+
          __shared__ uint4 result; // Request result.
          __shared__ uint64_t bar; // Synchronization barrier.
          int phase = 0;           // Synchronization barrier phase.
-         
+
 
   2. Initialize shared memory barrier with a single arrival count:
-         
+
          if (cg::thread_block::thread_rank() == 0)
              ptx::mbarrier_init(&bar, 1);
          __syncthreads();
-         
+
 
   3. Submit asynchronous cancellation request by a single thread and set transaction count:
-         
+
          if (cg::thread_block::thread_rank() == 0) {
              cg::invoke_one(cg::coalesced_threads(), [&](){ptx::clusterlaunchcontrol_try_cancel(&result, &bar);});
              ptx::mbarrier_arrive_expect_tx(ptx::sem_relaxed, ptx::scope_cta, ptx::space_shared, &bar, sizeof(uint4));
          }
-         
+
 
 Note
 
 Since thread block cancellation is a uniform instruction, it is recommended to submit it inside [invoke_one](cooperative-groups.html#cooperative-groups-invoke-one) thread selector. This allows the compiler to optimize out the peeling loop.
 
   4. Synchronize (complete) asynchronous cancellation request:
-         
+
          while (!ptx::mbarrier_try_wait_parity(&bar, phase))
          {}
          phase ^= 1;
-         
+
 
   5. Retrieve cancellation status and cancelled thread block index:
-         
+
          bool success = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result);
          if (success) {
              // Don't need all three for 1D/2D thread blocks:
@@ -112,7 +112,7 @@ Since thread block cancellation is a uniform instruction, it is recommended to s
              int by = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_y(result);
              int bz = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_z(result);
          }
-         
+
 
   6. Ensure visibility of shared memory operations between async and generic [proxies](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#proxies), and protect against data races between iterations of the work-stealing loop.
 
@@ -126,32 +126,32 @@ The constraints are related to failed cancellation requests:
 In the two code examples below, assuming the first cancellation request fails, only the first example exhibits undefined behavior. The second example is correct because there is no observation between the cancellation requests:
 
 **Invalid code:**
-        
+
         // First request:
         ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-        
+
         // First request query:
         [Synchronize bar0 code here.]
         bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
         assert(!success0); // Observed failure; second cancellation will be invalid.
-        
+
         // Second request - next line is Undefined Behavior:
         ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-        
+
 
 **Valid code:**
-        
+
         // First request:
         ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-        
+
         // Second request:
         ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-        
+
         // First request query:
         [Synchronize bar0 code here.]
         bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
         assert(!success0); // Observed failure; second cancellation was valid.
-        
+
 
   * Retrieving the thread block index of a failed cancellation request is Undefined Behavior.
 
@@ -171,30 +171,30 @@ In the following subsections, we demonstrate work stealing through cluster launc
 The three kernels below demonstrate the _Fixed Work per Thread Block_ , _Fixed Number of Thread Blocks_ , and _Cluster Launch Control_ approaches for vector-scalar multiplication \\(\overline{v} := \alpha \overline{v}\\).
 
   * Fixed Work per Thread Block:
-        
+
         __global__
         void kernel_fixed_work (float* data, int n)
         {
             // Prologue:
             float alpha = compute_scalar();
-        
+
             // Computation:
             int i = blockIdx.x * blockDim.x + threadIdx.x;
             if (i < n)
                 data[i] *= alpha;
         }
-        
-        // Launch: kernel_fixed_work<<<1024, (n + 1023) / 1024>>>(data, n);
-        
+
+        // Launch: kernel_fixed_work<<<(n + 1023) / 1024, 1024>>>(data, n);
+
 
   * Fixed Number of Thread Blocks:
-        
+
         __global__
         void kernel_fixed_blocks (float* data, int n)
         {
             // Prologue:
             float alpha = compute_scalar();
-        
+
             // Computation:
             int i = blockIdx.x * blockDim.x + threadIdx.x;
             while (i < n) {
@@ -202,18 +202,18 @@ The three kernels below demonstrate the _Fixed Work per Thread Block_ , _Fixed N
                 i += gridDim.x * blockDim.x;
             }
         }
-        
-        // Launch: kernel_fixed_blocks<<<1024, SM_COUNT>>>(data, n);
-        
+
+        // Launch: kernel_fixed_blocks<<<SM_COUNT, 1024>>>(data, n);
+
 
   * Cluster Launch Control:
-        
+
         #include <cooperative_groups.h>
         #include <cuda/ptx>
-        
+
         namespace cg = cooperative_groups;
         namespace ptx = cuda::ptx;
-        
+
         __global__
         void kernel_cluster_launch_control (float* data, int n)
         {
@@ -221,54 +221,54 @@ The three kernels below demonstrate the _Fixed Work per Thread Block_ , _Fixed N
             __shared__ uint4 result;
             __shared__ uint64_t bar;
             int phase = 0;
-        
+
             if (cg::thread_block::thread_rank() == 0)
                 ptx::mbarrier_init(&bar, 1);
-        
+
             // Prologue:
             float alpha = compute_scalar(); // Device function not shown in this code snippet.
-        
+
             // Work-stealing loop:
             int bx = blockIdx.x; // Assuming 1D x-axis thread blocks.
-        
+
             while (true) {
                 // Protect result from overwrite in the next iteration,
                 // (also ensure barrier initialization at 1st iteration):
                 __syncthreads();
-        
+
                 // Cancellation request:
                 if (cg::thread_block::thread_rank() == 0) {
                     // Acquire write of result in the async proxy:
                     ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_acquire, ptx::space_cluster, ptx::scope_cluster);
-        
+
                     cg::invoke_one(cg::coalesced_threads(), [&](){ptx::clusterlaunchcontrol_try_cancel(&result, &bar);});
                     ptx::mbarrier_arrive_expect_tx(ptx::sem_relaxed, ptx::scope_cta, ptx::space_shared, &bar, sizeof(uint4));
                 }
-        
+
                 // Computation:
                 int i = bx * blockDim.x + threadIdx.x;
                 if (i < n)
                     data[i] *= alpha;
-        
+
                 // Cancellation request synchronization:
                 while (!ptx::mbarrier_try_wait_parity(ptx::sem_acquire, ptx::scope_cta, &bar, phase))
                 {}
                 phase ^= 1;
-        
+
                 // Cancellation request decoding:
                 bool success = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result);
                 if (!success)
                     break;
-        
+
                 bx = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_x<int>(result);
-        
+
                 // Release read of result to the async proxy:
                 ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
             }
         }
-        
-        // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
-        
+
+        // Launch: kernel_cluster_launch_control<<<(n + 1023) / 1024, 1024>>>(data, n);
+
 
 
 ### 4.12.2.2. Use-case: Thread Block Clusters
@@ -285,14 +285,14 @@ In the case of a [thread block clusters](../02-basics/intro-to-cuda-cpp.html#thr
 
 
 The kernel below demonstrates the cluster launch control approach using thread block clusters.
-    
-    
+
+
     #include <cooperative_groups.h>
     #include <cuda/ptx>
-    
+
     namespace cg = cooperative_groups;
     namespace ptx = cuda::ptx;
-    
+
     __global__ __cluster_dims__(2, 1, 1)
     void kernel_cluster_launch_control (float* data, int n)
     {
@@ -300,56 +300,56 @@ The kernel below demonstrates the cluster launch control approach using thread b
         __shared__ uint4 result;
         __shared__ uint64_t bar;
         int phase = 0;
-    
+
         if (cg::thread_block::thread_rank() == 0) {
             ptx::mbarrier_init(&bar, 1);
             ptx::fence_mbarrier_init(ptx::sem_release, ptx::scope_cluster); // CGA-level fence.
         }
-    
+
         // Prologue:
         float alpha = compute_scalar(); // Device function not shown in this code snippet.
-    
+
         // Work-stealing loop:
         int bx = blockIdx.x; // Assuming 1D x-axis thread blocks.
-    
+
         while (true) {
             // Protect result from overwrite in the next iteration,
             // (also ensure all thread blocks have started at 1st iteration):
             cg::cluster_group::sync();
-    
+
             // Cancellation request by a single cluster thread:
             if (cg::cluster_group::thread_rank() == 0) {
                 // Acquire write of result in the async proxy:
                 ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_acquire, ptx::space_cluster, ptx::scope_cluster);
-    
+
                 cg::invoke_one(cg::coalesced_threads(), [&](){ptx::clusterlaunchcontrol_try_cancel_multicast(&result, &bar);});
             }
-    
+
             // Cancellation completion tracked by each thread block:
             if (cg::thread_block::thread_rank() == 0)
                 ptx::mbarrier_arrive_expect_tx(ptx::sem_relaxed, ptx::scope_cluster, ptx::space_shared, &bar, sizeof(uint4));
-    
+
             // Computation:
             int i = bx * blockDim.x + threadIdx.x;
             if (i < n)
                 data[i] *= alpha;
-    
+
             // Cancellation request synchronization:
             while (!ptx::mbarrier_try_wait_parity(ptx::sem_acquire, ptx::scope_cluster, &bar, phase))
             {}
             phase ^= 1;
-    
+
             // Cancellation request decoding:
             bool success = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result);
             if (!success)
                 break;
-    
+
             bx = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_x<int>(result);
             bx += cg::cluster_group::block_index().x; // Add local offset.
-    
+
             // Release read of result to the async proxy:
             ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
         }
     }
-    
-    // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
+
+    // Launch: kernel_cluster_launch_control<<<(n + 1023) / 1024, 1024>>>(data, n);

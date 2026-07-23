@@ -12,19 +12,19 @@ It is a handle-based, imperative API: Most objects are referenced by opaque hand
 
 The objects available in the driver API are summarized in [Table 6](#driver-api-objects-available-in-cuda-driver-api).
 
-Table 6 Objects Available in the CUDA Driver API Object | Handle | Description  
----|---|---  
-Device | CUdevice | CUDA-enabled device  
-Context | CUcontext | Roughly equivalent to a CPU process  
-Module | CUmodule | Roughly equivalent to a dynamic library  
-Function | CUfunction | Kernel  
-Heap memory | CUdeviceptr | Pointer to device memory  
-CUDA array | CUarray | Opaque container for one-dimensional or two-dimensional data on the device, readable via texture or surface references  
-Texture object | CUtexref | Object that describes how to interpret texture memory data  
-Surface reference | CUsurfref | Object that describes how to read or write CUDA arrays  
-Stream | CUstream | Object that describes a CUDA stream  
-Event | CUevent | Object that describes a CUDA event  
-  
+Table 6 Objects Available in the CUDA Driver API Object | Handle | Description
+---|---|---
+Device | CUdevice | CUDA-enabled device
+Context | CUcontext | Roughly equivalent to a CPU process
+Module | CUmodule | Roughly equivalent to a dynamic library
+Function | CUfunction | Kernel
+Heap memory | CUdeviceptr | Pointer to device memory
+CUDA array | CUarray | Opaque container for one-dimensional or two-dimensional data on the device, readable via texture or surface references
+Texture object | CUtexref | Object that describes how to interpret texture memory data
+Surface reference | CUsurfref | Object that describes how to read or write CUDA arrays
+Stream | CUstream | Object that describes a CUDA stream
+Event | CUevent | Object that describes a CUDA event
+
 The driver API must be initialized with `cuInit()` before any function from the driver API is called. A CUDA context must then be created that is attached to a specific device and made current to the calling host thread as detailed in [Context](#driver-api-context).
 
 Within a CUDA context, kernels are explicitly loaded as PTX or binary objects by the host code as described in [Module](#driver-api-module). Kernels written in C++ must therefore be compiled separately into _PTX_ or binary objects. Kernels are launched using API entry points as described in [Kernel Execution](#driver-api-kernel-execution).
@@ -32,23 +32,23 @@ Within a CUDA context, kernels are explicitly loaded as PTX or binary objects by
 Any application that wants to run on future device architectures must load _PTX_ , not binary code. This is because binary code is architecture-specific and therefore incompatible with future architectures, whereas _PTX_ code is compiled to binary code at load time by the device driver.
 
 Here is the host code of the sample from [Kernels](../02-basics/intro-to-cuda-cpp.html#kernels) written using the driver API:
-    
-    
+
+
     int main()
     {
         int N = ...;
         size_t size = N * sizeof(float);
-    
+
         // Allocate input vectors h_A and h_B in host memory
         float* h_A = (float*)malloc(size);
         float* h_B = (float*)malloc(size);
-    
+
         // Initialize input vectors
         ...
-    
+
         // Initialize
         cuInit(0);
-    
+
         // Get number of devices supporting CUDA
         int deviceCount = 0;
         cuDeviceGetCount(&deviceCount);
@@ -56,19 +56,19 @@ Here is the host code of the sample from [Kernels](../02-basics/intro-to-cuda-cp
             printf("There is no device supporting CUDA.\n");
             exit (0);
         }
-    
+
         // Get handle for device 0
         CUdevice cuDevice;
         cuDeviceGet(&cuDevice, 0);
-    
+
         // Create context
         CUcontext cuContext;
         cuCtxCreate(&cuContext, 0, cuDevice);
-    
+
         // Create module from binary file
         CUmodule cuModule;
         cuModuleLoad(&cuModule, "VecAdd.ptx");
-    
+
         // Allocate vectors in device memory
         CUdeviceptr d_A;
         cuMemAlloc(&d_A, size);
@@ -76,15 +76,15 @@ Here is the host code of the sample from [Kernels](../02-basics/intro-to-cuda-cp
         cuMemAlloc(&d_B, size);
         CUdeviceptr d_C;
         cuMemAlloc(&d_C, size);
-    
+
         // Copy vectors from host memory to device memory
         cuMemcpyHtoD(d_A, h_A, size);
         cuMemcpyHtoD(d_B, h_B, size);
-    
+
         // Get function handle from module
         CUfunction vecAdd;
         cuModuleGetFunction(&vecAdd, cuModule, "VecAdd");
-    
+
         // Invoke kernel
         int threadsPerBlock = 256;
         int blocksPerGrid =
@@ -93,10 +93,10 @@ Here is the host code of the sample from [Kernels](../02-basics/intro-to-cuda-cp
         cuLaunchKernel(vecAdd,
                        blocksPerGrid, 1, 1, threadsPerBlock, 1, 1,
                        0, 0, args, 0);
-    
+
         ...
     }
-    
+
 
 Full code can be found in the `vectorAddDrv` CUDA sample.
 
@@ -116,24 +116,24 @@ Usage count facilitates interoperability between third party authored code opera
 
 ![Library Context Management](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/library-context-management.png)
 
-Figure 20 Library Context Management
+Figure 23 Library Context Management
 
 ## 3.3.2. Module
 
 Modules are dynamically loadable packages of device code and data, akin to DLLs in Windows, that are output by nvcc (see [Compilation with NVCC](../02-basics/intro-to-cuda-cpp.html#compilation-with-nvcc)). The names for all symbols, including functions, global variables, and texture or surface references, are maintained at module scope so that modules written by independent third parties may interoperate in the same CUDA context.
 
 This code sample loads a module and retrieves a handle to some kernel:
-    
-    
+
+
     CUmodule cuModule;
     cuModuleLoad(&cuModule, "myModule.ptx");
     CUfunction myKernel;
     cuModuleGetFunction(&myKernel, cuModule, "MyKernel");
-    
+
 
 This code sample compiles and loads a new module from PTX code and parses compilation errors:
-    
-    
+
+
     #define BUFFER_SIZE 8192
     CUmodule cuModule;
     CUjit_option options[3];
@@ -150,11 +150,11 @@ This code sample compiles and loads a new module from PTX code and parses compil
     err = cuModuleLoadDataEx(&cuModule, PTXCode, 3, options, values);
     if (err != CUDA_SUCCESS)
         printf("Link error:\n%s\n", error_log);
-    
+
 
 This code sample compiles, links, and loads a new module from multiple PTX codes and parses link and compilation errors:
-    
-    
+
+
     #define BUFFER_SIZE 8192
     CUmodule cuModule;
     CUjit_option options[6];
@@ -192,11 +192,11 @@ This code sample compiles, links, and loads a new module from multiple PTX codes
     printf("Link completed in %fms. Linker Output:\n%s\n", walltime, info_log);
     cuModuleLoadData(cuModule, cubin);
     cuLinkDestroy(linkState);
-    
+
 
 It’s possible to accelerate some parts of the module linking/loading process by using multiple threads, including when loading a cubin. This code sample uses `CU_JIT_BINARY_LOADER_THREAD_COUNT` to speed up module loading.
-    
-    
+
+
     #define BUFFER_SIZE 8192
     CUmodule cuModule;
     CUjit_option options[3];
@@ -213,7 +213,7 @@ It’s possible to accelerate some parts of the module linking/loading process b
     err = cuModuleLoadDataEx(&cuModule, cubinCode, 3, options, values);
     if (err != CUDA_SUCCESS)
         printf("Link error:\n%s\n", error_log);
-    
+
 
 Full code can be found in the `ptxjit` CUDA sample.
 
@@ -225,19 +225,19 @@ Parameters are passed either as an array of pointers (next to last parameter of 
 
 When parameters are passed as an extra option (the `CU_LAUNCH_PARAM_BUFFER_POINTER` option), they are passed as a pointer to a single buffer where parameters are assumed to be properly offset with respect to each other by matching the alignment requirement for each parameter type in device code.
 
-Alignment requirements in device code for the built-in vector types are listed in [Table 42](../05-appendices/cpp-language-extensions.html#vector-types-alignment-requirements-in-device-code). For all other basic types, the alignment requirement in device code matches the alignment requirement in host code and can therefore be obtained using `__alignof()`. The only exception is when the host compiler aligns `double` and `long long` (and `long` on a 64-bit system) on a one-word boundary instead of a two-word boundary (for example, using `gcc`’s compilation flag `-mno-align-double`) since in device code these types are always aligned on a two-word boundary.
+Alignment requirements in device code for the built-in vector types are listed in [Table 43](../05-appendices/cpp-language-extensions.html#vector-types-alignment-requirements-in-device-code). For all other basic types, the alignment requirement in device code matches the alignment requirement in host code and can therefore be obtained using `__alignof()`. The only exception is when the host compiler aligns `double` and `long long` (and `long` on a 64-bit system) on a one-word boundary instead of a two-word boundary (for example, using `gcc`’s compilation flag `-mno-align-double`) since in device code these types are always aligned on a two-word boundary.
 
 `CUdeviceptr` is an integer, but represents a pointer, so its alignment requirement is `__alignof(void*)`.
 
 The following code sample uses a macro (`ALIGN_UP()`) to adjust the offset of each parameter to meet its alignment requirement and another macro (`ADD_TO_PARAM_BUFFER()`) to add each parameter to the parameter buffer passed to the `CU_LAUNCH_PARAM_BUFFER_POINTER` option.
-    
-    
+
+
     #define ALIGN_UP(offset, alignment) \
           (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
-    
+
     char paramBuffer[1024];
     size_t paramBufferSize = 0;
-    
+
     #define ADD_TO_PARAM_BUFFER(value, alignment)                   \
         do {                                                        \
             paramBufferSize = ALIGN_UP(paramBufferSize, alignment); \
@@ -245,7 +245,7 @@ The following code sample uses a macro (`ALIGN_UP()`) to adjust the offset of ea
                    &(value), sizeof(value));                        \
             paramBufferSize += sizeof(value);                       \
         } while (0)
-    
+
     int i;
     ADD_TO_PARAM_BUFFER(i, __alignof(i));
     float4 f4;
@@ -258,7 +258,7 @@ The following code sample uses a macro (`ALIGN_UP()`) to adjust the offset of ea
     ADD_TO_PARAM_BUFFER(devPtr, __alignof(devPtr));
     float2 f2;
     ADD_TO_PARAM_BUFFER(f2, 8); // float2's alignment is 8
-    
+
     void* extra[] = {
         CU_LAUNCH_PARAM_BUFFER_POINTER, paramBuffer,
         CU_LAUNCH_PARAM_BUFFER_SIZE,    &paramBufferSize,
@@ -268,16 +268,16 @@ The following code sample uses a macro (`ALIGN_UP()`) to adjust the offset of ea
                    blockWidth, blockHeight, blockDepth,
                    gridWidth, gridHeight, gridDepth,
                    0, 0, 0, extra);
-    
+
 
 The alignment requirement of a structure is equal to the maximum of the alignment requirements of its fields. The alignment requirement of a structure that contains built-in vector types, `CUdeviceptr`, or non-aligned `double` and `long long`, might therefore differ between device code and host code. Such a structure might also be padded differently. The following structure, for example, is not padded at all in host code, but it is padded in device code with 12 bytes after field `f` since the alignment requirement for field `f4` is 16.
-    
-    
+
+
     typedef struct {
         float  f;
         float4 f4;
     } myStruct;
-    
+
 
 ## 3.3.4. Interoperability between Runtime and Driver APIs
 
@@ -290,19 +290,19 @@ If the runtime is initialized, `cuCtxGetCurrent()` can be used to retrieve the c
 The implicitly created context from the runtime is called the primary context (see [Runtime Initialization](../02-basics/intro-to-cuda-cpp.html#intro-cpp-runtime-initialization)). It can be managed from the driver API with the [Primary Context Management](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__PRIMARY__CTX.html) functions.
 
 Device memory can be allocated and freed using either API. `CUdeviceptr` can be cast to regular pointers and vice-versa:
-    
-    
+
+
     CUdeviceptr devPtr;
     float* d_data;
-    
+
     // Allocation using driver API
     cuMemAlloc(&devPtr, size);
     d_data = (float*)devPtr;
-    
+
     // Allocation using runtime API
     cudaMalloc(&d_data, size);
     devPtr = (CUdeviceptr)d_data;
-    
+
 
 In particular, this means that applications written using the driver API can invoke libraries written using the runtime API (such as cuFFT, cuBLAS, …).
 

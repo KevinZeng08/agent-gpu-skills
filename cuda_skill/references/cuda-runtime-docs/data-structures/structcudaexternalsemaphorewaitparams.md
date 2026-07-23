@@ -7,13 +7,13 @@
 
 void * fence
 
-cudaExternalSemaphoreWaitParams::@19::@20 fence
+cudaExternalSemaphoreWaitParams::@21::@22 fence
 
 unsigned int flags
 
 unsigned long long key
 
-cudaExternalSemaphoreWaitParams::@19::@22 keyedMutex
+cudaExternalSemaphoreWaitParams::@21::@24 keyedMutex
 
 unsigned int timeoutMs
 
@@ -27,7 +27,7 @@ void * cudaExternalSemaphoreWaitParams::fence
 
 Pointer to NvSciSyncFence. Valid if cudaExternalSemaphoreHandleType is of type cudaExternalSemaphoreHandleTypeNvSciSync.
 
-cudaExternalSemaphoreWaitParams::@19::@20 cudaExternalSemaphoreWaitParams::fence
+cudaExternalSemaphoreWaitParams::@21::@22 cudaExternalSemaphoreWaitParams::fence
 
 
 Parameters for fence objects
@@ -42,7 +42,7 @@ unsigned long long cudaExternalSemaphoreWaitParams::key
 
 Value of key to acquire the mutex with
 
-cudaExternalSemaphoreWaitParams::@19::@22 cudaExternalSemaphoreWaitParams::keyedMutex
+cudaExternalSemaphoreWaitParams::@21::@24 cudaExternalSemaphoreWaitParams::keyedMutex
 
 
 Parameters for keyed mutex objects

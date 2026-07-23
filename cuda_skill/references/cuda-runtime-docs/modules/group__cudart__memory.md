@@ -547,15 +547,15 @@ The width, height and depth extents must meet certain size requirements as liste
 
 Note that 2D CUDA arrays have different size requirements if the cudaArrayTextureGather flag is set. In that case, the valid range for (width, height, depth) is ((1,maxTexture2DGather[0]), (1,maxTexture2DGather[1]), 0).
 
-CUDA array type | Valid extents that must always be met {(width range in elements), (height range), (depth range)}  | Valid extents with cudaArraySurfaceLoadStore set {(width range in elements), (height range), (depth range)}
+CUDA array type |  Valid extents that must always be met {(width range in elements), (height range), (depth range)} |  Valid extents with cudaArraySurfaceLoadStore set {(width range in elements), (height range), (depth range)}
 ---|---|---
-1D | { (1,maxTexture1D), 0, 0 } | { (1,maxSurface1D), 0, 0 }
-2D | { (1,maxTexture2D[0]), (1,maxTexture2D[1]), 0 } | { (1,maxSurface2D[0]), (1,maxSurface2D[1]), 0 }
-3D | { (1,maxTexture3D[0]), (1,maxTexture3D[1]), (1,maxTexture3D[2]) } OR { (1,maxTexture3DAlt[0]), (1,maxTexture3DAlt[1]), (1,maxTexture3DAlt[2]) }  | { (1,maxSurface3D[0]), (1,maxSurface3D[1]), (1,maxSurface3D[2]) }
-1D Layered | { (1,maxTexture1DLayered[0]), 0, (1,maxTexture1DLayered[1]) } | { (1,maxSurface1DLayered[0]), 0, (1,maxSurface1DLayered[1]) }
-2D Layered | { (1,maxTexture2DLayered[0]), (1,maxTexture2DLayered[1]), (1,maxTexture2DLayered[2]) }  | { (1,maxSurface2DLayered[0]), (1,maxSurface2DLayered[1]), (1,maxSurface2DLayered[2]) }
-Cubemap | { (1,maxTextureCubemap), (1,maxTextureCubemap), 6 } | { (1,maxSurfaceCubemap), (1,maxSurfaceCubemap), 6 }
-Cubemap Layered | { (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[1]) }  | { (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[1]) }
+1D |  { (1,maxTexture1D), 0, 0 } |  { (1,maxSurface1D), 0, 0 }
+2D |  { (1,maxTexture2D[0]), (1,maxTexture2D[1]), 0 } |  { (1,maxSurface2D[0]), (1,maxSurface2D[1]), 0 }
+3D |  { (1,maxTexture3D[0]), (1,maxTexture3D[1]), (1,maxTexture3D[2]) } OR { (1,maxTexture3DAlt[0]), (1,maxTexture3DAlt[1]), (1,maxTexture3DAlt[2]) }  |  { (1,maxSurface3D[0]), (1,maxSurface3D[1]), (1,maxSurface3D[2]) }
+1D Layered |  { (1,maxTexture1DLayered[0]), 0, (1,maxTexture1DLayered[1]) } |  { (1,maxSurface1DLayered[0]), 0, (1,maxSurface1DLayered[1]) }
+2D Layered |  { (1,maxTexture2DLayered[0]), (1,maxTexture2DLayered[1]), (1,maxTexture2DLayered[2]) }  |  { (1,maxSurface2DLayered[0]), (1,maxSurface2DLayered[1]), (1,maxSurface2DLayered[2]) }
+Cubemap |  { (1,maxTextureCubemap), (1,maxTextureCubemap), 6 } |  { (1,maxSurfaceCubemap), (1,maxSurfaceCubemap), 6 }
+Cubemap Layered |  { (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[1]) }  |  { (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[1]) }
 
   *
 
@@ -755,15 +755,15 @@ The `flags` parameter enables different options to be specified that affect the 
 
 The width, height and depth extents must meet certain size requirements as listed in the following table. All values are specified in elements.
 
-CUDA array type | Valid extents that must always be met {(width range in elements), (height range), (depth range)}  | Valid extents with cudaArraySurfaceLoadStore set {(width range in elements), (height range), (depth range)}
+CUDA array type |  Valid extents that must always be met {(width range in elements), (height range), (depth range)} |  Valid extents with cudaArraySurfaceLoadStore set {(width range in elements), (height range), (depth range)}
 ---|---|---
-1D | { (1,maxTexture1DMipmap), 0, 0 } | { (1,maxSurface1D), 0, 0 }
-2D | { (1,maxTexture2DMipmap[0]), (1,maxTexture2DMipmap[1]), 0 } | { (1,maxSurface2D[0]), (1,maxSurface2D[1]), 0 }
-3D | { (1,maxTexture3D[0]), (1,maxTexture3D[1]), (1,maxTexture3D[2]) } OR { (1,maxTexture3DAlt[0]), (1,maxTexture3DAlt[1]), (1,maxTexture3DAlt[2]) }  | { (1,maxSurface3D[0]), (1,maxSurface3D[1]), (1,maxSurface3D[2]) }
-1D Layered | { (1,maxTexture1DLayered[0]), 0, (1,maxTexture1DLayered[1]) } | { (1,maxSurface1DLayered[0]), 0, (1,maxSurface1DLayered[1]) }
-2D Layered | { (1,maxTexture2DLayered[0]), (1,maxTexture2DLayered[1]), (1,maxTexture2DLayered[2]) }  | { (1,maxSurface2DLayered[0]), (1,maxSurface2DLayered[1]), (1,maxSurface2DLayered[2]) }
-Cubemap | { (1,maxTextureCubemap), (1,maxTextureCubemap), 6 } | { (1,maxSurfaceCubemap), (1,maxSurfaceCubemap), 6 }
-Cubemap Layered | { (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[1]) }  | { (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[1]) }
+1D |  { (1,maxTexture1DMipmap), 0, 0 } |  { (1,maxSurface1D), 0, 0 }
+2D |  { (1,maxTexture2DMipmap[0]), (1,maxTexture2DMipmap[1]), 0 } |  { (1,maxSurface2D[0]), (1,maxSurface2D[1]), 0 }
+3D |  { (1,maxTexture3D[0]), (1,maxTexture3D[1]), (1,maxTexture3D[2]) } OR { (1,maxTexture3DAlt[0]), (1,maxTexture3DAlt[1]), (1,maxTexture3DAlt[2]) }  |  { (1,maxSurface3D[0]), (1,maxSurface3D[1]), (1,maxSurface3D[2]) }
+1D Layered |  { (1,maxTexture1DLayered[0]), 0, (1,maxTexture1DLayered[1]) } |  { (1,maxSurface1DLayered[0]), 0, (1,maxSurface1DLayered[1]) }
+2D Layered |  { (1,maxTexture2DLayered[0]), (1,maxTexture2DLayered[1]), (1,maxTexture2DLayered[2]) } |  { (1,maxSurface2DLayered[0]), (1,maxSurface2DLayered[1]), (1,maxSurface2DLayered[2]) }
+Cubemap |  { (1,maxTextureCubemap), (1,maxTextureCubemap), 6 } |  { (1,maxSurfaceCubemap), (1,maxSurfaceCubemap), 6 }
+Cubemap Layered |  { (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[0]), (1,maxTextureCubemapLayered[1]) } |  { (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[0]), (1,maxSurfaceCubemapLayered[1]) }
 
   *
 

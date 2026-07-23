@@ -1,4 +1,4 @@
-# 7.46. cudaMemAccessDesc
+# 7.47. cudaMemAccessDesc
 
 **Source:** structcudaMemAccessDesc.html#structcudaMemAccessDesc
 

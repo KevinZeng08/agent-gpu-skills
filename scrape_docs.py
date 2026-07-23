@@ -16,7 +16,6 @@ and converts to searchable markdown format.
 
 import argparse
 import re
-import shutil
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -42,13 +41,7 @@ class DocumentationScraper:
         self.skip_download = skip_download
         self.force = force
 
-    def _clean_output_if_forced(self) -> None:
-        """Remove output_dir when --force is set, ensuring a clean re-scrape."""
-        if self.force and self.output_dir.exists():
-            shutil.rmtree(self.output_dir)
-            print(f"  Cleaned: {self.output_dir}")
-
-        # HTTP session with headers
+        # HTTP session with headers.
         self.session = requests.Session()
         self.session.headers.update(
             {
@@ -65,6 +58,12 @@ class DocumentationScraper:
         self.h2t.skip_internal_links = False
         self.h2t.unicode_snob = True
         self.h2t.decode_errors = "ignore"
+
+    def _prepare_output(self) -> None:
+        """Create the output directory without deleting existing content."""
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        if self.force:
+            print("  Force mode: overwrite matching files; keep unrelated files")
 
     def fetch_page(self, url: str) -> BeautifulSoup | None:
         """Fetch and parse a webpage."""
@@ -144,8 +143,23 @@ class DocumentationScraper:
 
         markdown = self.h2t.handle(str(content))
         markdown = self._clean_navigation_markdown(markdown)
+        markdown = self._normalize_markdown(markdown)
+        return markdown
+
+    @staticmethod
+    def _normalize_markdown(markdown: str) -> str:
+        """Remove common Sphinx/Doxygen artifacts and trailing whitespace."""
+        markdown = markdown.replace("\uf0c1", "")
+        markdown = re.sub(
+            r"Search In:\s*Entire Site\s*Just This Document\s*"
+            r"clear search search\s*",
+            "",
+            markdown,
+            flags=re.IGNORECASE,
+        )
         markdown = re.sub(r"\n{4,}", "\n\n\n", markdown)
-        return markdown.strip()
+        markdown = "\n".join(line.rstrip() for line in markdown.splitlines())
+        return markdown.strip() + "\n"
 
     def _clean_navigation_markdown(self, markdown: str) -> str:
         """Remove navigation cruft from markdown."""
@@ -286,7 +300,7 @@ class APIScraper(DocumentationScraper):
     def scrape_page(self, page_info: dict[str, str], output_path: Path) -> bool:
         """Scrape and save a single page."""
         if output_path.exists() and not self.force:
-            print(f"  ✓ Using cached: {output_path.name}")
+            print(f"  Cached: {output_path.name}")
             return True
 
         try:
@@ -302,10 +316,10 @@ class APIScraper(DocumentationScraper):
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(header + markdown, encoding="utf-8")
 
-            print(f"  ✓ Saved: {output_path.name} ({len(header + markdown)} bytes)")
+            print(f"  Saved: {output_path.name} ({len(header + markdown)} bytes)")
             return True
         except Exception as e:
-            print(f"  ✗ Error scraping {page_info['url']}: {e}")
+            print(f"  Error scraping {page_info['url']}: {e}")
             return False
 
     def clean_markdown_file(self, file_path: Path) -> tuple[str, int, int]:
@@ -358,9 +372,7 @@ class APIScraper(DocumentationScraper):
         content = re.sub(r"\nNote:\n\n", "\n", content)
         content = re.sub(r",(\s*)$", r"\1", content, flags=re.MULTILINE)
 
-        # Clean up whitespace
-        content = re.sub(r"\n{4,}", "\n\n\n", content)
-        content = "\n".join(line.rstrip() for line in content.split("\n"))
+        content = self._normalize_markdown(content)
 
         return content, original_size, len(content)
 
@@ -424,16 +436,17 @@ class APIScraper(DocumentationScraper):
         print(f"CUDA {self.api_type.title()} API Documentation Scraper")
         print("=" * 70)
 
-        self._clean_output_if_forced()
+        self._prepare_output()
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
 
         if self.skip_download:
-            print("\n⚡ SKIP DOWNLOAD MODE - Using cached files")
+            print("\nSKIP DOWNLOAD MODE - Using cached files")
         else:
             print("\n1. Discovering pages...")
 
         modules, structures = self.discover_pages()
+        if not modules and not structures:
+            raise RuntimeError("No API pages discovered; output was not updated")
 
         if not self.skip_download:
             print(
@@ -445,20 +458,29 @@ class APIScraper(DocumentationScraper):
             structures_dir = self.cache_dir / "data-structures"
             modules_dir.mkdir(exist_ok=True)
             structures_dir.mkdir(exist_ok=True)
+            failed_pages: list[str] = []
 
             # Scrape modules
             print("\n2. Scraping module pages...")
             for i, module in enumerate(modules, 1):
                 print(f"\n[{i}/{len(modules)}] {module['title']}")
                 filename = self.sanitize_filename(module["filename"]) + ".md"
-                self.scrape_page(module, modules_dir / filename)
+                if not self.scrape_page(module, modules_dir / filename):
+                    failed_pages.append(module["url"])
 
             # Scrape structures
             print("\n3. Scraping data structure pages...")
             for i, struct in enumerate(structures, 1):
                 print(f"\n[{i}/{len(structures)}] {struct['title']}")
                 filename = self.sanitize_filename(struct["filename"]) + ".md"
-                self.scrape_page(struct, structures_dir / filename)
+                if not self.scrape_page(struct, structures_dir / filename):
+                    failed_pages.append(struct["url"])
+
+            if failed_pages:
+                raise RuntimeError(
+                    f"Failed to fetch {len(failed_pages)} API pages; "
+                    f"raw cache retained at {self.cache_dir}"
+                )
 
         # Cleanup phase
         print(f"\n{'4' if not self.skip_download else '1'}. Cleaning cached files...")
@@ -501,13 +523,11 @@ class APIScraper(DocumentationScraper):
         print(f"\n{'5' if not self.skip_download else '2'}. Creating index...")
         self._create_index(out_modules_dir, out_structures_dir)
 
-        if self.cache_dir.exists():
-            shutil.rmtree(self.cache_dir)
-
         print("\n" + "=" * 70)
         print("COMPLETE")
         print("=" * 70)
         print(f"Output: {self.output_dir} ({total_new/1024/1024:.1f} MB)")
+        print(f"Raw cache retained at: {self.cache_dir}")
 
     def _create_index(self, modules_dir: Path, structures_dir: Path) -> None:
         """Create INDEX.md file."""
@@ -542,7 +562,7 @@ class APIScraper(DocumentationScraper):
 
         index_path = self.output_dir / "INDEX.md"
         index_path.write_text(content, encoding="utf-8")
-        print(f"  ✓ Created: {index_path}")
+        print(f"  Created: {index_path}")
 
 
 class PTXScraper(DocumentationScraper):
@@ -561,18 +581,20 @@ class PTXScraper(DocumentationScraper):
         print("PTX ISA Documentation Scraper")
         print("=" * 70)
 
-        self._clean_output_if_forced()
+        self._prepare_output()
         soup = self.fetch_page(f"{self.base_url}index.html")
         if not soup:
-            print("Failed to fetch documentation")
-            return
+            raise RuntimeError("Failed to fetch PTX documentation")
 
         print("\nExtracting sections...")
         sections = self._extract_sections(soup)
         print(f"Found {len(sections)} sections")
+        if not sections:
+            raise RuntimeError("No PTX sections discovered")
 
         # Organize by chapters
         current_chapter_dir = self.output_dir
+        saved_sections: list[tuple[dict, Path]] = []
         for section in sections:
             if "notice" in section["title"].lower() and section["level"] == 0:
                 continue
@@ -585,9 +607,13 @@ class PTXScraper(DocumentationScraper):
                 current_chapter_dir.mkdir(parents=True, exist_ok=True)
                 print(f"\nChapter: {section['title']}")
 
-            self._save_section(section, current_chapter_dir)
+            output_file = self._save_section(section, current_chapter_dir)
+            if output_file:
+                saved_sections.append((section, output_file))
 
-        print(f"\n✓ Complete! Documentation saved to: {self.output_dir}")
+        self._create_index(saved_sections)
+
+        print(f"\nComplete. Documentation saved to: {self.output_dir}")
 
     def _extract_sections(self, soup: BeautifulSoup) -> list[dict]:
         """Extract sections from single-page documentation."""
@@ -609,7 +635,7 @@ class PTXScraper(DocumentationScraper):
         headings = content.find_all(["h1", "h2", "h3", "h4"])
 
         for heading in headings:
-            heading_text = heading.get_text(strip=True)
+            heading_text = heading.get_text(strip=True).replace("\uf0c1", "")
             if not heading_text:
                 continue
 
@@ -623,18 +649,17 @@ class PTXScraper(DocumentationScraper):
             )
             level = int(heading.name[1]) - 1
 
-            # Collect content
+            # Collect only this heading's direct body. Child headings are saved
+            # as separate files, so including them here only duplicates content.
             content_elements = []
             current = heading.next_sibling
             while current:
-                if isinstance(current, Tag) and current.name in [
-                    "h1",
-                    "h2",
-                    "h3",
-                    "h4",
-                ]:
-                    current_level = int(current.name[1]) - 1
-                    if current_level <= level:
+                if isinstance(current, Tag):
+                    if current.name in ["h1", "h2", "h3", "h4"]:
+                        break
+                    if current.name == "section" and current.find(
+                        ["h1", "h2", "h3", "h4"]
+                    ):
                         break
                 if isinstance(current, Tag):
                     content_elements.append(current)
@@ -652,10 +677,20 @@ class PTXScraper(DocumentationScraper):
 
         return sections
 
-    def _save_section(self, section: dict, parent_dir: Path) -> None:
+    def _save_section(self, section: dict, parent_dir: Path) -> Path | None:
         """Save section as markdown file."""
         filename = self.sanitize_filename(section["title"], section["section_num"])
+        output_file = parent_dir / f"{filename}.md"
+        if output_file.exists() and not self.force:
+            print(f"  Cached: {output_file.name}")
+            return output_file
+
         markdown_parts = []
+
+        source_url = f"{self.base_url}index.html"
+        if section["anchor"]:
+            source_url += f"#{section['anchor']}"
+        markdown_parts.append(f"---\nurl: {source_url}\n---")
 
         # Add heading
         level_prefix = "#" * (section["level"] + 1)
@@ -683,12 +718,38 @@ class PTXScraper(DocumentationScraper):
                 markdown_parts.append(md)
 
         markdown = "\n\n".join(markdown_parts)
-        markdown = re.sub(r"\n{4,}", "\n\n\n", markdown)
+        markdown = self._normalize_markdown(markdown)
 
         # Write file
-        output_file = parent_dir / f"{filename}.md"
         output_file.write_text(markdown, encoding="utf-8")
         print(f"  Saved: {output_file.name}")
+        return output_file
+
+    def _create_index(self, sections: list[tuple[dict, Path]]) -> None:
+        """Create a searchable index for the split PTX specification."""
+        lines = [
+            "# PTX ISA Documentation Index",
+            "",
+            f"Source: {self.base_url}index.html",
+            "",
+            f"Sections: {len(sections)}",
+            "",
+        ]
+        current_chapter = None
+        for section, output_file in sections:
+            chapter = output_file.parent.name
+            if chapter != current_chapter:
+                title = chapter.replace("-", " ").title()
+                lines.extend([f"## {title}", ""])
+                current_chapter = chapter
+            relative_path = output_file.relative_to(self.output_dir).as_posix()
+            number = section["section_num"]
+            label = f"{number}. {section['title']}" if number else section["title"]
+            lines.append(f"- [{label}]({relative_path})")
+        lines.append("")
+        index_path = self.output_dir / "INDEX.md"
+        index_path.write_text("\n".join(lines), encoding="utf-8")
+        print(f"  Created: {index_path}")
 
 
 class ProgrammingGuideScraper(DocumentationScraper):
@@ -768,32 +829,31 @@ class ProgrammingGuideScraper(DocumentationScraper):
                 if src and not src.startswith(("http://", "https://")):
                     img["src"] = urljoin(url, src)
 
-            markdown = self.h2t.handle(str(main))
-            markdown = re.sub(r"\n{4,}", "\n\n\n", markdown)
-            markdown = markdown.strip()
+            markdown = self._normalize_markdown(self.h2t.handle(str(main)))
 
             header = f"---\nurl: {url}\n---\n\n"
             output_path.write_text(header + markdown, encoding="utf-8")
             return True
 
         except Exception as e:
-            print(f"  ✗ Error: {e}")
+            print(f"  Error: {e}")
             return False
 
     def run(self) -> None:
         """Execute Programming Guide scraping workflow."""
         print("=" * 70)
-        print("CUDA Programming Guide Scraper (v13.1+)")
+        print("CUDA Programming Guide Scraper (current stable documentation)")
         print(f"Source: {self.BASE_URL}")
         print("=" * 70)
 
-        self._clean_output_if_forced()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._prepare_output()
 
         print("\n1. Discovering pages from part indices...")
         chapters = self.discover_pages()
         total_pages = sum(len(pages) for pages in chapters.values())
         print(f"   Found {len(chapters)} chapters, {total_pages} pages")
+        if not total_pages:
+            raise RuntimeError("No Programming Guide pages discovered")
 
         total_saved = 0
         total_failed = 0
@@ -810,16 +870,16 @@ class ProgrammingGuideScraper(DocumentationScraper):
                 output_path = chapter_dir / f"{page_name}.md"
 
                 if output_path.exists() and not self.force:
-                    print(f"  ✓ Cached: {page_name}")
+                    print(f"  Cached: {page_name}")
                     total_skipped += 1
                     continue
 
                 if self.scrape_page(page_info["url"], output_path):
                     size = output_path.stat().st_size
-                    print(f"  ✓ Saved: {page_name} ({size:,} bytes)")
+                    print(f"  Saved: {page_name} ({size:,} bytes)")
                     total_saved += 1
                 else:
-                    print(f"  ✗ Failed: {page_name}")
+                    print(f"  Failed: {page_name}")
                     total_failed += 1
 
         # Create index
@@ -827,20 +887,22 @@ class ProgrammingGuideScraper(DocumentationScraper):
 
         print(f"\nDone: {total_saved} saved, {total_skipped} cached, {total_failed} failed")
         print(f"Output: {self.output_dir}")
+        if total_failed:
+            raise RuntimeError(f"Failed to fetch {total_failed} Programming Guide pages")
 
     def _create_index(self, chapters: dict[str, list[dict[str, str]]]) -> None:
         """Create INDEX.md for Programming Guide."""
-        content = "# CUDA Programming Guide v13.1 Index\n\n"
+        content = "# CUDA Programming Guide 13.3 Index\n\n"
         for chapter, pages in sorted(chapters.items()):
             chapter_title = chapter.split("-", 1)[1].replace("-", " ").title()
-            content += f"\n## {chapter} — {chapter_title}\n\n"
+            content += f"\n## {chapter} - {chapter_title}\n\n"
             for page in pages:
                 name = page["url"].split("/")[-1].replace(".html", "")
                 content += f"- [{page['title']}]({chapter}/{name}.md)\n"
 
         index_path = self.output_dir / "INDEX.md"
         index_path.write_text(content, encoding="utf-8")
-        print(f"  ✓ Created: {index_path}")
+        print(f"  Created: {index_path}")
 
 
 class BestPracticesScraper(DocumentationScraper):
@@ -895,8 +957,11 @@ class BestPracticesScraper(DocumentationScraper):
             content_elements = []
             current = heading.next_sibling
             while current:
-                if isinstance(current, Tag) and current.name in ["h1", "h2"]:
-                    break
+                if isinstance(current, Tag):
+                    if current.name in ["h1", "h2"]:
+                        break
+                    if current.name == "section" and current.find(["h1", "h2"]):
+                        break
                 if isinstance(current, Tag):
                     content_elements.append(current)
                 current = current.next_sibling
@@ -916,17 +981,17 @@ class BestPracticesScraper(DocumentationScraper):
         print(f"Source: {self.BASE_URL}")
         print("=" * 70)
 
-        self._clean_output_if_forced()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._prepare_output()
 
         soup = self.fetch_page(self.BASE_URL)
         if not soup:
-            print("Failed to fetch documentation")
-            return
+            raise RuntimeError("Failed to fetch Best Practices Guide")
 
         print("\nExtracting sections...")
         sections = self._extract_sections(soup)
         print(f"Found {len(sections)} sections")
+        if not sections:
+            raise RuntimeError("No Best Practices sections discovered")
 
         saved = 0
         for section in sections:
@@ -939,11 +1004,12 @@ class BestPracticesScraper(DocumentationScraper):
             output_file = self.output_dir / f"{filename}.md"
 
             if output_file.exists() and not self.force:
-                print(f"  ✓ Cached: {output_file.name}")
+                print(f"  Cached: {output_file.name}")
                 saved += 1
                 continue
 
-            markdown_parts = []
+            source_url = self.BASE_URL
+            markdown_parts = [f"---\nurl: {source_url}\n---"]
             level_prefix = "#" * (section["level"] + 1)
             title_with_num = f"{section['section_num']}. {section['title']}"
             markdown_parts.append(f"{level_prefix} {title_with_num}\n")
@@ -963,10 +1029,10 @@ class BestPracticesScraper(DocumentationScraper):
                     markdown_parts.append(md)
 
             markdown = "\n\n".join(markdown_parts)
-            markdown = re.sub(r"\n{4,}", "\n\n\n", markdown)
+            markdown = self._normalize_markdown(markdown)
 
             output_file.write_text(markdown, encoding="utf-8")
-            print(f"  ✓ Saved: {output_file.name} ({len(markdown):,} bytes)")
+            print(f"  Saved: {output_file.name} ({len(markdown):,} bytes)")
             saved += 1
 
         self._create_index()
@@ -982,7 +1048,7 @@ class BestPracticesScraper(DocumentationScraper):
 
         index_path = self.output_dir / "INDEX.md"
         index_path.write_text(content, encoding="utf-8")
-        print(f"  ✓ Created: {index_path}")
+        print(f"  Created: {index_path}")
 
 
 class NsightDocsScraper(DocumentationScraper):
@@ -1072,9 +1138,7 @@ class NsightDocsScraper(DocumentationScraper):
                 if src and not src.startswith(("http://", "https://")):
                     img["src"] = urljoin(url, src)
 
-            markdown = self.h2t.handle(str(main))
-            markdown = re.sub(r"\n{4,}", "\n\n\n", markdown)
-            markdown = markdown.strip()
+            markdown = self._normalize_markdown(self.h2t.handle(str(main)))
 
             # Remove footer
             for marker in ["Privacy Policy", "Copyright ©", "NVIDIA-LogoBlack"]:
@@ -1089,7 +1153,7 @@ class NsightDocsScraper(DocumentationScraper):
             return True
 
         except Exception as e:
-            print(f"  ✗ Error: {e}")
+            print(f"  Error: {e}")
             return False
 
     def run(self) -> None:
@@ -1098,12 +1162,13 @@ class NsightDocsScraper(DocumentationScraper):
         print(f"Source: {self.base_url}")
         print("=" * 70)
 
-        self._clean_output_if_forced()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._prepare_output()
 
         print("\n1. Discovering sub-documents...")
         pages = self.discover_pages()
         print(f"   Found {len(pages)} sub-documents")
+        if not pages:
+            raise RuntimeError(f"No {self.doc_name} documents discovered")
 
         total_saved = 0
         total_failed = 0
@@ -1115,21 +1180,23 @@ class NsightDocsScraper(DocumentationScraper):
             output_path = self.output_dir / f"{section}.md"
 
             if output_path.exists() and not self.force:
-                print(f"  ✓ Cached: {section}")
+                print(f"  Cached: {section}")
                 total_skipped += 1
                 continue
 
             if self.scrape_page(page["url"], output_path):
                 size = output_path.stat().st_size
-                print(f"  ✓ Saved: {section} ({size:,} bytes)")
+                print(f"  Saved: {section} ({size:,} bytes)")
                 total_saved += 1
             else:
-                print(f"  ✗ Failed: {section}")
+                print(f"  Failed: {section}")
                 total_failed += 1
 
         self._create_index(pages)
         print(f"\nDone: {total_saved} saved, {total_skipped} cached, {total_failed} failed")
         print(f"Output: {self.output_dir}")
+        if total_failed:
+            raise RuntimeError(f"Failed to fetch {total_failed} {self.doc_name} documents")
 
     def _create_index(self, pages: list[dict[str, str]]) -> None:
         content = f"# {self.doc_name} Documentation Index\n\n"
@@ -1138,62 +1205,7 @@ class NsightDocsScraper(DocumentationScraper):
 
         index_path = self.output_dir / "INDEX.md"
         index_path.write_text(content, encoding="utf-8")
-        print(f"  ✓ Created: {index_path}")
-
-
-PTX_SIMPLE_REPO = "https://raw.githubusercontent.com/facebookexperimental/triton/main/.claude/knowledge"
-PTX_SIMPLE_FILES = [
-    "ptx-isa-arithmetic.md",
-    "ptx-isa-async-copy.md",
-    "ptx-isa-barriers.md",
-    "ptx-isa-cache-hints.md",
-    "ptx-isa-control-flow.md",
-    "ptx-isa-data-types.md",
-    "ptx-isa-load-store.md",
-    "ptx-isa-memory-spaces.md",
-    "ptx-isa-misc.md",
-    "ptx-isa-sm100-blackwell.md",
-    "ptx-isa-sm90-hopper.md",
-    "ptx-isa-tensor-cores.md",
-    "ptx-isa-warp-ops.md",
-]
-
-
-def update_ptx_simple(output_dir: Path, force: bool = False) -> None:
-    """Download condensed PTX ISA files from facebookexperimental/triton."""
-    print("=" * 70)
-    print("PTX Simple (Condensed) Knowledge Base Updater")
-    print(f"Source: {PTX_SIMPLE_REPO}")
-    print("=" * 70)
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    session = requests.Session()
-
-    downloaded = 0
-    skipped = 0
-    failed = 0
-
-    for filename in PTX_SIMPLE_FILES:
-        target = output_dir / filename
-        if target.exists() and not force:
-            print(f"  ✓ Exists: {filename} (use --force to re-download)")
-            skipped += 1
-            continue
-
-        url = f"{PTX_SIMPLE_REPO}/{filename}"
-        try:
-            print(f"  Downloading: {filename}")
-            resp = session.get(url, timeout=30)
-            resp.raise_for_status()
-            target.write_text(resp.text, encoding="utf-8")
-            print(f"  ✓ Saved: {filename} ({len(resp.text):,} bytes)")
-            downloaded += 1
-        except Exception as e:
-            print(f"  ✗ Failed: {filename}: {e}")
-            failed += 1
-
-    print(f"\nDone: {downloaded} downloaded, {skipped} skipped, {failed} failed")
-    print(f"Output: {output_dir}")
+        print(f"  Created: {index_path}")
 
 
 def main() -> None:
@@ -1204,7 +1216,7 @@ def main() -> None:
     parser.add_argument(
         "api_type",
         choices=[
-            "ptx", "runtime", "driver", "ptx-simple", "guide",
+            "ptx", "runtime", "driver", "guide",
             "best-practices", "ncu-docs", "nsys-docs", "all",
         ],
         help="Documentation to scrape",
@@ -1212,7 +1224,10 @@ def main() -> None:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        help="Output directory (default: cuda_skill/references/<api>-docs)",
+        help=(
+            "Output directory for one document set, or staging root for 'all' "
+            "(default: cuda_skill/references)"
+        ),
     )
     parser.add_argument(
         "--skip-download",
@@ -1222,47 +1237,41 @@ def main() -> None:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Force re-download even if cache exists",
+        help="Overwrite matching files without deleting the output directory",
     )
 
     args = parser.parse_args()
 
-    refs_base = Path("cuda_skill/references")
+    refs_base = Path(__file__).resolve().parent / "cuda_skill" / "references"
 
     if args.api_type == "all":
+        output_root = args.output_dir or refs_base
         all_apis = [
-            "ptx", "runtime", "driver", "ptx-simple", "guide",
+            "ptx", "runtime", "driver", "guide",
             "best-practices", "ncu-docs", "nsys-docs",
         ]
         for api in all_apis:
             print(f"\n{'#' * 70}")
             print(f"# Scraping: {api}")
             print(f"{'#' * 70}\n")
-            if api == "ptx-simple":
-                update_ptx_simple(refs_base / "ptx-simple", args.force)
-            elif api == "guide":
+            if api == "guide":
                 ProgrammingGuideScraper(
-                    refs_base / "cuda-guide", args.force
+                    output_root / "cuda-guide", args.force
                 ).run()
             elif api == "best-practices":
                 BestPracticesScraper(
-                    refs_base / "best-practices-guide", args.force
+                    output_root / "best-practices-guide", args.force
                 ).run()
             elif api in ("ncu-docs", "nsys-docs"):
                 NsightDocsScraper(
-                    api, refs_base / api, args.force
+                    api, output_root / api, args.force
                 ).run()
             elif api == "ptx":
-                PTXScraper(refs_base / "ptx-docs", args.force).run()
+                PTXScraper(output_root / "ptx-docs", args.force).run()
             else:
                 APIScraper(
-                    api, refs_base / f"cuda-{api}-docs", args.skip_download, args.force
+                    api, output_root / f"cuda-{api}-docs", args.skip_download, args.force
                 ).run()
-        return
-
-    if args.api_type == "ptx-simple":
-        output_dir = args.output_dir or refs_base / "ptx-simple"
-        update_ptx_simple(output_dir, args.force)
         return
 
     if args.api_type == "guide":

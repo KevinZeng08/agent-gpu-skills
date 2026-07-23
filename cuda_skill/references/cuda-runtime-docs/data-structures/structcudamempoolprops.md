@@ -1,4 +1,4 @@
-# 7.56. cudaMemPoolProps
+# 7.57. cudaMemPoolProps
 
 **Source:** structcudaMemPoolProps.html#structcudaMemPoolProps
 

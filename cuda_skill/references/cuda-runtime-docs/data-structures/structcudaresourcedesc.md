@@ -1,4 +1,4 @@
-# 7.64. cudaResourceDesc
+# 7.65. cudaResourceDesc
 
 **Source:** structcudaResourceDesc.html#structcudaResourceDesc
 

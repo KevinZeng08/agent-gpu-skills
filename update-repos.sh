@@ -1,11 +1,11 @@
 #!/bin/bash
-# 统一获取/更新所有源码仓库
-# 用法: bash update-repos.sh [repo_name]
+# Fetch or update all source repositories.
+# Usage: bash update-repos.sh [repo_name]
 #
-# 不带参数: 更新所有 repo
-# 带参数:   只更新指定 repo (triton / cutlass / sglang)
+# Without an argument: update all repositories.
+# With an argument: update one repository (triton, cutlass, or sglang).
 #
-# repo 存放在各自 skill 目录的 repos/ 下:
+# Repositories are stored under repos/ in their corresponding skill directories:
 #   triton_skill/repos/triton/
 #   cutlass_skill/repos/cutlass/
 #   sglang_skill/repos/sglang/
@@ -31,24 +31,24 @@ clone_or_update() {
     echo "=== $name ==="
 
     if [ -d "$repo_dir/.git" ]; then
-        echo "  更新中..."
+        echo "  Updating..."
         cd "$repo_dir"
         git pull --ff-only origin "$branch" 2>/dev/null || git pull origin "$branch"
-        echo "  更新完成."
+        echo "  Update complete."
     else
-        echo "  首次 clone (sparse checkout)..."
+        echo "  Initial clone with sparse checkout..."
         git clone --filter=blob:none --no-checkout --depth 1 --branch "$branch" "$url" "$repo_dir"
         cd "$repo_dir"
         git sparse-checkout init --cone
         git sparse-checkout set "${sparse_dirs[@]}"
         git checkout "$branch"
-        echo "  Clone 完成."
+        echo "  Clone complete."
     fi
 
-    du -sh "$repo_dir" 2>/dev/null | awk '{print "  大小: "$1}'
+    du -sh "$repo_dir" 2>/dev/null | awk '{print "  Size: "$1}'
 }
 
-# Triton sparse checkout 目录
+# Triton sparse-checkout paths.
 triton_dirs=(
     "python/tutorials"
     "python/triton_kernels"
@@ -62,7 +62,7 @@ triton_dirs=(
     "lib"
 )
 
-# CUTLASS sparse checkout 目录
+# CUTLASS sparse-checkout paths.
 cutlass_dirs=(
     "python/CuTeDSL"
     "python/pycute"
@@ -73,7 +73,7 @@ cutlass_dirs=(
     "tools/util"
 )
 
-# SGLang sparse checkout 目录
+# SGLang sparse-checkout paths.
 sglang_dirs=(
     "python/sglang/srt"
     "python/sglang/jit_kernel"
@@ -107,14 +107,14 @@ case "$TARGET" in
         clone_or_update "sglang" "sglang_skill" "https://github.com/sgl-project/sglang.git" "main" "${sglang_dirs[@]}"
         ;;
     *)
-        echo "未知 repo: $TARGET"
-        echo "用法: bash update-repos.sh [triton|cutlass|sglang|all]"
+        echo "Unknown repository: $TARGET"
+        echo "Usage: bash update-repos.sh [triton|cutlass|sglang|all]"
         exit 1
         ;;
 esac
 
 echo ""
-echo "=== 总览 ==="
+echo "=== Summary ==="
 for sk in triton_skill cutlass_skill sglang_skill; do
     if [ -d "$SCRIPT_DIR/$sk/repos" ]; then
         du -sh "$SCRIPT_DIR/$sk/repos/"*/ 2>/dev/null

@@ -1,9 +1,9 @@
 #!/bin/bash
-# 从 GitHub 获取/更新 Triton 源码（sparse checkout，只拉需要的目录）
-# 用法: bash update-triton.sh [--full]
+# Fetch or update the Triton source from GitHub using sparse checkout.
+# Usage: bash update-triton.sh [--full]
 #
-# 默认使用 sparse checkout，只拉 ~7MB 的关键目录
-# --full  拉取完整仓库（depth=1）
+# Sparse checkout fetches only the required paths by default.
+# --full fetches the full repository with depth=1.
 
 set -e
 
@@ -17,7 +17,7 @@ if [ "$1" = "--full" ]; then
     FULL_MODE=true
 fi
 
-# sparse checkout 的目录列表
+# Sparse-checkout paths.
 SPARSE_DIRS=(
     # Python: tutorials, kernels, language API
     "python/tutorials"
@@ -28,24 +28,24 @@ SPARSE_DIRS=(
     "python/triton/compiler"
     "python/triton/tools"
     "python/examples"
-    # C++: 编译器 IR 定义和 passes
+    # C++: compiler IR definitions and passes
     "include"
     "lib"
 )
 
 if [ -d "$REPO_DIR/.git" ]; then
-    echo "更新 Triton 源码..."
+    echo "Updating the Triton source..."
     cd "$REPO_DIR"
     git pull --ff-only origin "$BRANCH" 2>/dev/null || git pull origin "$BRANCH"
-    echo "更新完成."
+    echo "Update complete."
 else
-    echo "首次 clone Triton 源码..."
+    echo "Cloning the Triton source for the first time..."
 
     if [ "$FULL_MODE" = true ]; then
-        echo "模式: 完整 clone（depth=1）"
+        echo "Mode: full clone (depth=1)."
         git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$REPO_DIR"
     else
-        echo "模式: sparse checkout（只拉关键目录）"
+        echo "Mode: sparse checkout (required paths only)."
         git clone --filter=blob:none --no-checkout --depth 1 --branch "$BRANCH" "$REPO_URL" "$REPO_DIR"
         cd "$REPO_DIR"
         git sparse-checkout init --cone
@@ -53,12 +53,12 @@ else
         git checkout "$BRANCH"
     fi
 
-    echo "Clone 完成."
+    echo "Clone complete."
 fi
 
-# 验证
+# Validate the checkout.
 echo ""
-echo "--- 验证 ---"
+echo "--- Validation ---"
 PASS=0
 FAIL=0
 
@@ -67,7 +67,7 @@ check() {
         echo "  OK: $2"
         PASS=$((PASS + 1))
     else
-        echo "  缺失: $2"
+        echo "  Missing: $2"
         FAIL=$((FAIL + 1))
     fi
 }
@@ -82,6 +82,6 @@ check "$REPO_DIR/include/triton/Dialect" "C++ Dialect headers"
 check "$REPO_DIR/lib/Dialect" "C++ Dialect implementations"
 
 echo ""
-echo "验证: $PASS 通过, $FAIL 失败"
+echo "Validation: $PASS passed, $FAIL failed."
 
-du -sh "$REPO_DIR" 2>/dev/null | awk '{print "仓库大小: "$1}'
+du -sh "$REPO_DIR" 2>/dev/null | awk '{print "Repository size: "$1}'

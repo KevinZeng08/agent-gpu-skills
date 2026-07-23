@@ -1101,7 +1101,7 @@ Arguments - None
 Output:
 
 > CPU Page Faults : Number of CPU page faults that occurred CPU Instruction Address : Address of the CPU instruction that caused the CPU page faults
-> 
+>
 > This report provides a summary of CPU page faults for unified memory.
 
 #### um_sum[:rows=<limit>] – Unified Memory Analysis Summary
@@ -1305,10 +1305,10 @@ The following formats are available in Nsight Systems
 #### Column
 
 Usage:
-    
-    
+
+
     column[:nohdr][:nolimit][:nofmt][:<width>[:<width>]...]
-    
+
 
 Arguments
 
@@ -1332,10 +1332,10 @@ If no explicit width is given, the columns auto-adjust their width based off the
 #### Table
 
 Usage:
-    
-    
+
+
     table[:nohdr][:nolimit][:nofmt][:<width>[:<width>]...]
-    
+
 
 Arguments
 
@@ -1353,10 +1353,10 @@ The table formatter presents data in vertical text columns inside text boxes. Ot
 #### CSV
 
 Usage:
-    
-    
+
+
     csv[:nohdr]
-    
+
 
 Arguments
 
@@ -1372,10 +1372,10 @@ This CSV formatter will escape commas by surrounding the whole value in double-q
 #### TSV
 
 Usage:
-    
-    
+
+
     tsv[:nohdr][:esc]
-    
+
 
 Arguments
 
@@ -1391,10 +1391,10 @@ Most TSV import/export systems disallow the tab character in data values. The fo
 #### JSON
 
 Usage:
-    
-    
+
+
     json
-    
+
 
 Arguments: no arguments
 
@@ -1403,10 +1403,10 @@ The JSON formatter outputs data as an array of JSON objects. Each object represe
 At this time the formatter does not escape quotes, so if a data value includes double-quotation marks, it will corrupt the JSON file.
 
 #### HDoc
-    
-    
+
+
     hdoc[:title=<title>][:css=<URL>]
-    
+
 
 Arguments:
 
@@ -1420,10 +1420,10 @@ The HDoc formatter generates a complete, verifiable (mostly), standalone HTML do
 #### HTable
 
 Usage:
-    
-    
+
+
     htable
-    
+
 
 Arguments: no arguments
 
@@ -1436,11 +1436,11 @@ The Nsight Systems expert system is a feature aimed at automatic detection of pe
 ### Using Expert System from the CLI
 
 usage:
-    
-    
+
+
     nsys [global-options] analyze [options]
            [nsys-rep-or-sqlite-file]
-    
+
 
 If a .nsys-rep file is given as the input file and there is no .sqlite file with the same name in the same directory, it will be generated.
 
@@ -1580,10 +1580,10 @@ Prior to using advanced analysis, please make sure that you have installed all r
 All advanced analysis recipes are run using the `recipe` CLI command switch.
 
 usage:
-    
-    
+
+
     nsys recipe [args] <recipe-name> [recipe args]
-    
+
 
 Nsight Systems provides several initial analysis recipes, mostly based around making our existing statistics and expert systems rules run multi-report.
 
@@ -1595,108 +1595,108 @@ For more information about a specific recipe, including recipe parameters, pleas
 
 Each recipe will be tagged with one or more keywords to help understand its purpose.
 
-Keywords | Description  
----|---  
-Expert System | The recipe originated from the Expert System. A script with the same name is also available via `nsys analyze`, but its behavior and implementation may differ.  
-Stats System | The recipe originated from the Stats System. A script with the same name is also available via `nsys stats`, but its behavior and implementation may differ.  
-Trace | The recipe provides a trace record of individual events that are observable in the GUI timeline.  
-Summary | The recipe provides a summarized view of events, often representing aggregated data.  
-Pace | The recipe provides a detailed analysis of how a specific event progresses across the application.  
-Heatmap | The recipe provides a heatmap that visualizes patterns across the application.  
-  
+Keywords | Description
+---|---
+Expert System | The recipe originated from the Expert System. A script with the same name is also available via `nsys analyze`, but its behavior and implementation may differ.
+Stats System | The recipe originated from the Stats System. A script with the same name is also available via `nsys stats`, but its behavior and implementation may differ.
+Trace | The recipe provides a trace record of individual events that are observable in the GUI timeline.
+Summary | The recipe provides a summarized view of events, often representing aggregated data.
+Pace | The recipe provides a detailed analysis of how a specific event progresses across the application.
+Heatmap | The recipe provides a heatmap that visualizes patterns across the application.
+
   * cuda_api_sumCUDA API Summary
-    
+
 
 This recipe provides a summary of CUDA API functions and their execution times.
 
 Keywords: CUDA, Summary, Stats System
 
   * cuda_api_syncCUDA Synchronization APIs
-    
+
 
 This recipe identifies synchronization APIs that block the host until the issued CUDA calls are complete.
 
 Keywords: CUDA, Synchronization, Trace, Expert System
 
   * cuda_gpu_kern_histCUDA GPU Kernel Duration Histogram
-    
+
 
 This recipe represents the probability of the duration of a CUDA kernel among all its instances or all kernels in the program.
 
 Keywords: CUDA, Kernel, Histogram, Duration
 
   * cuda_gpu_kern_paceCUDA GPU Kernel Pacing
-    
+
 
 This recipe investigates the progress and consistency of a particular CUDA kernel throughout the application.
 
 Keywords: CUDA, Kernel, Pace
 
   * cuda_gpu_kern_sumCUDA GPU Kernel Summary
-    
+
 
 This recipe provides a summary of CUDA kernels and their execution times.
 
 Keywords: CUDA, Kernel, Summary, Stats System
 
   * cuda_gpu_mem_size_sumCUDA GPU MemOps Summary (by Size)
-    
+
 
 This recipe provides a summary of GPU memory operations and the amount of memory they utilize.
 
 Keywords: CUDA, Memory, Summary, Stats System
 
   * cuda_gpu_mem_time_sumCUDA GPU MemOps Summary (by Time)
-    
+
 
 This recipe provides a summary of GPU memory operations and their execution times.
 
 Keywords: CUDA, Memory, Summary, Stats System
 
   * cuda_gpu_time_util_mapCUDA GPU Time Utilization Heatmap
-    
+
 
 This recipe calculates the percentage of time that CUDA kernels were running.
 
 Keywords: CUDA, Kernel, Heatmap
 
   * cuda_memcpy_asyncCUDA Async Memcpy with Pageable Memory
-    
+
 
 This recipe identifies asynchronous memory transfers that end up becoming synchronous if the memory is pageable.
 
 Keywords: CUDA, Memcpy, Trace, Expert System
 
   * cuda_memcpy_syncCUDA Synchronous Memcpy
-    
+
 
 This recipe identifies memory transfers that are synchronous.
 
 Keywords: CUDA, Memcpy, Trace, Expert System
 
   * cuda_memset_syncCUDA Synchronous Memset
-    
+
 
 This recipe identifies synchronous memset operations with pinned host memory or Unified Memory region.
 
 Keywords: CUDA, Memset, Trace, Expert System
 
   * diffStatistics Diff
-    
+
 
 This script compares outputs from two runs of the same statistical recipe.
 
 Keywords: Diff, Summary
 
   * dx12_mem_opsDX12 Memory Operations
-    
+
 
 This recipe flags problematic memory operations with warnings.
 
 Keywords: DX12, Memory, Trace, Expert System
 
   * file_access_sumOS Runtime File Access Summary
-    
+
 
 This recipe provides a summary of file access functions, including high-level overview of file access patterns across the system.
 
@@ -1705,7 +1705,7 @@ For details and use cases of this recipe, see [file_access_sum Recipe](#file-acc
 Keywords: OSRT, Summary
 
   * gfx_hotspotGraphics Hotspot Analysis
-    
+
 
 This recipe generates a report of CPU hotspots for graphics applications.
 
@@ -1714,28 +1714,35 @@ The output format for this recipe is different than other recipes. See [gfx_hots
 Keywords: DX12, Vulkan, Summary, Trace
 
   * gpu_gapsGPU Gaps
-    
+
 
 This recipe identifies time regions where a GPU is idle for longer than a set threshold.
 
 Keywords: CUDA, Utilization, Expert System
 
   * gpu_metric_util_mapGPU Metric Utilization Heatmap
-    
+
 
 This recipe calculates the percentage of SM Active, SM Issue, and Tensor Active metrics.
 
 Keywords: GPU Metrics, Heatmap
 
+  * gpu_metric_util_sumGPU Metrics Utilization Summary
+
+
+This recipe provides a summary of different GPU metrics. GPU metrics are based on binary inclusion. Any ranges that do not include at least one sampling point are excluded from the output.
+
+Keywords: GPU Metrics, Summary
+
   * gpu_time_utilGPU Time Utilization
-    
+
 
 This recipe identifies time regions with low GPU utilization.
 
 Keywords: CUDA, Utilization, Expert System
 
   * gpu_vram_usage_traceGPU VRAM Usage Trace
-    
+
 
 This recipe traces the VRAM usage of GPU workloads, allowing comparison of changes between CPU frames, and identifying issues in resource migration between VRAM and SYSMEM, and with resource allocation & deallocation.
 
@@ -1744,70 +1751,70 @@ For details and use cases of this recipe, see [gpu_vram_usage_trace Recipe - Pre
 Keywords: VRAM, Trace
 
   * mpi_gpu_time_util_mapMPI and GPU Time Utilization Heatmap
-    
+
 
 This recipe calculates the percentage of time that CUDA kernels were running and MPI communication was active, as well as their overlap.
 
 Keywords: MPI, CUDA, Kernel, Utilization, Heatmap
 
   * mpi_sumMPI Summary
-    
+
 
 This recipe provides a summary of MPI functions and their execution times.
 
 Keywords: MPI, Summary
 
   * nccl_gpu_overlap_traceNCCL GPU Overlap Trace
-    
+
 
 This recipe calculates the percentage of overlap for communication and compute kernels. Communication kernels are identified by the ‘nccl’ prefix.
 
 Keywords: NCCL, CUDA, Kernel, Overlap, Trace
 
   * nccl_gpu_proj_sumNCCL GPU Projection Summary
-    
+
 
 This recipe provides a summary of NCCL functions projected from the CPU onto the GPU, and their execution times.
 
 Keywords: NCCL, CUDA, GPU Projection, Summary
 
   * nccl_gpu_time_util_mapNCCL GPU Time Utilization Heatmap
-    
+
 
 This recipe calculates the percentage of time that communication and compute kernels were running, as well as their overlap. Communication kernels are identified by the ‘nccl’ prefix.
 
 Keywords: NCCL, CUDA, Kernel, Utilization, Overlap, Heatmap
 
   * nccl_sumNCCL Summary
-    
+
 
 This recipe provides a summary of NCCL functions and their execution times.
 
 Keywords: NCCL, Summary
 
   * network_map_awsAWS Metrics Heatmap
-    
+
 
 This recipe displays heatmaps of AWS EFA metrics.
 
 Keywords: Network, AWS, EFA, Heatmap
 
   * network_sumNetwork Traffic Summary
-    
+
 
 This recipe provides a summary of the network traffic over NICs and InfiniBand Switches.
 
 Keywords: Network, Summary
 
   * network_traffic_mapNetwork Devices Traffic Heatmap
-    
+
 
 This recipe displays heatmaps of sent traffic, received traffic, and congestion events for network devices.
 
 Keywords: Network, Heatmap
 
   * nvtx_cpu_topdownCPU Topdown methodology metrics correlated to NVTX ranges
-    
+
 
 This recipe calculates CPU Topdown methodology metrics for NVTX push/pop ranges based on collected PMU core events for NVIDIA CPUs featuring Arm cores.
 
@@ -1816,63 +1823,72 @@ For details and use cases of this recipe, see [nvtx_cpu_topdown Recipe](#nvtx-cp
 Keywords: NVTX, CPU Topdown, Metrics, Summary
 
   * nvlink_sumNVLink Network Throughput Summary
-    
+
 
 This recipe provides a summary of the NVLink network throughput.
 
 Keywords: NVLink, Summary
 
   * nvtx_gpu_proj_paceNVTX GPU Projection Pacing
-    
+
 
 This recipe investigates the progress and consistency of a particular NVTX range projected from the CPU onto the GPU, throughout the application.
 
 Keywords: NVTX, GPU Projection, Pace
 
   * nvtx_gpu_proj_sumNVTX GPU Projection Summary
-    
+
 
 This recipe provides a summary of NVTX time ranges projected from the CPU onto the GPU, and their execution times.
 
 Keywords: NVTX, GPU Projection, Summary, Stats System
 
   * nvtx_gpu_proj_traceNVTX GPU Projection Trace
-    
+
 
 This recipe provides a trace of NVTX time ranges projected from the CPU onto the GPU.
 
 Keywords: NVTX, GPU Projection, Trace, Stats System
 
   * nvtx_paceNVTX Pacing
-    
+
 
 This recipe investigates the progress and consistency of a particular NVTX range throughout the application.
 
 Keywords: NVTX, Pace
 
   * nvtx_sumNVTX Range Summary
-    
+
 
 This recipe provides a summary of NVTX Start/End and Push/Pop Ranges, and their execution times.
 
 Keywords: NVTX, Summary, Stats System
 
   * osrt_sumOS Runtime Summary
-    
+
 
 This recipe provides a summary of C library functions and their execution times.
 
 Keywords: OSRT, Summary, Stats System
 
+  * s3_access_sumS3 Access Summary
+
+
+This recipe provides a summary of S3 object store access across traced S3 client libraries.
+
+For details and use cases of this recipe, see [s3_access_sum Recipe](#s3-access-sum-recipe).
+
+Keywords: S3, Storage, Summary
+
   * storage_util_mapStorage Metrics Heatmap
-    
+
 
 This recipe displays heatmaps of storage devices metrics.
 
 Keywords: Storage, Heatmap
 
   * ucx_gpu_time_util_mapUCX and GPU Time Utilization Heatmap
-    
+
 
 This recipe calculates the percentage of time that CUDA kernels were running and UCX communication was active, as well as their overlap.
 
@@ -1959,17 +1975,17 @@ And the output appears on-screen. In this case a heat map of activity running a 
 The multi-report analysis system does not offer options to configure the Dask environment. However, you could achieve this by modifying the recipe script directly or using one of the following from Dask’s configuration system:
 
   * YAML files: By default, Dask searches for all YAML files in `~/.config/dask/` or `/etc/dask/`. This search path can be changed using the environment variable `DASK_ROOT_CONFIG` or `DASK_CONFIG`. See the [Dask documentation](https://docs.dask.org/en/stable/) for the complete list of locations and the lookup order. Example:
-        
+
         $ cat example.yaml
         'Distributed':
                 'scheduler':
                     'allowed-failures': 5
-        
+
 
   * Environment variables: Dask searches for all environment variables that start with `DASK_`, then transforms keys by converting to lower-case and changing double-underscores to nested structures. See Dask documentation for the complete list of variables. Example:
-        
+
         DASK_DISTRIBUTED__SCHEDULER__ALLOWED_FAILURES=5
-        
+
 
 
 **Dask Client**
@@ -2015,32 +2031,32 @@ For the best results, run the recipe on a report with resolved symbols.
 In this tab, an overview of the multi-threading behavior of the target (most active) process is presented.
 
   * Application Statistics:
-    
+
 
 This table shows the CPU and thread statistics for the target process.
 
   * CPU Info:
-    
+
 
 This table shows information about the CPU hardware.
 
   * Top 5 Processes CPU Utilisation:
-    
+
 
 This table shows the most active processes during the sample, to help detect situations where another process is interfering with the target process’s execution.
 
   * Threading Health Check:
-    
+
 
 This table contains a list of very common CPU-bound application performance indicators. If the target application is GPU bound, the entire table will be shown in green. If it is CPU bound, then each row will be highlighted in green if the value is healthy, in yellow if it requires attention, and in red if it potentially indicates of a threading issue. For unhealthy metrics, the “warning” column will also show steps or investigation angles that may be considered in order to improve the result.
 
   * Thread Utilisation:
-    
+
 
 This graph shows the process threads, ordered from most busy to least.
 
   * Thread Concurrency:
-    
+
 
 This graph shows the percentage and amount of time an average graphic frame is running each number of threads concurrently. High percentage of low thread counts could indicate excessive serialization in the algorithm, where CPU work could be better parallelized by improving the use of multi-threading.
 
@@ -2048,7 +2064,7 @@ This graph shows the percentage and amount of time an average graphic frame is r
 **Hotspot Analysis**
 
 In this tab, frames are selected in one of four methods:
-    
+
 
   * Longest Frame time (Slow Frames)
 
@@ -2062,107 +2078,107 @@ In this tab, frames are selected in one of four methods:
 The report view then allows comparing the selected frames to each other and to the median frame in the same metric, helping identify the main differences and possible problem areas in each one.
 
   * Overview:
-    
+
 
 These tables show the report overview as well as the frame selection method and other capture-wide statistics and general information. A shorthand list of the “Performance Issues” table for each frame is also shown.
 
   * Frame Times:
-    
+
 
 This graph shows a sequence of the graphical frames (CPU time and GPU time derived from GPU Utilisation percentage per CPU frame time) ordered by their index. The selected frames are indicated and labelled. Clicking any of the indicated frames will set it as the left frame for comparison.
 
   * Region / Compare to:
-    
+
 
 These controls allow selecting the two frames to be shown for comparison. “Periodic Frames” shows 10 sampled frames (with equally distributed indices), while the other three modes show the 5 frames with the highest value in the chosen metric and the median frame in the same metric. All information from this point onwards is shown per selected frame in each of the two columns, allowing for 1-to-1 comparison. Selecting the same frame for both controls will show just the single frame as the entire width of the view.
 
   * Frame Info:
-    
+
 
 This table shows the frame duration and start time, the number of threads that were active during the frame, and the thread IDs of key threads in the frame processing operation which are important for determining likely performance issues.
 
   * Performance Issues:
-    
+
 
 This table shows the key performance limiters and hotspots for the selected frame. Each indicator will have a breakdown of what indicators were present to call out the performance issue during this frame. These indicators are not necessarily the root cause of the problems in the region, but have been flagged for consideration.
 
   * GPU Metrics:
-    
+
 
 This table shows the average or total (respectively) values of the GPU metrics collected during the frame time. If GPU Metrics were not collected, this table will not appear.
 
   * System ETW Events (Windows only):
-    
+
 
 This chart shows a breakdown of the system process-reported ETW events during the frame. If WDDM trace and Custom ETW trace were not collected, this chart will not appear.
 
   * DxgKrnl Events (Windows only):
-    
+
 
 This chart shows a breakdown of the DxgKrnl ETW provider events during the frame. If WDDM trace was not collected, this chart will not appear.
 
   * CPU Thread Utilisation Time:
-    
+
 
 This graph shows the time spent inside each thread during the frame. The bars match the two selected frames, and the matching-colored line shows the total frame time. Clicking any of the columns in the graph will select that thread for the following elements in the report.
 
   * Thread:
-    
+
 
 This control allows selecting the thread to be shown in the following views.
 
   * Call stacks:
-    
+
 
 This control shows the sampled call stacks during the frame. Clicking a call stack frame will filter the view to only show call stacks containing this call stack frame, allowing to drill down into potential problem areas. The title of the control indicates the two modes selected for display, which can be switched with the two toggles in the top right of the control:
 
   * Call stacks - Merged:
-    
+
 
 Merges all similar call stacks logically, regardless of when in the frame time the functions appeared. This is useful to see where the cumulative time is spent.
 
   * Call stacks - Over Time:
-    
+
 
 Keeps call stacks ordered chronologically, so that repeated calls to the same function appear separately.
 
   * Periodic Sampled Call stacks:
-    
+
 
 Only shows call stacks acquired by periodic sampling (matching the orange marks in Nsight Systems’s timeline view). This view provides a better statistical overview of where the frame time was spent.
 
   * All Call stacks:
-    
+
 
 Shows periodic sampled call stacks as well as call stacks acquired from other sources such as call stacks from ETW events (Windows) and event-based sampling (Linux) (matching both the orange AND the grey marks in Nsight Systems’s timeline view).
 
   * Modules in Sampled Call Stacks:
-    
+
 
 This graph shows the number of call stacks in the frame that include at least one call stack frame in a function belonging to each module. This helps identify which modules were the most active during the frame.
 
   * ETW Events (Windows only):
-    
+
 
 This chart shows a breakdown of the thread-reported ETW events during the frame. If WDDM trace and Custom ETW trace were not collected, this chart will not appear.
 
   * Context Switch Call Stacks:
-    
+
 
 This table shows a breakdown of the call stacks that led to context switches for the thread during the frame, indicating where the thread may have stalled. Hovering the mouse cursor over the “Name” column will show the full call stack for each entry.
 
   * DX12 API / Vulkan API:
-    
+
 
 These tables show a breakdown of the graphical API functions that appeared in sampled call stacks. If DX12 / Vulkan trace were not collected, these tables will not appear.
 
   * Known Symbols From Sampled Call Stacks:
-    
+
 
 This table shows a breakdown of known symbols that often cause performance issues, such as DX12’s CreateCommittedResource. If symbols were not resolved for the nsys-rep file, this table will not appear.
 
   * PIX Markers (Windows only):
-    
+
 
 This table shows a breakdown of PIX marker ranges that contained sampled call stacks. If WDDM trace and DX11 / DX12 trace were not collected or the target application does not use PIX markers, this table will not appear.
 
@@ -2269,7 +2285,7 @@ As the main output, the recipe generates an interactive Jupyter notebook `stats.
   * Identify and select suspicious frames, such as frames with unusual memory usage or with a high volume of memory transition events.
 
   * Use the Resident Resources table to learn more about allocated resources during the selected frames:
-    
+
     * Identify resources with significant memory usage.
 
     * Identify resources that have changed between the two points in time (transitioned between VRAM and SYSMEM, or were allocated/deallocated).
@@ -2311,12 +2327,12 @@ Note
 For the case of NVTX ranges from multiple threads, only the NVTX ranges from either the main thread (default) or the thread specified via `--thread-name` will be processed.
 
 **Usage**
-    
-    
+
+
     [1] mkdir reports && cd reports
     [2] <path to target-linux-sbsa-armv8>/CpuProfiling/collect_cpu_topdown.sh ./myApp
     [3] nsys recipe nvtx_cpu_topdown --input .
-    
+
 
   1. This step creates a new directory to store the reports. We recommend using an empty new directory, because the `collect_cpu_topdown.sh` script overwrites the output files and does not currently allow customization of file names.
 
@@ -2334,7 +2350,7 @@ Note that since multiple reports are created, this step can take significant tim
 As the main output, the recipe generates the Jupyter notebook `nvtx_cpu_topdown.ipynb` with the following sections:
 
   * NVTX Summary for Heterogeneous CPU Cores:
-    
+
 
 Displays a summary of NVTX ranges compiled from Nsight Systems reports provided to the recipe.
 
@@ -2348,12 +2364,12 @@ This section is available only for data collected from heterogeneous CPU cores. 
 
 ![NVTX CPU Topdown Recipe: NVTX Summary for Heterogeneous CPU Cores](https://docs.nvidia.com/nsight-systems/_images/nvtx_cpu_topdown-nvtx-summary-for-heterogeneous-cpus.png)
   * Warnings:
-    
+
 
 Displays warnings generated during recipe execution and related to the entire recipe output (or to the portion of it specific to a given CPU core type). If there are no warnings, this section is not displayed.
 
   * NVTX Summary:
-    
+
 
 Displays a summary of NVTX ranges compiled from Nsight Systems reports provided to the recipe.
 
@@ -2369,16 +2385,16 @@ If NVTX ranges are not stable across some of the reports, the section will displ
 
 ![NVTX CPU Topdown Recipe: NVTX Summary](https://docs.nvidia.com/nsight-systems/_images/nvtx_cpu_topdown-nvtx-summary.png)
   * CPU Topdown Methodology Metrics:
-    
+
 
 Presents the metric results of the CPU Topdown methodology for the selected NVTX range.
 
 For the range name selected from the drop-down menu, the most appropriate NVTX range instance is identified from the Nsight Systems reports as follows:
 
 > **For data collected from heterogeneous CPU cores:** The NVTX range instance with the median* CPU time is selected from each report.
-> 
+>
 > **Otherwise:** The NVTX range instance with the median* duration is selected from the first report (displayed by default in the NVTX Summary section). The corresponding instance index is then used to extract data from subsequent reports.
-> 
+>
 > Note: median* is defined as the middle value in a sorted list. For an even number of elements, it is the second of the two middle values.
 
 The section shows the following tables:
@@ -2399,7 +2415,7 @@ Each table is displayed only when the required data is available.
 
 ![NVTX CPU Topdown Recipe: CPU Topdown Methodology Metrics](https://docs.nvidia.com/nsight-systems/_images/nvtx_cpu_topdown-cpu-topdown-metrics.png)
   * Report Summary:
-    
+
 
 Displays information about the Nsight Systems report files given to the recipe for input, as well as: the PMU core events collected in each specific report, and the CPU core metrics computed for each specific report.
 
@@ -2408,7 +2424,7 @@ Displays information about the Nsight Systems report files given to the recipe f
 
 ### file_access_sum Recipe
 
-This recipe provides comprehensive analysis of file access patterns and I/O performance statistics from Nsight Systems reports, supporting single or multiple profiled processes across different machines.
+This recipe analyzes file access patterns and I/O performance statistics from one or more Nsight Systems reports, aggregating data across processes and machines.
 
 **Overview**
 
@@ -2456,14 +2472,16 @@ This recipe requires that Nsight Systems reports be collected with specific trac
 
   * **Optional:** To enable tracing of MPI rank information, use `--trace=mpi` along with either `--mpi-impl=openmpi` or `--mpi-impl=mpich`.
 
+  * **Optional:** To enable the NVTX range correlation table, instrument your application code with NVTX ranges. See [Marking and Labeling Regions](../UserGuide/index.html#marking-and-labeling-regions) in the User Guide.
+
 
 **Usage**
-    
-    
+
+
     [1] Create a reports folder.
     [2] Collect nsys-rep reports, using '--trace=osrt' and '--osrt-file-access=true' parameters, and save them to the reports folder.
     [3] Run the recipe, using 'nsys recipe file_access_sum --input [reports folder path]'.
-    
+
 
 **Output**
 
@@ -2488,7 +2506,7 @@ As the main output, the recipe generates an interactive Jupyter notebook `file_a
 
 
 **Recommended Workflow**
-    
+
 
   * Start by setting file path ignore patterns to exclude system files from analysis.
 
@@ -2497,21 +2515,811 @@ As the main output, the recipe generates an interactive Jupyter notebook `file_a
   * View the Nsight Systems report file alongside this analysis to gain a deeper understanding of the application’s behavior.
 
 
+### s3_access_sum Recipe
+
+This recipe analyzes S3 access patterns and I/O statistics from one or more Nsight Systems’ reports, aggregating data across processes and hosts.
+
+**Overview**
+
+The s3_access_sum recipe generates an interactive Jupyter notebook that analyzes S3 operations captured during profiling sessions. It provides a statistical overview of which buckets and objects were accessed and of access patterns.
+
+**Key Capabilities**
+
+The recipe provides insights into:
+
+  * **Bucket-Level Summary** : Aggregated access statistics per S3 bucket, including object counts, download/upload bytes, and operation counts.
+
+  * **Object Access Patterns** : Breakdown of download-only, upload-only, and mixed-access objects.
+
+  * **Hotspot Identification** : Top objects by download/upload volume and operation frequency.
+
+  * **Cross-Process Analysis** : S3 access patterns across multiple hosts, processes, and threads.
+
+  * **NVTX Range Correlation** : S3 activity correlated with user-defined NVTX ranges, such as access-time statistics and I/O volume.
+
+
+**Use Cases**
+
+The recipe is particularly valuable for identifying and addressing the following scenarios (but not limited to these):
+
+  1. **Hot Buckets and Objects** : Identifying which S3 buckets and objects carry the most traffic to focus optimization efforts.
+
+  2. **Small or Frequent Operations** : Detecting frequent small S3 transfers that could benefit from batching or prefetching.
+
+  3. **Application Phase Correlation** : Using NVTX ranges to understand which application phases drive the most S3 I/O.
+
+  4. **Multi-Rank Comparison** : Comparing S3 usage across MPI ranks or hosts to identify load imbalances.
+
+
+**Supported S3 Client Libraries**
+
+The recipe counts the following operations from traced S3 client libraries:
+
+  * **AWS CRT** (aws-c-s3): `GetObject`, `PutObject`, `CopyObject`
+
+  * **AWS C++ SDK** (aws-cpp-sdk-s3): `GetObject`, `PutObject`, `CopyObject`, `DeleteObject`, `HeadObject`, `CreateMultipartUpload`, `UploadPart`, `CompleteMultipartUpload`, `AbortMultipartUpload`, `ListObjects`, `ListObjectsV2`, `CreateBucket`
+
+  * **Boto3** : `get_object`, `put_object`, `head_object`, `upload_part`, `create_multipart_upload`, `abort_multipart_upload`, `generate_presigned_url`, `generate_presigned_post`
+
+  * **S3TorchConnector** : `SequentialS3Reader.read`, `S3Writer.write`
+
+  * **Tensorflow-io** : `read`, `readline`, `readlines`, `write`, `copy`, `copy_v2` via `tf.io.gfile` with `s3://` paths
+
+
+For more information about S3 tracing capabilities and setup, refer to [S3 Trace](../UserGuide/index.html#s3-trace) in the User Guide.
+
+**Prerequisites**
+
+This recipe requires that Nsight Systems reports be collected with specific tracing parameters:
+
+  * `--trace=s3` \- Enables S3 operation tracing.
+
+    * This recipe will also work with `--trace=s3-verbose`, but does not use any additional data from it.
+
+  * **Optional:** To enable tracing of MPI rank information, use `--trace=mpi` along with either `--mpi-impl=openmpi` or `--mpi-impl=mpich`.
+
+  * **Optional:** To enable the NVTX range correlation table, instrument your application code with NVTX ranges. See [Marking and Labeling Regions](../UserGuide/index.html#marking-and-labeling-regions) in the User Guide.
+
+
+**Usage**
+
+
+    [1] Create a reports folder.
+    [2] Collect nsys-rep reports, using '--trace=s3' parameter, and save them to the reports folder.
+    [3] Run the recipe, using 'nsys recipe s3_access_sum --input [reports folder path]'.
+
+
+**Output**
+
+As the main output, the recipe generates an interactive Jupyter notebook `s3_access_stats.ipynb` with the following sections:
+
+  * Bucket Access Summary:
+    ![S3 Access Recipe: Bucket Access Summary. Provides a high-level overview of S3 access patterns aggregated by bucket.](https://docs.nvidia.com/nsight-systems/_images/s3_access_bucket_summary.png)
+  * Objects Access Summary:
+    ![S3 Access Recipe: Objects Access Summary. Shows aggregated statistics broken down by access type \(download-only, upload-only, both, access-only\).](https://docs.nvidia.com/nsight-systems/_images/s3_access_objects_summary.png)
+  * Hottest Downloaded Objects:
+    ![S3 Access Recipe: Hottest Downloaded Objects. Lists the top objects by total downloaded bytes.](https://docs.nvidia.com/nsight-systems/_images/s3_access_hottest_downloaded.png)
+  * All Objects Table:
+    ![S3 Access Recipe: All Objects Table. Provides a detailed breakdown of S3 access patterns for each individual object.](https://docs.nvidia.com/nsight-systems/_images/s3_access_all_objects.png)
+  * S3 Access Statistics for NVTX Ranges:
+    ![S3 Access Recipe: NVTX Ranges Analysis. Shows aggregate S3 access statistics for each NVTX range across all its instances.](https://docs.nvidia.com/nsight-systems/_images/s3_access_nvtx_ranges.png)
+
+
+### Recipe Catalog and Sample Results
+
+Post-Collection Analysis enables deep insights into GPU application performance through a curated set of analysis recipes. Each recipe generates specialized visualizations and data summaries from profiling data collected during application execution.
+
+This catalog documents all available recipes, their output formats, and sample results from profiling Llama-70B inference on 8 NVIDIA H100 GPUs using the NVIDIA Dynamo framework.
+
+The recipes are organized by functionality:
+
+  * CUDA API Recipes: Analyze CUDA kernel launches, memory operations, and synchronization.
+
+  * GPU Kernel Recipes: Examine kernel execution times, duration distribution, and pacing.
+
+  * NVTX Recipes: Analyze application-level instrumentation ranges.
+
+  * Communication Recipes: Study multi-GPU communication patterns, including NCCL and NVLink.
+
+  * System Recipes: Review OS runtime and I/O operations.
+
+  * Comparison Recipes: Compare results between different profiling runs.
+
+
+Each recipe includes sample data tables and visualization mockups representative of real profiling results.
+
+#### CUDA API Recipes
+
+**CUDA API Summary**
+
+Summarizes CUDA API calls by frequency and execution time. Identifies the most time-consuming CUDA operations.
+
+**Output Format:** Summary table, top items bar chart, and duration distribution box plot.
+
+API Function | Call Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+cudaMemcpy | 2850 | 125400.5 | 43.98 | 650.2
+cudaLaunchKernel | 5600 | 85300.2 | 15.23 | 420.5
+cudaDeviceSynchronize | 280 | 34520.0 | 123.29 | 850.3
+cudaMemset | 450 | 12350.8 | 27.45 | 180.1
+cudaMalloc | 125 | 8900.3 | 71.20 | 340.2
+
+[![CUDA API Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_04_cuda_api_summary.png) ](../_images/page_04_cuda_api_summary.png)
+
+**CUDA Synchronization APIs**
+
+Advisory analysis identifying synchronization bottlenecks and suggesting optimization strategies.
+
+**Output Format:** Advisory table with severity levels and recommendations.
+
+Issue | Severity | Count | Total Impact (us) | Recommendation
+---|---|---|---|---
+Implicit Synchronization | HIGH | 45 | 28500 | Use async transfers with events
+Unnecessary cudaDeviceSynchronize | MEDIUM | 28 | 12300 | Replace with stream events
+Blocking Memory Transfers | MEDIUM | 156 | 45200 | Use pinned memory for H2D
+
+##### CUDA GPU Kernel Recipes
+
+**CUDA GPU Kernel Summary**
+
+Comprehensive summary of GPU kernels executed. Shows kernel names, execution counts, and timing statistics.
+
+**Output Format:** Summary table, top kernels bar chart, and duration distribution box plot.
+
+Kernel Name | Launch Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+volta_sgemm_128x64_nn | 8400 | 2845320.0 | 338.73 | 4250.2
+attention_forward_kernel | 2800 | 1950200.5 | 696.50 | 2850.3
+layernorm_forward_kernel | 2800 | 892340.2 | 318.69 | 1620.5
+fused_mlp_kernel | 2800 | 756200.1 | 270.07 | 1450.2
+nccl_AllReduce_Ring_LL_Sum_f16 | 560 | 680450.3 | 1214.20 | 3200.1
+
+[![CUDA GPU Kernel Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_06_cuda_gpu_kernel_summary.png) ](../_images/page_06_cuda_gpu_kernel_summary.png)
+
+**CUDA GPU Kernel Duration Histogram**
+
+Distribution of kernel execution durations. Shows frequency of kernels across different execution time ranges.
+
+**Output Format:** Histogram with distribution statistics and percentile markers.
+
+Duration Range (us) | Frequency | Percentage | Cumulative %
+---|---|---|---
+100-500 | 1240 | 8.2% | 8.2%
+500-1000 | 2850 | 18.7% | 26.9%
+1000-2000 | 4200 | 27.5% | 54.4%
+2000-4000 | 3950 | 25.9% | 80.3%
+4000+ | 2860 | 18.7% | 99.0%
+
+[![CUDA GPU Kernel Duration Histogram chart](https://docs.nvidia.com/nsight-systems/_images/page_07_cuda_gpu_kernel_duration_histogram.png) ](../_images/page_07_cuda_gpu_kernel_duration_histogram.png)
+
+**CUDA GPU Kernel Pacing**
+
+Consistency analysis of kernel execution times across iterations and GPU ranks. Identifies pacing irregularities.
+
+**Output Format:** Multi-line chart showing kernel timing per iteration across all GPU ranks.
+
+Iteration | Rank 0 (us) | Rank 1 (us) | Rank 2 (us) | Rank 3 (us) | Avg Variance
+---|---|---|---|---|---
+0 | 1025.3 | 1048.2 | 1032.5 | 1041.8 | 8.6
+1 | 1032.8 | 1055.3 | 1038.2 | 1049.5 | 8.9
+2 | 1038.5 | 1062.1 | 1044.8 | 1055.2 | 9.2
+3 | 1035.2 | 1058.9 | 1040.5 | 1051.8 | 8.7
+
+[![CUDA GPU Kernel Pacing chart](https://docs.nvidia.com/nsight-systems/_images/page_08_cuda_gpu_kernel_pacing.png) ](../_images/page_08_cuda_gpu_kernel_pacing.png)
+
+##### CUDA Memory Operations Recipes
+
+**CUDA GPU MemOps Summary (by Size)**
+
+Memory transfer operations grouped by transfer size. Analyzes efficiency of data movement.
+
+**Output Format:** Summary table, size distribution bar chart, and timing box plot.
+
+Size Range (MB) | Transfer Count | Total Data (GB) | Avg Time (us) | Bandwidth (GB/s)
+---|---|---|---|---
+<1 | 8450 | 5.2 | 125.3 | 41.5
+1-10 | 3200 | 18.5 | 450.2 | 41.0
+10-100 | 850 | 42.3 | 1850.5 | 22.8
+100-1000 | 280 | 156.8 | 8520.3 | 18.4
+1000+ | 45 | 234.5 | 25300.2 | 9.3
+
+[![CUDA GPU MemOps Summary by Size chart](https://docs.nvidia.com/nsight-systems/_images/page_09_cuda_gpu_memops_summary_by_size.png) ](../_images/page_09_cuda_gpu_memops_summary_by_size.png)
+
+**CUDA GPU MemOps Summary (by Time)**
+
+Memory operations sorted by execution time. Identifies most time-consuming memory transfers.
+
+**Output Format:** Summary table, top operations bar chart, and duration distribution box plot.
+
+Operation Type | Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+H2D Copy | 4200 | 285400.2 | 67.95 | 850.3
+D2H Copy | 3850 | 256300.5 | 66.57 | 720.2
+D2D Copy | 2950 | 156800.3 | 53.15 | 580.1
+Memset | 450 | 12350.8 | 27.45 | 180.5
+
+[![CUDA GPU MemOps Summary by Time chart](https://docs.nvidia.com/nsight-systems/_images/page_10_cuda_gpu_memops_summary_by_time.png) ](../_images/page_10_cuda_gpu_memops_summary_by_time.png)
+
+**CUDA Synchronous Memcpy**
+
+Advisory for synchronous memory copies that may impact performance.
+
+**Output Format:** Advisory table with impact analysis and optimization suggestions.
+
+Transfer Pattern | Count | Total Time (us) | Severity | Suggestion
+---|---|---|---|---
+Pageable H2D | 1250 | 145200 | HIGH | Use cuda-pinned memory
+Pageable D2H | 1100 | 128500 | HIGH | Implement async with streams
+Device Sync | 280 | 34500 | MEDIUM | Use cudaEventSynchronize
+
+##### GPU Utilization Recipes
+
+**GPU Metrics Utilization Summary**
+
+High-level metrics showing GPU resource utilization, including SM, Memory, Tensor Cores, and related metrics.
+
+**Output Format:** Summary table, metric utilization bar chart, and distribution box plot.
+
+Metric | Avg Util (%) | Max Util (%) | Peak Time (ms) | Stalls
+---|---|---|---|---
+SM Utilization | 78.5 | 95.2 | 245.3 | 12
+Memory Utilization | 65.3 | 88.1 | 238.5 | 28
+L1 Cache Hit Rate | 82.4 | 96.1 | 250.2 | 5
+L2 Cache Hit Rate | 74.2 | 91.3 | 242.8 | 18
+Tensor Utilization | 81.5 | 94.7 | 246.1 | 8
+
+[![GPU Metrics Utilization Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_12_gpu_metrics_utilization_summary.png) ](../_images/page_12_gpu_metrics_utilization_summary.png)
+
+**GPU Metric Utilization Heatmap**
+
+Time-series heatmap showing metric utilization across GPU ranks over profiling duration.
+
+**Output Format:** 2D heatmap with GPU ranks on the y-axis, time bins on the x-axis, and utilization percentage color-coded.
+
+GPU Rank | T0-T100 (%) | T100-T200 (%) | T200-T300 (%) | T300-T400 (%) | Avg (%)
+---|---|---|---|---|---
+Rank 0 | 82 | 85 | 79 | 84 | 82.5
+Rank 1 | 80 | 83 | 78 | 82 | 80.8
+Rank 2 | 81 | 84 | 80 | 85 | 82.5
+Rank 3 | 79 | 82 | 77 | 81 | 79.8
+
+[![GPU Metric Utilization Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_13_gpu_metric_utilization_heatmap.png) ](../_images/page_13_gpu_metric_utilization_heatmap.png)
+
+**Graphics VRAM Usage**
+
+Memory allocation and deallocation trace showing VRAM consumption over time.
+
+**Output Format:** Time-series line chart with peak VRAM markers and allocation events.
+
+Time (ms) | Allocated (MB) | Free (MB) | Total GPU Mem (MB) | Peak Usage (%)
+---|---|---|---|---
+0 | 2048 | 77952 | 80000 | 2.6%
+100 | 8192 | 71808 | 80000 | 10.2%
+200 | 24576 | 55424 | 80000 | 30.7%
+300 | 38912 | 41088 | 80000 | 48.6%
+400 | 42048 | 37952 | 80000 | 52.6%
+
+[![Graphics VRAM Usage chart](https://docs.nvidia.com/nsight-systems/_images/page_14_graphics_vram_usage.png) ](../_images/page_14_graphics_vram_usage.png)
+
+**GPU Time Utilization**
+
+Advisory on GPU idle time, gaps, and utilization efficiency.
+
+**Output Format:** Advisory table with gap analysis and improvement suggestions.
+
+GPU | Active Time (ms) | Idle Time (ms) | Util (%) | Largest Gap (us) | Recommendation
+---|---|---|---|---|---
+GPU 0 | 485.2 | 14.8 | 96.8% | 2850 | Excellent utilization
+GPU 1 | 478.5 | 21.5 | 95.7% | 3200 | Minor gaps detected
+GPU 2 | 475.3 | 24.7 | 95.1% | 3850 | Check kernel dependencies
+GPU 3 | 472.8 | 27.2 | 94.6% | 4100 | Optimize host-device sync
+
+**GPU Gaps**
+
+Identifies periods of GPU inactivity and analyzes root causes.
+
+**Output Format:** Gap summary table with timeline and impact analysis.
+
+Gap ID | Start (us) | Duration (us) | GPU | Probable Cause | Impact
+---|---|---|---|---|---
+Gap_001 | 125340 | 2850 | GPU 0 | Host-Device Sync | Kernel stall
+Gap_002 | 245820 | 3200 | GPU 1 | Memory Transfer | Pipeline flush
+Gap_003 | 385500 | 1950 | GPU 2 | Context Switch | Minor impact
+Gap_004 | 458200 | 4100 | GPU 3 | Host Queue Latency | Kernel delay
+
+##### NVTX Range Recipes
+
+**NVTX Range Summary**
+
+Summary of NVIDIA Tools eXtension (NVTX) instrumentation ranges in application code.
+
+**Output Format:** Summary table, top ranges bar chart, and duration distribution box plot.
+
+Range Name | Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+forward_pass | 280 | 1850320.5 | 6608.29 | 8520.3
+attention_compute | 2800 | 950200.2 | 339.36 | 2850.1
+mlp_compute | 2800 | 756300.8 | 270.11 | 1520.2
+backward_pass | 280 | 1420500.3 | 5073.21 | 7250.3
+parameter_update | 280 | 385200.1 | 1375.71 | 2100.5
+
+[![NVTX Range Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_17_nvtx_range_summary.png) ](../_images/page_17_nvtx_range_summary.png)
+
+**NVTX Pacing**
+
+Pacing consistency analysis of NVTX ranges across iterations.
+
+**Output Format:** Multi-line chart showing range timing per iteration across GPU ranks.
+
+Iteration | Rank 0 (us) | Rank 1 (us) | Rank 2 (us) | Rank 3 (us) | Std Dev
+---|---|---|---|---|---
+0 | 6580.2 | 6625.8 | 6590.5 | 6612.3 | 15.8
+1 | 6598.5 | 6642.1 | 6608.2 | 6630.5 | 16.2
+2 | 6612.3 | 6658.9 | 6622.8 | 6645.2 | 16.8
+3 | 6625.8 | 6672.5 | 6638.5 | 6660.1 | 17.3
+
+[![NVTX Pacing chart](https://docs.nvidia.com/nsight-systems/_images/page_18_nvtx_pacing.png) ](../_images/page_18_nvtx_pacing.png)
+
+**NVTX GPU Projection Summary**
+
+GPU utilization projection for NVTX ranges. Shows estimated GPU time within each range.
+
+**Output Format:** Summary table with GPU projection metrics, bar chart, and box plot.
+
+Range Name | GPU Time (us) | Total Time (us) | GPU % | Kernel Calls
+---|---|---|---|---
+forward_pass | 1750280.3 | 1850320.5 | 94.6% | 2850
+attention_compute | 905200.5 | 950200.2 | 95.3% | 2800
+mlp_compute | 725300.2 | 756300.8 | 95.9% | 2800
+backward_pass | 1385400.1 | 1420500.3 | 97.5% | 2800
+parameter_update | 370200.8 | 385200.1 | 96.1% | 280
+
+[![NVTX GPU Projection Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_19_nvtx_gpu_projection_summary.png) ](../_images/page_19_nvtx_gpu_projection_summary.png)
+
+**NVTX GPU Projection Pacing**
+
+Consistency of GPU utilization for NVTX ranges across iterations and ranks.
+
+**Output Format:** Multi-line pacing chart with GPU projection metrics.
+
+[![NVTX GPU Projection Pacing chart](https://docs.nvidia.com/nsight-systems/_images/page_20_nvtx_gpu_projection_pacing.png) ](../_images/page_20_nvtx_gpu_projection_pacing.png)
+
+**NVTX GPU Projection Trace**
+
+Detailed trace showing compute versus communication overlap within NVTX ranges.
+
+**Output Format:** Overlap matrix and timeline visualization.
+
+Range | Compute (us) | Comm (us) | Overlap (us) | Overlap %
+---|---|---|---|---
+forward_pass | 1650280 | 185320 | 152850 | 82.5%
+attention_compute | 850200 | 120200 | 98560 | 82.0%
+mlp_compute | 725300 | 95300 | 78520 | 82.5%
+backward_pass | 1285400 | 210500 | 172450 | 81.9%
+parameter_update | 285200 | 65200 | 52850 | 81.0%
+
+[![NVTX GPU Projection Trace chart](https://docs.nvidia.com/nsight-systems/_images/page_21_nvtx_gpu_projection_trace.png) ](../_images/page_21_nvtx_gpu_projection_trace.png)
+
+##### Communication & NCCL Recipes
+
+**NCCL Summary**
+
+Comprehensive summary of NVIDIA Collective Communications Library (NCCL) operations.
+
+**Output Format:** Summary table, operation distribution bar chart, and timing box plot.
+
+Operation | Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+AllReduce | 560 | 680450.3 | 1214.20 | 3200.1
+ReduceScatter | 560 | 520300.5 | 928.75 | 2850.2
+AllGather | 560 | 485200.2 | 866.07 | 2520.3
+Broadcast | 280 | 185300.8 | 661.79 | 1850.2
+Barrier | 560 | 125400.1 | 223.93 | 620.5
+
+[![NCCL Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_23_nccl_summary.png) ](../_images/page_23_nccl_summary.png)
+
+**NCCL GPU Projection Summary**
+
+GPU utilization during NCCL operations. Breaks down compute versus communication time.
+
+**Output Format:** Summary table with GPU projection, bar chart, and box plot.
+
+NCCL Op | GPU Time (us) | Total Time (us) | GPU Util % | Rank Participation
+---|---|---|---|---
+AllReduce | 645200.2 | 680450.3 | 94.8% | 8
+ReduceScatter | 485300.1 | 520300.5 | 93.3% | 8
+AllGather | 450200.3 | 485200.2 | 92.8% | 8
+Broadcast | 175300.5 | 185300.8 | 94.6% | 8
+Barrier | 118200.2 | 125400.1 | 94.3% | 8
+
+[![NCCL GPU Projection Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_24_nccl_gpu_projection_summary.png) ](../_images/page_24_nccl_gpu_projection_summary.png)
+
+**NCCL GPU Time Utilization Heatmap**
+
+Time-series heatmap of GPU utilization during NCCL operations across all ranks.
+
+**Output Format:** 2D heatmap with GPU ranks on the y-axis and time bins on the x-axis.
+
+GPU Rank | T0 (%) | T1 (%) | T2 (%) | T3 (%) | Avg (%)
+---|---|---|---|---|---
+Rank 0 | 92 | 94 | 93 | 95 | 93.5
+Rank 1 | 90 | 92 | 91 | 93 | 91.5
+Rank 2 | 91 | 93 | 92 | 94 | 92.5
+Rank 3 | 89 | 91 | 90 | 92 | 90.5
+
+[![NCCL GPU Time Utilization Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_25_nccl_gpu_time_utilization_heatmap.png) ](../_images/page_25_nccl_gpu_time_utilization_heatmap.png)
+
+**NCCL GPU Overlap Trace**
+
+Overlap analysis between communication and compute during NCCL operations.
+
+**Output Format:** Overlap matrix showing communication overlap percentages between ranks.
+
+Op | Overlap % | Compute Time (us) | Comm Time (us) | Concurrent Time (us)
+---|---|---|---|---
+AllReduce | 78.5 | 620300 | 145200 | 113850
+ReduceScatter | 76.2 | 450200 | 98500 | 75000
+AllGather | 74.8 | 425300 | 85200 | 63800
+Broadcast | 72.5 | 160300 | 32500 | 23600
+Barrier | 65.3 | 108200 | 18500 | 12100
+
+[![NCCL GPU Overlap Trace chart](https://docs.nvidia.com/nsight-systems/_images/page_26_nccl_gpu_overlap_trace.png) ](../_images/page_26_nccl_gpu_overlap_trace.png)
+
+##### Network & Storage Recipes
+
+**Network Traffic Summary**
+
+Summary of network I/O operations and traffic patterns.
+
+**Output Format:** Summary table, traffic distribution bar chart, and timing box plot.
+
+Interface | Packets | Bytes (MB) | Avg Latency (us) | Max Latency (us)
+---|---|---|---|---
+eth0 | 85230 | 2048.5 | 125.3 | 850.2
+eth1 | 75600 | 1820.3 | 130.5 | 920.3
+InfiniBand | 125400 | 3200.8 | 85.2 | 520.1
+
+[![Network Traffic Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_28_network_traffic_summary.png) ](../_images/page_28_network_traffic_summary.png)
+
+**Network Devices Traffic Heatmap**
+
+Time-series heatmap showing network device utilization over profiling duration.
+
+**Output Format:** 2D heatmap with network devices on the y-axis and time bins on the x-axis.
+
+Device | T0 (Mb/s) | T1 (Mb/s) | T2 (Mb/s) | T3 (Mb/s) | Avg (Mb/s)
+---|---|---|---|---|---
+eth0 | 2500 | 2350 | 2400 | 2450 | 2425
+eth1 | 2200 | 2100 | 2150 | 2200 | 2162
+InfiniBand | 3500 | 3400 | 3450 | 3550 | 3475
+
+[![Network Devices Traffic Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_29_network_devices_traffic_heatmap.png) ](../_images/page_29_network_devices_traffic_heatmap.png)
+
+**AWS Metrics Heatmap**
+
+CloudWatch metrics heatmap for AWS-deployed systems.
+
+**Output Format:** Heatmap of AWS metrics, including CPU, Memory, and Network, over time.
+
+Metric | T0 (%) | T1 (%) | T2 (%) | T3 (%) | Avg (%)
+---|---|---|---|---|---
+CPU Util | 75 | 78 | 76 | 79 | 77.0
+Memory Util | 62 | 64 | 63 | 65 | 63.5
+Network Util | 58 | 60 | 59 | 62 | 59.8
+
+[![AWS Metrics Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_30_aws_metrics_heatmap.png) ](../_images/page_30_aws_metrics_heatmap.png)
+
+**Storage Metrics Heatmap**
+
+Storage I/O and utilization metrics over profiling duration.
+
+**Output Format:** Heatmap showing storage device utilization percentages.
+
+Storage Device | T0 (%) | T1 (%) | T2 (%) | T3 (%) | Avg (%)
+---|---|---|---|---|---
+NVMe-0 | 45 | 48 | 46 | 50 | 47.25
+NVMe-1 | 42 | 44 | 43 | 46 | 43.75
+HDD-0 | 28 | 30 | 29 | 32 | 29.75
+
+[![Storage Metrics Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_31_storage_metrics_heatmap.png) ](../_images/page_31_storage_metrics_heatmap.png)
+
+##### System & OS Runtime Recipes
+
+**OS Runtime Summary**
+
+Summary of OS runtime operations including system calls and I/O operations.
+
+**Output Format:** Summary table, operation distribution bar chart, and timing box plot.
+
+OS Operation | Call Count | Total Time (us) | Avg Time (us) | Max Time (us)
+---|---|---|---|---
+read() | 1850 | 28500.3 | 15.41 | 250.2
+write() | 1620 | 24300.5 | 15.01 | 220.3
+open() | 450 | 8500.2 | 18.89 | 120.5
+close() | 425 | 7200.1 | 16.94 | 95.2
+mmap() | 120 | 4200.8 | 35.01 | 180.3
+
+[![OS Runtime Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_32_os_runtime_summary.png) ](../_images/page_32_os_runtime_summary.png)
+
+**Linux File Access Summary**
+
+Specialized analysis of file system access patterns during profiling.
+
+**Output Format:** File access statistics table with I/O patterns.
+
+File/Path | Access Count | Bytes Read | Bytes Written | Total Time (us)
+---|---|---|---|---
+/data/model.bin | 250 | 2048000 | 0 | 18500.2
+/tmp/cache | 1850 | 512000 | 256000 | 12300.5
+/proc/stat | 450 | 0 | 0 | 2800.3
+/dev/null | 600 | 0 | 1024000 | 8200.1
+
+[![Linux File Access Summary chart](https://docs.nvidia.com/nsight-systems/_images/file_access_files_summary.png) ](../_images/file_access_files_summary.png)
+
+##### NVLink & MPI Recipes
+
+**NVLink Network Throughput Summary**
+
+Summary of NVLink GPU-to-GPU communication throughput and efficiency.
+
+**Output Format:** Summary table, throughput distribution bar chart, and timing box plot.
+
+Link Pair | Transfers | Total Data (MB) | Total Time (us) | Throughput (GB/s)
+---|---|---|---|---
+GPU0-GPU1 | 450 | 2048.5 | 2350.3 | 871.0
+GPU1-GPU2 | 450 | 2048.3 | 2340.2 | 875.1
+GPU2-GPU3 | 450 | 2048.1 | 2360.5 | 868.2
+GPU4-GPU5 | 450 | 2048.2 | 2345.8 | 873.1
+GPU6-GPU7 | 450 | 2048.0 | 2355.2 | 869.8
+
+[![NVLink Network Throughput Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_34_nvlink_network_throughput_summary.png) ](../_images/page_34_nvlink_network_throughput_summary.png)
+
+**MPI Summary**
+
+Summary of Message Passing Interface (MPI) operations and communication patterns.
+
+**Output Format:** Summary table, operation distribution bar chart, and timing box plot.
+
+MPI Operation | Call Count | Total Data (MB) | Total Time (us) | Avg Time (us)
+---|---|---|---|---
+MPI_Allreduce | 560 | 520.0 | 680450.3 | 1214.20
+MPI_Reduce | 280 | 280.5 | 350200.2 | 1250.71
+MPI_Bcast | 280 | 256.2 | 185300.5 | 661.79
+MPI_Send | 1850 | 850.3 | 125400.2 | 67.81
+MPI_Recv | 1850 | 850.3 | 128200.1 | 69.30
+
+[![MPI Summary chart](https://docs.nvidia.com/nsight-systems/_images/page_35_mpi_summary.png) ](../_images/page_35_mpi_summary.png)
+
+**MPI and GPU Time Utilization Heatmap**
+
+Correlation heatmap showing GPU utilization during MPI operations across ranks.
+
+**Output Format:** 2D heatmap with MPI ranks on the y-axis and time bins on the x-axis.
+
+MPI Rank | T0 (%) | T1 (%) | T2 (%) | T3 (%) | Avg (%)
+---|---|---|---|---|---
+Rank 0 | 88 | 90 | 89 | 92 | 89.75
+Rank 1 | 86 | 88 | 87 | 90 | 87.75
+Rank 2 | 87 | 89 | 88 | 91 | 88.75
+Rank 3 | 85 | 87 | 86 | 89 | 86.75
+
+[![MPI and GPU Time Utilization Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_36_mpi_and_gpu_time_utilization_heatmap.png) ](../_images/page_36_mpi_and_gpu_time_utilization_heatmap.png)
+
+**UCX and GPU Time Utilization Heatmap**
+
+Heatmap showing GPU utilization during UCX (Unified Communication X) operations.
+
+**Output Format:** 2D heatmap with UCX operation types on the y-axis and time bins on the x-axis.
+
+UCX Op Type | T0 (%) | T1 (%) | T2 (%) | T3 (%) | Avg (%)
+---|---|---|---|---|---
+UCX_Put | 82 | 84 | 83 | 86 | 83.75
+UCX_Get | 79 | 81 | 80 | 83 | 80.75
+UCX_Atomic | 75 | 77 | 76 | 79 | 76.75
+
+[![UCX and GPU Time Utilization Heatmap chart](https://docs.nvidia.com/nsight-systems/_images/page_37_ucx_and_gpu_time_utilization_heatmap.png) ](../_images/page_37_ucx_and_gpu_time_utilization_heatmap.png)
+
+##### Comparison & Diff Recipes
+
+**Statistics Diff**
+
+Side-by-side comparison of profiling statistics from two different runs.
+
+**Output Format:** Comparison table with Run A versus Run B metrics and percentage differences.
+
+Metric | Run A | Run B | Difference | Change %
+---|---|---|---|---
+Total GPU Time (s) | 485.2 | 492.5 | +7.3 | +1.5%
+Avg Kernel Time (us) | 338.73 | 341.25 | +2.52 | +0.7%
+Memory Bandwidth (GB/s) | 750.2 | 745.8 | -4.4 | -0.6%
+NCCL Overhead (ms) | 125.3 | 128.5 | +3.2 | +2.6%
+Peak VRAM (MB) | 42048 | 42512 | +464 | +1.1%
+
+[![Statistics Diff chart](https://docs.nvidia.com/nsight-systems/_images/page_38_statistics_diff.png) ](../_images/page_38_statistics_diff.png)
+
+### Recipe Composite Tables
+
+When writing a recipe, you use `CompositeTable` enum values to request pre-processed DataFrames. These composite tables join, rename, and resolve raw parquet export tables into analysis-ready DataFrames, so you don’t have to do the merging and ID-to-string resolution yourself.
+
+#### Available Composite Tables
+
+CompositeTable | Description
+---|---
+`CUDA_GPU` | All GPU activities (kernels, memcpy, memset, mem_decompress) concatenated into one table. Columns are the union of the raw CUPTI activity columns. Use this when you want a broad view of everything the GPU did.
+`CUDA_GPU_GRAPH` | Same as `CUDA_GPU` but includes `graphNodeId` and `graphId` columns for correlating activities to CUDA graph nodes. Use this when analyzing CUDA graph execution.
+`CUDA_COMBINED` | GPU activities + CPU runtime API calls, correlated by `correlationId`. GPU timing is renamed to `gpu_start`/`gpu_end` to avoid conflicts with the runtime `start`/`end`. The runtime `nameId` is resolved to a human-readable `name` column (e.g., `"cudaLaunchKernel"`). Use this when you need to analyze the full CPU-to-GPU execution pipeline.
+`CUDA_COMBINED_KERNEL` | Runtime + kernels only (no memcpy/memset). Like `CUDA_COMBINED` but limited to kernel launches, and kernel name columns (`shortName`, `mangledName`, `demangledName`) are resolved from string IDs to actual names. GPU timing renamed to `gpu_start`/`gpu_end`.
+`CUDA_KERNEL` | Kernels only with `shortName`, `mangledName`, and `demangledName` resolved from integer IDs to actual string names. Use this when you only need kernel data without the runtime API correlation.
+`NVTX` | NVTX ranges with `textId` resolved into a unified `text` column and `domainId` resolved into `domainName`. The raw `NVTX_EVENTS` table stores text as integer IDs; this table has readable strings.
+`NCCL` | NCCL communication operations parsed from NVTX events. Includes `jsonText` fields for advanced NCCL tracing data.
+`NCCL_API` | NCCL API-level view showing call durations, parsed from NVTX events.
+`NCCL_GPU_OPERATIONS` | NCCL GPU-level operations view parsed from NVTX events.
+`NIC` | Network interface metrics joined with device info. Columns include `nic_name`, `metric_name`, `GUID`, `value`, and timing.
+`IB_SWITCH` | InfiniBand switch port metrics with `globalId` renamed to `GUID` and metric names resolved into `metric_name`.
+`MPI` | All MPI event tables (P2P, collectives, start/wait, other) concatenated and sorted by start time. `textId` resolved to `text`.
+`UCX` | All UCX event tables (submit, progress, general) concatenated and sorted by start time. `textId` resolved to `text`.
+`GPU_METRICS` | GPU hardware metrics pivoted so each metric name becomes its own column (e.g., `"SMs Active"`, `"Tensor Active"`). Indexed by `timestamp` and `typeId` (GPU device). The raw `GPU_METRICS` table has one row per metric per timestamp; this table has one row per timestamp with metrics as columns.
+`PERF_EVENTS` | CPU performance counter events enriched with `componentType` (Core/Cache/Socket), `cpu` number, and event `name`.
+`GENERIC` | Generic metric events with type and field IDs resolved to `metricName` and `dataSrc` strings. Numeric values coalesced from int/uint/float/double into a single `metricValue` column.
+
+#### Choosing the Right CUDA Table
+
+The CUDA-related composite tables can be confusing since there are five of them. Here is when to use each one:
+
+Table | Includes kernels | Includes memcpy/memset | Includes runtime API | When to use
+---|---|---|---|---
+`CUDA_GPU` | Yes | Yes | No | Overview of all GPU activity
+`CUDA_GPU_GRAPH` | Yes | Yes | No | Same, but with CUDA graph correlation
+`CUDA_KERNEL` | Yes | No | No | Kernel-only analysis with resolved names
+`CUDA_COMBINED` | Yes | Yes | Yes | Full CPU-to-GPU pipeline analysis
+`CUDA_COMBINED_KERNEL` | Yes | No | Yes | Kernel launch overhead analysis with resolved names
+
+#### Output Columns
+
+Each composite table produces a DataFrame with specific columns. The columns depend on which raw tables were joined and what transformations were applied. Also note: when tables are loaded through `DataService`, bit-field decomposition may add derived columns such as `pid`, `tid`, and `gpuId`.
+
+**CUDA_GPU**
+
+
+    correlationId   start   end   globalPid   deviceId   contextId   greenContextId   streamId   pid
+
+
+**CUDA_GPU_GRAPH**
+
+
+    correlationId   start   end   globalPid   deviceId   contextId   greenContextId   streamId   graphNodeId   graphId   pid
+
+
+`graphNodeId` appears on kernel/memcpy/memset rows, and `graphId` appears on graph-trace rows.
+
+**CUDA_KERNEL**
+
+
+    correlationId   globalPid   start   end   deviceId   shortName   mangledName   demangledName   pid
+
+
+The `*Name` columns contain resolved strings (not integer IDs).
+
+**CUDA_COMBINED**
+
+
+    start   end   globalTid   name   correlationId   gpu_start   gpu_end   pid   tid   deviceId   contextId   greenContextId   streamId
+
+
+`start`/`end` are the CPU-side runtime API call times. `gpu_start`/`gpu_end` are the GPU-side activity times. `name` is the resolved API function name (e.g., `"cudaLaunchKernel"`). `pid` and `tid` are extracted from `globalTid` by bit field decomposition (`globalPid` is dropped).
+
+**CUDA_COMBINED_KERNEL**
+
+
+    start   end   globalTid   correlationId   gpu_start   gpu_end   pid   tid   deviceId   shortName   mangledName   demangledName
+
+
+Like `CUDA_COMBINED` but kernel-only, with resolved kernel names instead of runtime API name. `pid` and `tid` are extracted from `globalTid` (`globalPid` is dropped).
+
+**NVTX**
+
+
+    text   start   end   globalTid   endGlobalTid   domainId   domainName   eventType   pid   tid
+
+
+`text` is the resolved NVTX annotation string. `domainName` is `"Default"` if no domain was specified.
+
+**NCCL**
+
+
+    text   start   end   globalTid   endGlobalTid   domainId   eventType   jsonText   pid   tid
+
+
+NCCL rows are filtered from NVTX to the domain named `"NCCL"` and keep NVTX timing/thread columns. `jsonText` is present when advanced NCCL tracing payloads exist.
+
+**NCCL_API**
+
+
+    text   start   end   globalTid   endGlobalTid   domainId   eventType   jsonText   count   datatype   rank   pid   tid
+
+
+Extends `NCCL` with parsed API payload fields (`count`, `datatype`, `rank`).
+
+**NCCL_GPU_OPERATIONS**
+
+
+    local_id (index)   text   start   end   commRank   count   datatype
+
+
+One row per merged GPU operation (grouped from per-channel events). `local_id` is the DataFrame index after grouping.
+
+**MPI / UCX**
+
+
+    globalTid   start   end   text   pid   tid
+
+
+All sub-tables concatenated, sorted by `start`. `text` is the resolved operation name (e.g., `"MPI_Send"`, `"MPI_Allreduce"`).
+
+**NIC**
+
+
+    start   end   globalId   nicId   value   metricsListId   metricsIdx   GUID   nic_name   metric_name
+
+
+**IB_SWITCH**
+
+
+    start   end   GUID   value   metricsListId   metricsIdx   metric_name
+
+
+**GPU_METRICS**
+
+
+    timestamp   typeId   gpuId   SMs Active   SM Issue   Tensor Active   Unallocated Warps in Active SMs   ...
+
+
+Each metric is a column. The available columns depend on the GPU and capture settings.
+
+**PERF_EVENTS**
+
+
+    start   end   vmId   eventId   count   componentType   cpu   name
+
+
+**GENERIC**
+
+
+    timestamp   typeId   genericEventId   metricName   metricValue   dataSrc   gpuId
+
+
+#### Examples in Existing Recipes
+
+These recipes demonstrate how composite tables are used in practice:
+
+  * `cuda_gpu_kern_sum`: Uses `CUDA_KERNEL` for kernel summary statistics
+
+  * `nvtx_sum`: Uses `NVTX` for NVTX range analysis
+
+  * `nvtx_gpu_proj_sum`: Uses `CUDA_GPU_GRAPH` \+ `NVTX` for GPU projection
+
+  * `network_map_aws`: Uses `GENERIC` for AWS EFA metrics
+
+
+See also [Tutorial: Create a User-Defined Recipe](#create-user-defined-recipe) for a step-by-step tutorial on creating your own recipe.
+
 ### Tutorial: Create a User-Defined Recipe
 
 The Nsight Systems recipe system is designed to be extensible and we hope that many users will use it to create their own recipes. This short tutorial will highlight the steps needed to create a recipe that is a customized version of one of the recipes that is included in the Nsight Systems recipe package.
 
+Before starting, you may want to review [Recipe Composite Tables](#recipe-composite-tables) for an overview of the pre-processed data tables available to recipes.
+
 **Step 1: Create the recipe directory and script**
 
 Make a new directory in the `<install-dir>/target-linux-x64/python/packages/nsys_recipe/recipes` folder based on the name of your new recipe. For this example, we will call our new recipe new_metric_util_map. We will copy the existing gpu_metric_util_map.py script and create a new script called new_metric_util_map.py in the new_metric_util_map directory. We will also copy the heatmap.ipynb and metadata json files into the new_metric_util_map directory. Type these steps in a Linux terminal window:
-    
-    
+
+
     > cd <install-dir>/target-linux-x64/python/packages/nsys_recipe
     > mkdir new_metric_util_map
     > cp gpu_metric_util_map/metadata.json new_metric_util_map/metadata.json
     > cp gpu_metric_util_map/heatmap.ipynb new_metric_util_map/heatmap.ipynb
     > cp gpu_metric_util_map/gpu_metric_util_map.py new_metric_util_map/new_metric_util_map.py
-    
+
 
 Replace the module name in `metadata.json` with new_metric_util_map and update the display name and description to your preference. Also, rename the class name `GpuMetricUtilMap` in `new_metric_util_map.py` to `NewMetricUtilMap`. We will discuss the detailed functionality of the new recipe code in the subsequent steps.
 
@@ -2526,19 +3334,19 @@ The mapper function is called mapper_func(). It will first convert the .nsys-rep
 The original script retrieved three GPU metrics: SM Active, SM Issue, and Tensor Active. In our new version of the script, we will extract a fourth metric, Unallocated Warps in Active SMs.
 
   1. Find this line (approximately line 44):
-         
+
          metric_cols = ["SMs Active", "SM Issue", "Tensor Active"]
-         
+
 
   2. Add the Unallocated Warps in Active SMs metric:
-         
+
          metric_cols = [
              "SMs Active",
              "SM Issue",
              "Tensor Active",
              "Unallocated Warps in Active SMs",
          ]
-         
+
 
 
 **Step 3: Modify the reduce function**
@@ -2550,35 +3358,35 @@ Our new mapper function will extract four GPU metrics and return them as a Panda
 Our new recipe class will create a Parquet output file with all the data produced by the reducer function, using the `to_parquet()` function. It will also create a Jupyter notebook file using the `create_notebook()` function.
 
 In this step, we will change the `create_notebook()` function to produce a plot for our fourth metric. To do this, we need to change these two lines (located in the second cell of `new_metric_util_map/heatmap.ipynb`):
-    
-    
+
+
     metrics = [
        "SMs Active",
        "SM Issue",
        "Tensor Active",
     ]
-    
+
 
 To this:
-    
-    
+
+
     metrics = [
         "SMs Active",
         "SM Issue",
         "Tensor Active",
         "Unallocated Warps in Active SMs",
     ]
-    
+
 
 That completes all the modifications for our NewMetricUtilMap class.
 
 **Step 5: Run the new recipe**
 
 If the new recipe is located in the default recipe directory nsys_recipe/recipes, we can directly run it using the `nsys recipe` command like this:
-    
-    
+
+
     > nsys recipe new_metric_util_map --input <directory of reports>
-    
+
 
 It is also possible to have a recipe located outside of this directory. In this case, you need to set the environment variable `NSYS_RECIPE_PATH` to the directory containing the recipe when running the `nsys recipe` command.
 
@@ -2613,17 +3421,17 @@ To check the version of your exported SQLite file, check the value of `EXPORT_SC
 The changes between schema versions are documented in `<install_dir>/host*/exporter/export_schema_version_notes.txt`.
 
 This is the schema as of the 2026.2 release, schema version 3.25.0.
-    
-    
+
+
     CREATE TABLE StringIds (
         -- Consolidation of repetitive string values.
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- ID reference value.
         value                       TEXT      NOT NULL                     -- String value.
     );
     CREATE TABLE ANALYSIS_FILE (
         -- Analysis file content
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- ID reference value.
         filename                    TEXT,                                  -- File path
         contentId                   INTEGER,                               -- REFERENCES StringIds(id) -- File content
@@ -2657,7 +3465,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NIC_ID_MAP (
         -- Map between NIC info nicId and NIC metric globalId
-    
+
         nicId                       INTEGER   NOT NULL,                    -- REFERENCES TARGET_INFO_NIC_INFO(nicId)
         globalId                    INTEGER   NOT NULL                     -- REFERENCES NET_NIC_METRIC(globalId)
     );
@@ -2669,7 +3477,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE ANALYSIS_DETAILS (
         -- Details about the analysis session.
-    
+
         globalVid                   INTEGER   NOT NULL,                    -- Serialized GlobalId.
         duration                    INTEGER   NOT NULL,                    -- The total time span of the entire trace (ns).
         startTime                   INTEGER   NOT NULL,                    -- Trace start timestamp in nanoseconds.
@@ -2677,13 +3485,13 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE PMU_EVENT_REQUESTS (
         -- PMU event requests
-    
+
         id                          INTEGER   NOT NULL,                    -- PMU event request.
         eventid                     INTEGER,                               -- PMU counter event id.
         source                      INTEGER   NOT NULL,                    -- REFERENCES ENUM_PMU_EVENT_SOURCE(id)
         unit_type                   INTEGER   NOT NULL,                    -- REFERENCES ENUM_PMU_UNIT_TYPE(id)
         event_name                  TEXT,                                  -- PMU counter unique name
-    
+
         PRIMARY KEY (id)
     );
     CREATE TABLE TARGET_INFO_GPU (
@@ -2842,481 +3650,481 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE META_DATA_CAPTURE (
         -- information about nsys capture parameters
-    
+
         name                        TEXT      NOT NULL,                    -- Name of meta-data record
         value                       TEXT                                   -- Value of meta-data record
     );
     CREATE TABLE META_DATA_EXPORT (
         -- information about nsys export process
-    
+
         name                        TEXT      NOT NULL,                    -- Name of meta-data record
         value                       TEXT                                   -- Value of meta-data record
     );
     CREATE TABLE ENUM_NSYS_EVENT_TYPE (
         -- Nsys event type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_EVENT_CLASS (
         -- Nsys event class labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_SOURCE (
         -- Nsys generic event source labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_GROUP (
         -- Nsys generic event group labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_FIELD_TYPE (
         -- Nsys generic event field type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_PROPERTY (
         -- Nsys generic event field ETW property flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_TYPE (
         -- Nsys generic event field ETW type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_FLAGS (
         -- Nsys generic event field ETW map info flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_GPU_CTX_SWITCH (
         -- GPU context switch labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_MEMCPY_OPER (
         -- CUDA memcpy operation labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_MEM_KIND (
         -- CUDA memory kind labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_MEMPOOL_TYPE (
         -- CUDA mempool type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_MEMPOOL_OPER (
         -- CUDA mempool operation labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_DEV_MEM_EVENT_OPER (
         -- CUDA device mem event operation labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_KERNEL_LAUNCH_TYPE (
         -- CUDA kernel launch type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_SHARED_MEM_LIMIT_CONFIG (
         -- CUDA shared memory limit config labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_UNIF_MEM_MIGRATION (
         -- CUDA unified memory migration cause labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_UNIF_MEM_ACCESS_TYPE (
         -- CUDA unified memory access type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUDA_FUNC_CACHE_CONFIG (
         -- CUDA function cache config labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUPTI_STREAM_TYPE (
         -- CUPTI stream type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUPTI_SYNC_TYPE (
         -- CUPTI synchronization type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_CUPTI_OVERHEAD_TYPE (
         -- CUPTI overhead type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_STACK_UNWIND_METHOD (
         -- Stack unwind method labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_SAMPLING_THREAD_STATE (
         -- Sampling thread state labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_SCHEDULING_THREAD_BLOCK (
         -- Scheduling thread block labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENGL_DEBUG_SOURCE (
         -- OpenGL debug source labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENGL_DEBUG_TYPE (
         -- OpenGL debug type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENGL_DEBUG_SEVERITY (
         -- OpenGL debug severity labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VULKAN_PIPELINE_CREATION_FLAGS (
         -- Vulkan pipeline creation feedback flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VULKAN_HEAP_TYPE (
         -- Vulkan heap type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VULKAN_HEAP_FLAGS (
         -- Vulkan heap flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VULKAN_MEMORY_PROPERTY_FLAGS (
         -- Vulkan memory property flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_D3D12_HEAP_TYPE (
         -- D3D12 heap type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_D3D12_PAGE_PROPERTY (
         -- D3D12 CPU page property labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_D3D12_HEAP_FLAGS (
         -- D3D12 heap flag labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_D3D12_CMD_LIST_TYPE (
         -- D3D12 command list type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENACC_DEVICE (
         -- OpenACC device type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENACC_EVENT_KIND (
         -- OpenACC event type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_EVENT_KIND (
         -- OpenMP event kind labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_THREAD (
         -- OpenMP thread labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_DISPATCH (
         -- OpenMP dispatch labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_SYNC_REGION (
         -- OpenMP sync region labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_WORK (
         -- OpenMP work labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_MUTEX (
         -- OpenMP mutex labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_TASK_FLAG (
         -- OpenMP task flags labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OPENMP_TASK_STATUS (
         -- OpenMP task status labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NVDRIVER_EVENT_ID (
         -- NV-Driver event it labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_WDDM_PAGING_QUEUE_TYPE (
         -- WDDM paging queue type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_WDDM_PACKET_TYPE (
         -- WDDM packet type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_WDDM_ENGINE_TYPE (
         -- WDDM engine type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_WDDM_INTERRUPT_TYPE (
         -- WDDM DMA interrupt type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_WDDM_VIDMM_OP_TYPE (
         -- WDDM VidMm operation type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NET_LINK_TYPE (
         -- NIC link layer labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NET_DEVICE_ID (
         -- NIC PCIe device id labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NET_VENDOR_ID (
         -- NIC PCIe vendor id labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_ETW_MEMORY_TRANSFER_TYPE (
         -- memory transfer type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_PMU_EVENT_SOURCE (
         -- PMU event source labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_PMU_UNIT_TYPE (
         -- PMU unit type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VIDEO_ENGINE_TYPE (
         -- Video engine type id labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_VIDEO_ENGINE_CODEC (
         -- Video engine codec labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_DIAGNOSTIC_SEVERITY_LEVEL (
         -- Diagnostic message severity level labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_DIAGNOSTIC_SOURCE_TYPE (
         -- Diagnostic message source type labels
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_DIAGNOSTIC_TIMESTAMP_SOURCE (
         -- Diagnostic message timestamp source lables
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NET_IB_DEVICE_TYPE (
         -- network device types
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_NET_IB_CONGESTION_EVENT_TYPE (
         -- IB Switch congestion event types
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE ENUM_OSRT_FILE_ACCESS_EVENT_TYPE (
         -- OSRT File Access event type
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- Enum numerical value.
         name                        TEXT,                                  -- Enum symbol name.
         label                       TEXT                                   -- Enum human name.
     );
     CREATE TABLE GENERIC_EVENT_SOURCES (
         -- Generic event source modules
-    
+
         sourceId                    INTEGER   NOT NULL   PRIMARY KEY,      -- Serialized GlobalId.
         nameId                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Event source name
         timeSourceId                INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_GENERIC_EVENT_SOURCE(id)
@@ -3331,7 +4139,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GENERIC_EVENT_TYPES (
         -- Generic event type/schema descriptions.
-    
+
         typeId                      INTEGER   NOT NULL   PRIMARY KEY,      -- Serialized GlobalId.
         sourceId                    INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_SOURCES(sourceId)
         nameId                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Event type name
@@ -3350,7 +4158,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GENERIC_EVENT_TYPE_FIELDS (
         -- Generic event type/schema individual data field descriptions.
-    
+
         typeId                      INTEGER   NOT NULL,                    -- Serialized GlobalId.
         fieldIdx                    INTEGER   NOT NULL,                    -- Index of type field
         fieldNameId                 INTEGER   NOT NULL,                    -- Name of field.
@@ -3371,7 +4179,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GENERIC_EVENT_TYPE_FIELD_MAP (
         -- Generic event ENUM data.  Mostly used by ETW.
-    
+
         typeId                      INTEGER   NOT NULL,                    -- Serialized GlobalId.
         fieldIdx                    INTEGER   NOT NULL,                    -- Index of type field
         enum                        INTEGER   NOT NULL,                    -- Event Field ETW Map Info enum.
@@ -3380,7 +4188,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GENERIC_EVENTS (
         -- Dynamic or unstructured event data.
-    
+
         genericEventId              INTEGER   NOT NULL   PRIMARY KEY,      -- Id of particular generic event
         rawTimestamp                INTEGER   NOT NULL,                    -- Raw event timestamp recorded during profiling.
         timestamp                   INTEGER   NOT NULL,                    -- Event timestamp converted to the profiling session timeline.
@@ -3390,7 +4198,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GENERIC_EVENT_DATA (
         -- GENERIC_EVENTS data values.
-    
+
         genericEventId              INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENTS(genericEventId)
         fieldIdx                    INTEGER   NOT NULL,                    -- Index of type field
         intVal                      INTEGER,                               -- Integer value, signed
@@ -3400,21 +4208,21 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE ETW_PROVIDERS (
         -- Names and identifiers of ETW providers captured in the report.
-    
+
         providerId                  INTEGER   NOT NULL   PRIMARY KEY,      -- Provider ID.
         providerNameId              INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Provider name
         guid                        TEXT      NOT NULL                     -- ETW Provider GUID.
     );
     CREATE TABLE ETW_TASKS (
         -- Names and identifiers of ETW tasks captured in the report.
-    
+
         taskNameId                  INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Task name
         taskId                      INTEGER   NOT NULL,                    -- The event task ID.
         providerId                  INTEGER   NOT NULL                     -- Provider ID.
     );
     CREATE TABLE ETW_EVENTS (
         -- Raw ETW events captured in the report.
-    
+
         rawTimestamp                INTEGER   NOT NULL,                    -- Raw event timestamp recorded during profiling.
         timestamp                   INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         typeId                      INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_TYPES(typeId)
@@ -3424,7 +4232,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE TARGET_INFO_GPU_METRICS (
         -- GPU Metrics, metric names and ids.
-    
+
         typeId                      INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_TYPES(typeId)
         sourceId                    INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_SOURCES(sourceId)
         typeName                    TEXT      NOT NULL,                    -- Name of event type.
@@ -3433,7 +4241,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GPU_METRICS (
         -- GPU Metrics, events and values.
-    
+
         rawTimestamp                INTEGER   NOT NULL,                    -- Raw event timestamp recorded during profiling.
         timestamp                   INTEGER   NOT NULL,                    -- Event timestamp (ns).
         typeId                      INTEGER   NOT NULL,                    -- REFERENCES TARGET_INFO_GPU_METRICS(typeId) and GENERIC_EVENT_TYPES(typeId)
@@ -3442,7 +4250,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE TARGET_INFO_SOC_METRICS (
         -- SoC Metrics, metric names and ids.
-    
+
         typeId                      INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_TYPES(typeId)
         sourceId                    INTEGER   NOT NULL,                    -- REFERENCES GENERIC_EVENT_SOURCES(sourceId)
         typeName                    TEXT      NOT NULL,                    -- Name of event type.
@@ -3451,7 +4259,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE SOC_METRICS (
         -- SoC Metrics, events and values.
-    
+
         rawTimestamp                INTEGER   NOT NULL,                    -- Raw event timestamp recorded during profiling.
         timestamp                   INTEGER   NOT NULL,                    -- Event timestamp (ns).
         typeId                      INTEGER   NOT NULL,                    -- REFERENCES TARGET_INFO_SOC_METRICS(typeId) and GENERIC_EVENT_TYPES(typeId)
@@ -3460,7 +4268,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE MPI_COMMUNICATORS (
         -- Identification of MPI communication groups.
-    
+
         rank                        INTEGER,                               -- Active MPI rank
         timestamp                   INTEGER,                               -- Time of MPI communicator creation.
         commHandle                  INTEGER,                               -- MPI communicator handle.
@@ -3474,7 +4282,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVTX_PAYLOAD_SCHEMAS (
         -- NVTX payload schema attributes.
-    
+
         domainId                    INTEGER,                               -- User-controlled ID that can be used to group events.
         schemaId                    INTEGER,                               -- Identifier of the payload schema.
         name                        TEXT,                                  -- Schema name.
@@ -3486,7 +4294,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVTX_PAYLOAD_SCHEMA_ENTRIES (
         -- NVTX payload schema entries.
-    
+
         domainId                    INTEGER   NOT NULL,                    -- User-controlled ID that can be used to group events.
         schemaId                    INTEGER   NOT NULL,                    -- Identifier of the payload schema.
         idx                         INTEGER   NOT NULL,                    -- Index of the entry in the payload schema.
@@ -3499,7 +4307,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVTX_PAYLOAD_ENUMS (
         -- NVTX payload enum attributes.
-    
+
         domainId                    INTEGER,                               -- User-controlled ID that can be used to group events.
         schemaId                    INTEGER,                               -- Identifier of the payload schema.
         name                        TEXT,                                  -- Schema name.
@@ -3508,7 +4316,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVTX_PAYLOAD_ENUM_ENTRIES (
         -- NVTX payload enum entries.
-    
+
         domainId                    INTEGER   NOT NULL,                    -- User-controlled ID that can be used to group events.
         schemaId                    INTEGER   NOT NULL,                    -- Identifier of the payload schema.
         idx                         INTEGER   NOT NULL,                    -- Index of the entry in the payload schema.
@@ -3518,7 +4326,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVTX_SCOPES (
         -- NVTX scopes.
-    
+
         domainId                    INTEGER,                               -- User-controlled ID that can be used to group events.
         scopeId                     INTEGER,                               -- Scope ID.
         parentScopeId               INTEGER,                               -- Parent scope ID.
@@ -3643,7 +4451,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE CUPTI_ACTIVITY_KIND_GRAPH_HOST_NODE_AND_HOST_LAUNCH (
         -- This table includes both CUPTI_ACTIVITY_KIND_GRAPH_HOST_NODE and CUPTI_ACTIVITY_KIND_HOST_LAUNCH events. These are stored as a single internal event type in Nsys reports. For HOST_LAUNCH events, graphNodeId and graphId fields will be NULL.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         deviceId                    INTEGER   NOT NULL,                    -- Device ID.
@@ -3678,7 +4486,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE CUDA_HOST_CALLBACK (
         -- Host-side callback functions triggered from CUDA streams. These represent CPU-side execution from CUDA graph host function nodes or cudaLaunchHostFunc() calls. Corresponding device-side activities are stored at the CUPTI_ACTIVITY_KIND_GRAPH_HOST_NODE_AND_HOST_LAUNCH table.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         eventClass                  INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_CLASS(id)
@@ -3846,12 +4654,12 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
         unresolved                  INTEGER,                               -- True if the symbol was not resolved.
         originalIP                  INTEGER,                               -- Instruction pointer value.
         stackDepth                  INTEGER   NOT NULL,                    -- Zero-base index of the given function in call stack.
-    
+
         PRIMARY KEY (id, stackDepth)
     );
     CREATE TABLE MPI_RANKS (
         -- Mapping of global thread IDs (gtid) to MPI ranks
-    
+
         globalTid                   INTEGER   NOT NULL,                    -- Serialized GlobalId.
         rank                        INTEGER   NOT NULL                     -- MPI rank
     );
@@ -3881,7 +4689,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE MPI_START_WAIT_EVENTS (
         -- MPI_Start*, MPI_Test* and MPI_Wait*
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER,                               -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -3890,7 +4698,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE MPI_OTHER_EVENTS (
         -- MPI events without additional parameters
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER,                               -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -3922,7 +4730,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE UCP_EVENTS (
         -- UCP events without additional parameters
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER,                               -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -3997,7 +4805,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE OSRT_API (
         -- OS runtime libraries traced to gather information about low-level userspace APIs.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         eventClass                  INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_CLASS(id)
@@ -4010,7 +4818,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE OSRT_CALLCHAINS (
         -- Callchains attached to OSRT events, depending on selected profiling settings.
-    
+
         id                          INTEGER   NOT NULL,                    -- Part of PRIMARY KEY (id, stackDepth).
         symbol                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Function name
         module                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Module name
@@ -4021,21 +4829,21 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
         originalIP                  INTEGER,                               -- Instruction pointer value.
         unwindMethod                INTEGER,                               -- REFERENCES ENUM_STACK_UNWIND_METHOD(id)
         stackDepth                  INTEGER   NOT NULL,                    -- Zero-base index of the given function in call stack.
-    
+
         PRIMARY KEY (id, stackDepth)
     );
     CREATE TABLE OSRT_ARGUMENTS (
         -- Arguments OSRT functions were called with. This is an experimental feature and arguments are collected for some specific functions only. Please avoid relying on the content for now.
-    
+
         id                          INTEGER   NOT NULL,                    -- Part of PRIMARY KEY (id, argumentIndex).
         value                       INTEGER   NOT NULL,                    -- Value of the argument.
         argumentIndex               INTEGER   NOT NULL,                    -- Zero-base index of the argument.
-    
+
         PRIMARY KEY (id, argumentIndex)
     );
     CREATE TABLE OSRT_FILE_ACCESS_EVENTS (
         -- OS Runtime events related to file accesses (opening, closing, reading, and writing).
-    
+
         fileAccessId                INTEGER   NOT NULL,                    -- REFERENCES OSRT_FILE_ACCESS_DESCRIPTORS(fileAccessId)
         threadId                    INTEGER   NOT NULL,                    -- Thread ID.
         startedAt                   INTEGER   NOT NULL,                    -- Event start timestamp (ns).
@@ -4047,7 +4855,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE OSRT_FILE_ACCESS_DESCRIPTORS (
         -- Metadata of all the file accesses that were made by the OS during the recording.
-    
+
         fileAccessId                INTEGER   NOT NULL,                    -- File Access Id.
         processId                   INTEGER   NOT NULL,                    -- Process ID.
         openedAt                    INTEGER   NOT NULL,                    -- The time when the file was opened (ns).
@@ -4063,7 +4871,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE SCHED_EVENTS (
         -- Thread scheduling events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         cpu                         INTEGER   NOT NULL,                    -- ID of CPU this thread was scheduled in or out.
         isSchedIn                   INTEGER   NOT NULL,                    -- 0 if thread was scheduled out, non-zero otherwise.
@@ -4073,7 +4881,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE COMPOSITE_EVENTS (
         -- Thread sampling events.
-    
+
         id                          INTEGER   NOT NULL   PRIMARY KEY,      -- ID of the composite event.
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         cpu                         INTEGER,                               -- ID of CPU this thread was running on.
@@ -4083,7 +4891,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE SAMPLING_CALLCHAINS (
         -- Callchain entries obtained from composite events, used to construct function table views.
-    
+
         id                          INTEGER   NOT NULL,                    -- REFERENCES COMPOSITE_EVENTS(id)
         symbol                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Function name
         module                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Module name
@@ -4094,12 +4902,12 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
         originalIP                  INTEGER,                               -- Instruction pointer value.
         unwindMethod                INTEGER,                               -- REFERENCES ENUM_STACK_UNWIND_METHOD(id)
         stackDepth                  INTEGER   NOT NULL,                    -- Zero-base index of the given function in call stack.
-    
+
         PRIMARY KEY (id, stackDepth)
     );
     CREATE TABLE PERF_EVENT_SOC_OR_CPU_RAW_EVENT (
         -- SoC and CPU raw event values from Sampled Performance Counters.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         vmId                        INTEGER,                               -- VM ID.
@@ -4109,7 +4917,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE PERF_EVENT_SOC_OR_CPU_METRIC_EVENT (
         -- SoC and CPU metric values from Sampled Performance Counters.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         vmId                        INTEGER,                               -- VM ID.
@@ -4487,7 +5295,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE D3D11_PIX_DEBUG_API (
         -- D3D11 debug marker events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4501,7 +5309,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE D3D12_PIX_DEBUG_API (
         -- D3D12 debug marker events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4518,7 +5326,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_EVICT_ALLOCATION_EVENTS (
         -- Raw ETW EvictAllocation events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4527,7 +5335,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_PAGING_QUEUE_PACKET_START_EVENTS (
         -- Raw ETW PagingQueuePacketStart events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4543,7 +5351,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_PAGING_QUEUE_PACKET_STOP_EVENTS (
         -- Raw ETW PagingQueuePacketStop events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4554,7 +5362,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_PAGING_QUEUE_PACKET_INFO_EVENTS (
         -- Raw ETW PagingQueuePacketInfo events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4565,7 +5373,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_QUEUE_PACKET_START_EVENTS (
         -- Raw ETW QueuePacketStart events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4585,7 +5393,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_QUEUE_PACKET_STOP_EVENTS (
         -- Raw ETW QueuePacketStop events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4600,7 +5408,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_QUEUE_PACKET_INFO_EVENTS (
         -- Raw ETW QueuePacketInfo events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4612,7 +5420,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_DMA_PACKET_START_EVENTS (
         -- Raw ETW DmaPacketStart events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4628,7 +5436,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_DMA_PACKET_STOP_EVENTS (
         -- Raw ETW DmaPacketStop events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4642,7 +5450,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_DMA_PACKET_INFO_EVENTS (
         -- Raw ETW DmaPacketInfo events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4660,7 +5468,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE WDDM_HW_QUEUE_EVENTS (
         -- Raw ETW HwQueueStart events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
@@ -4671,7 +5479,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVVIDEO_ENCODER_API (
         -- NV Video Encoder API traced to gather information about NVIDIA Video Codek SDK Encoder APIs.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         eventClass                  INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_CLASS(id)
@@ -4681,7 +5489,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVVIDEO_DECODER_API (
         -- NV Video Encoder API traced to gather information about NVIDIA Video Codek SDK Decoder APIs.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         eventClass                  INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_CLASS(id)
@@ -4691,7 +5499,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NVVIDEO_JPEG_API (
         -- NV Video Encoder API traced to gather information about NVIDIA Video Codek SDK JPEG APIs.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         eventClass                  INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_CLASS(id)
@@ -4700,7 +5508,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GPU_VIDEO_ENGINE_WORKLOAD (
         -- Video engine workload events
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalEngineId              INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4714,7 +5522,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE GPU_VIDEO_ENGINE_MISSING (
         -- Video engine missing ranges
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalEngineId              INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4722,7 +5530,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE MEMORY_TRANSFER_EVENTS (
         -- Raw ETW Memory Transfer events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         globalTid                   INTEGER,                               -- Serialized GlobalId.
         gpu                         INTEGER,                               -- GPU index.
@@ -4736,7 +5544,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NV_LOAD_BALANCE_MASTER_EVENTS (
         -- Raw ETW NV-wgf2um LoadBalanceMaster events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4756,7 +5564,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE NV_LOAD_BALANCE_EVENTS (
         -- Raw ETW NV-wgf2um LoadBalance events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalTid                   INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4774,14 +5582,14 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE PROCESSES (
         -- Names and identifiers of processes captured in the report.
-    
+
         globalPid                   INTEGER,                               -- Serialized GlobalId.
         pid                         INTEGER,                               -- The process ID.
         name                        TEXT                                   -- The process name.
     );
     CREATE TABLE CUPTI_ACTIVITY_KIND_OPENACC_DATA (
         -- OpenACC data events collected using CUPTI.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         nameId                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Event name
@@ -4800,7 +5608,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE CUPTI_ACTIVITY_KIND_OPENACC_LAUNCH (
         -- OpenACC launch events collected using CUPTI.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         nameId                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Event name
@@ -4821,7 +5629,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE CUPTI_ACTIVITY_KIND_OPENACC_OTHER (
         -- OpenACC other events collected using CUPTI.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         nameId                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Event name
@@ -4869,7 +5677,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE PMU_EVENTS (
         -- CPU Core events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalVm                    INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4878,7 +5686,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE PMU_EVENT_COUNTERS (
         -- CPU Core events counters.
-    
+
         id                          INTEGER   NOT NULL,
         idx                         INTEGER   NOT NULL,                    -- REFERENCES PMU_EVENT_REQUESTS(id).
         value                       INTEGER   NOT NULL                     -- Counter data value
@@ -4900,7 +5708,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE UNCORE_PMU_EVENTS (
         -- PMU Uncore events.
-    
+
         start                       INTEGER   NOT NULL,                    -- Event start timestamp (ns).
         end                         INTEGER   NOT NULL,                    -- Event end timestamp (ns).
         globalVm                    INTEGER   NOT NULL,                    -- Serialized GlobalId.
@@ -4909,7 +5717,7 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE UNCORE_PMU_EVENT_VALUES (
         -- Uncore events values.
-    
+
         id                          INTEGER   NOT NULL,
         type                        INTEGER   NOT NULL,                    -- REFERENCES ENUM_NSYS_EVENT_TYPE(id)
         value                       INTEGER   NOT NULL,                    -- Event value.
@@ -4934,13 +5742,13 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE SYSCALL_CALLCHAINS (
         -- Callchains attached to syscall events, depending on selected profiling settings.
-    
+
         id                          INTEGER   NOT NULL,                    -- Part of PRIMARY KEY (id, stackDepth).
         stackDepth                  INTEGER   NOT NULL,                    -- Zero-base index of the given function in call stack.
         symbol                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Function name
         module                      INTEGER   NOT NULL,                    -- REFERENCES StringIds(id) -- Module name
         unresolved                  INTEGER,                               -- True if the symbol was not resolved.
-    
+
         PRIMARY KEY (id, stackDepth)
     );
     CREATE TABLE BANDWIDTH_USAGE_EVENTS (
@@ -4951,14 +5759,14 @@ This is the schema as of the 2026.2 release, schema version 3.25.0.
     );
     CREATE TABLE BANDWIDTH_USAGE_VALUES (
         -- BandwidthUsage event XmcClient values.
-    
+
         id                          INTEGER   NOT NULL,
         idx                         INTEGER   NOT NULL,
         value                       INTEGER   NOT NULL,                    -- Counter data value
-    
+
         PRIMARY KEY (id, idx)
     );
-    
+
 
 Note
 
@@ -4971,40 +5779,40 @@ The type ID is yet another composite bit field that combines the GPU metrics eve
 SELECT typeId & 0xFF AS gpuId FROM GENERIC_EVENTS
 
 Some event types have been deprecated and are no longer supported by Nsight Systems. While tables for these event will no longer appear in exported SQL databases, databases exported by older versions of Nsight Systems may still contain them.
-    
-    
+
+
     CREATE TABLE ETW_EVENTS_DEPRECATED_TABLE (
         [...]
     );
     CREATE TABLE GPU_MEMORY_BUDGET_EVENTS (
         -- Raw ETW VidMmProcessBudgetChange events (deprecated).
-    
+
         [...]
     );
     CREATE TABLE GPU_MEMORY_USAGE_EVENTS (
         -- Raw ETW VidMmProcessUsageChange events (deprecated).
-    
+
         [...]
     );
     CREATE TABLE DEMOTED_BYTES_EVENTS (
         -- Raw ETW VidMmProcessDemotedCommitmentChange events (deprecated).
-    
+
         [...]
     );
     CREATE TABLE TOTAL_BYTES_RESIDENT_IN_SEGMENT_EVENTS (
         -- Raw ETW TotalBytesResidentInSegment events (deprecated).
-    
+
         [...]
     );
-    
+
 
 ### SQLite Schema Event Values
 
 Here are the set values stored in enums in the Nsight Systems SQLite schema
 
 **CUDA Memcopy Kind**
-    
-    
+
+
     0 - CUDA_MEMCPY_KIND_UNKNOWN
     1 - CUDA_MEMCPY_KIND_HTOD
     2 - CUDA_MEMCPY_KIND_DTOH
@@ -5019,11 +5827,11 @@ Here are the set values stored in enums in the Nsight Systems SQLite schema
     11 - CUDA_MEMCPY_KIND_UVM_HTOD
     12 - CUDA_MEMCPY_KIND_UVM_DTOH
     13 - CUDA_MEMCPY_KIND_UVM_DTOD
-    
+
 
 **CUDA Memory Operations Memory Kind**
-    
-    
+
+
     0 - CUDA_MEMOPR_MEMORY_KIND_PAGEABLE
     1 - CUDA_MEMOPR_MEMORY_KIND_PINNED
     2 - CUDA_MEMOPR_MEMORY_KIND_DEVICE
@@ -5032,11 +5840,11 @@ Here are the set values stored in enums in the Nsight Systems SQLite schema
     5 - CUDA_MEMOPR_MEMORY_KIND_DEVICE_STATIC
     6 - CUDA_MEMOPR_MEMORY_KIND_MANAGED_STATIC
     7 - CUDA_MEMOPR_MEMORY_KIND_UNKNOWN
-    
+
 
 **CUDA Event Class Values**
-    
-    
+
+
     0 - TRACE_PROCESS_EVENT_CUDA_RUNTIME
     1 - TRACE_PROCESS_EVENT_CUDA_DRIVER
     13 - TRACE_PROCESS_EVENT_CUDA_EGL_DRIVER
@@ -5048,13 +5856,13 @@ Here are the set values stored in enums in the Nsight Systems SQLite schema
     36 - TRACE_PROCESS_EVENT_CUBLAS_FINISH
     67 - TRACE_PROCESS_EVENT_CUDABACKTRACE
     77 - TRACE_PROCESS_EVENT_CUDA_GRAPH_NODE_CREATION
-    
+
 
 See [CUPTI documentation](https://docs.nvidia.com/cupti/index.html) for detailed information on collected event and data types.
 
 **NVTX Event Type Values**
-    
-    
+
+
     33 - NvtxCategory
     34 - NvtxMark
     39 - NvtxThread
@@ -5062,29 +5870,29 @@ See [CUPTI documentation](https://docs.nvidia.com/cupti/index.html) for detailed
     60 - NvtxStartEndRange
     75 - NvtxDomainCreate
     76 - NvtxDomainDestroy
-    
+
 
 The difference between text and textId columns is that if an NVTX event message was passed via call to nvtxDomainRegisterString function, then the message will be available through textId field, otherwise the text field will contain the message if it was provided.
 
 **OpenGL Events**
 
 KHR event class values
-    
-    
+
+
     62 - KhrDebugPushPopRange
     63 - KhrDebugGpuPushPopRange
-    
+
 
 KHR source kind values
-    
-    
+
+
     0x8249 - GL_DEBUG_SOURCE_THIRD_PARTY
     0x824A - GL_DEBUG_SOURCE_APPLICATION
-    
+
 
 KHR type values
-    
-    
+
+
     0x824C - GL_DEBUG_TYPE_ERROR
     0x824D - GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR
     0x824E - GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR
@@ -5094,16 +5902,16 @@ KHR type values
     0x8268 - GL_DEBUG_TYPE_MARKER
     0x8269 - GL_DEBUG_TYPE_PUSH_GROUP
     0x826A - GL_DEBUG_TYPE_POP_GROUP
-    
+
 
 KHR severity values
-    
-    
+
+
     0x826B - GL_DEBUG_SEVERITY_NOTIFICATION
     0x9146 - GL_DEBUG_SEVERITY_HIGH
     0x9147 - GL_DEBUG_SEVERITY_MEDIUM
     0x9148 - GL_DEBUG_SEVERITY_LOW
-    
+
 
 **OSRT Event Class Values**
 
@@ -5112,55 +5920,55 @@ OS runtime libraries can be traced to gather information about low-level userspa
 OSRT events may have callchains attached to them, depending on selected profiling settings. In such cases, one can use callchainId column to select relevant callchains from OSRT_CALLCHAINS table
 
 OSRT event class values
-    
-    
+
+
     27 - TRACE_PROCESS_EVENT_OS_RUNTIME
     31 - TRACE_PROCESS_EVENT_OS_RUNTIME_START
     32 - TRACE_PROCESS_EVENT_OS_RUNTIME_FINISH
-    
+
 
 **DX12 Event Class Values**
-    
-    
+
+
     41 - TRACE_PROCESS_EVENT_DX12_API
     42 - TRACE_PROCESS_EVENT_DX12_WORKLOAD
     43 - TRACE_PROCESS_EVENT_DX12_START
     44 - TRACE_PROCESS_EVENT_DX12_FINISH
     52 - TRACE_PROCESS_EVENT_DX12_DISPLAY
     59 - TRACE_PROCESS_EVENT_DX12_CREATE_OBJECT
-    
+
 
 **PIX Event Class Values**
-    
-    
+
+
     65 - TRACE_PROCESS_EVENT_DX12_DEBUG_API
     75 - TRACE_PROCESS_EVENT_DX11_DEBUG_API
-    
+
 
 **Vulkan Event Class Values**
-    
-    
+
+
     53 - TRACE_PROCESS_EVENT_VULKAN_API
     54 - TRACE_PROCESS_EVENT_VULKAN_WORKLOAD
     55 - TRACE_PROCESS_EVENT_VULKAN_START
     56 - TRACE_PROCESS_EVENT_VULKAN_FINISH
     60 - TRACE_PROCESS_EVENT_VULKAN_CREATE_OBJECT
     66 - TRACE_PROCESS_EVENT_VULKAN_DEBUG_API
-    
+
 
 **Vulkan Flags**
-    
-    
+
+
     VALID_BIT = 0x00000001
     CACHE_HIT_BIT = 0x00000002
     BASE_PIPELINE_ACCELERATION_BIT = 0x00000004
-    
+
 
 **WDDM Event Values**
 
 VIDMM operation type values
-    
-    
+
+
     0 - None
     101 - RestoreSegments
     102 - PurgeSegments
@@ -5193,20 +6001,20 @@ VIDMM operation type values
     211 - DiscardAllocation
     212 - SetAllocationPriority
     1000 - EvictSystemMemoryOfferList
-    
+
 
 Paging queue type values
-    
-    
+
+
     0 - VIDMM_PAGING_QUEUE_TYPE_UMD
     1 - VIDMM_PAGING_QUEUE_TYPE_Default
     2 - VIDMM_PAGING_QUEUE_TYPE_Evict
     3 - VIDMM_PAGING_QUEUE_TYPE_Reclaim
-    
+
 
 Packet type values
-    
-    
+
+
     0 - DXGKETW_RENDER_COMMAND_BUFFER
     1 - DXGKETW_DEFERRED_COMMAND_BUFFER
     2 - DXGKETW_SYSTEM_COMMAND_BUFFER
@@ -5215,11 +6023,11 @@ Packet type values
     5 - DXGKETW_SIGNAL_COMMAND_BUFFER
     6 - DXGKETW_DEVICE_COMMAND_BUFFER
     7 - DXGKETW_SOFTWARE_COMMAND_BUFFER
-    
+
 
 Engine type values
-    
-    
+
+
     0 - DXGK_ENGINE_TYPE_OTHER
     1 - DXGK_ENGINE_TYPE_3D
     2 - DXGK_ENGINE_TYPE_VIDEO_DECODE
@@ -5229,49 +6037,49 @@ Engine type values
     6 - DXGK_ENGINE_TYPE_COPY
     7 - DXGK_ENGINE_TYPE_OVERLAY
     8 - DXGK_ENGINE_TYPE_CRYPTO
-    
+
 
 DMA interrupt type values
-    
-    
+
+
     1 = DXGK_INTERRUPT_DMA_COMPLETED
     2 = DXGK_INTERRUPT_DMA_PREEMPTED
     4 = DXGK_INTERRUPT_DMA_FAULTED
     9 = DXGK_INTERRUPT_DMA_PAGE_FAULTED
-    
+
 
 Queue type values
-    
-    
+
+
     0 = Queue_Packet
     1 = Dma_Packet
     2 = Paging_Queue_Packet
-    
+
 
 **Driver Events**
 
 Load balance event type values
-    
-    
+
+
     1 - LoadBalanceEvent_GPU
     8 - LoadBalanceEvent_CPU
     21 - LoadBalanceMasterEvent_GPU
     22 - LoadBalanceMasterEvent_CPU
-    
+
 
 **OpenMP Events**
 
 OpenMP event class values
-    
-    
+
+
     78 - TRACE_PROCESS_EVENT_OPENMP
     79 - TRACE_PROCESS_EVENT_OPENMP_START
     80 - TRACE_PROCESS_EVENT_OPENMP_FINISH
-    
+
 
 OpenMP event kind values
-    
-    
+
+
     15 - OPENMP_EVENT_KIND_TASK_CREATE
     16 - OPENMP_EVENT_KIND_TASK_SCHEDULE
     17 - OPENMP_EVENT_KIND_CANCEL
@@ -5290,48 +6098,48 @@ OpenMP event kind values
     34 - OPENMP_EVENT_KIND_MUTEX_WAIT
     35 - OPENMP_EVENT_KIND_CRITICAL_SECTION
     36 - OPENMP_EVENT_KIND_WORKSHARE
-    
+
 
 OpenMP thread type values
-    
-    
+
+
     1 - OpenMP Initial Thread
     2 - OpenMP Worker Thread
     3 - OpenMP Internal Thread
     4 - Unknown
-    
+
 
 OpenMP sync region kind values
-    
-    
+
+
     1 - Barrier
     2 - Implicit barrier
     3 - Explicit barrier
     4 - Implementation-dependent barrier
     5 - Taskwait
     6 - Taskgroup
-    
+
 
 OpenMP task kind values
-    
-    
+
+
     1 - Initial task
     2 - Implicit task
     3 - Explicit task
-    
+
 
 OpenMP prior task status values
-    
-    
+
+
     1 - Task completed
     2 - Task yielded to another task
     3 - Task was cancelled
     7 - Task was switched out for other reasons
-    
+
 
 OpenMP mutex kind values
-    
-    
+
+
     1 - Waiting for lock
     2 - Testing lock
     3 - Waiting for nested lock
@@ -5339,19 +6147,19 @@ OpenMP mutex kind values
     5 - Waitng for entering critical section region
     6 - Waiting for entering atomic region
     7 - Waiting for entering ordered region
-    
+
 
 OpenMP critical section kind values
-    
-    
+
+
     5 - Critical section region
     6 - Atomic region
     7 - Ordered region
-    
+
 
 OpenMP workshare kind values
-    
-    
+
+
     1 - Loop region
     2 - Sections region
     3 - Single region (executor)
@@ -5359,40 +6167,40 @@ OpenMP workshare kind values
     5 - Workshare region
     6 - Distrubute region
     7 - Taskloop region
-    
+
 
 OpenMP dispatch kind values
-    
-    
+
+
     1 - Iteration
     2 - Section
-    
+
 
 ### Common SQLite Examples
 
 **Common Helper Commands**
 
 When utilizing the sqlite3 command line tool, it’s helpful to have data printed as named columns, this can be done with:
-    
-    
+
+
     .mode column
     .headers on
-    
+
 
 The default column width is determined by the data in the first row of results. If this doesn’t work out well, you can specify widths manually.
-    
-    
+
+
     .width 10 20 50
-    
+
 
 **Obtaining Sample Report**
 
 The CLI interface of Nsight Systems was used to profile the radixSortThrust CUDA sample, then the resulting .nsys-rep file was exported using the nsys export.
-    
-    
+
+
     nsys profile --trace=cuda,osrt radixSortThrust
     nsys export --type sqlite report1.nsys-rep
-    
+
 
 **Serialized Process and Thread Identifiers**
 
@@ -5416,18 +6224,18 @@ Nsight Systems stores identifiers where events originated in serialized form to 
 **What the code does:** Uses bit shifting and modulo operations to extract the embedded PID and TID values from the globalTid field.
 
 For events that have globalTid or globalPid fields exported, use the following code to extract numeric TID and PID.
-    
-    
+
+
     SELECT globalTid / 0x1000000 % 0x1000000 AS PID, globalTid % 0x1000000 AS TID FROM TABLE_NAME;
-    
-    
-    
+
+
+
     # Python equivalent:
     def extract_pid_tid(global_tid):
         PID = (global_tid // 0x1000000) % 0x1000000
         TID = global_tid % 0x1000000
         return PID, TID
-    
+
 
 Note
 
@@ -5451,43 +6259,43 @@ When you see numeric values in queries, refer to the documentation sections abov
 **Goal:** Link CUDA runtime API calls to the actual GPU kernels they launch, enabling analysis of which API calls resulted in the longest-running kernels.
 
 **What the code does:** 1\. Adds human-readable columns to the runtime table 2\. Joins runtime API calls with GPU kernel executions using correlation IDs 3\. Populates kernel names and API function names from the string table 4\. Finds the 10 longest API calls that resulted in kernel execution
-    
-    
+
+
     ALTER TABLE CUPTI_ACTIVITY_KIND_RUNTIME ADD COLUMN name TEXT;
     ALTER TABLE CUPTI_ACTIVITY_KIND_RUNTIME ADD COLUMN kernelName TEXT;
-    
+
     UPDATE CUPTI_ACTIVITY_KIND_RUNTIME SET kernelName =
         (SELECT value FROM StringIds
         JOIN CUPTI_ACTIVITY_KIND_KERNEL AS cuda_gpu
             ON cuda_gpu.shortName = StringIds.id
             AND CUPTI_ACTIVITY_KIND_RUNTIME.correlationId = cuda_gpu.correlationId);
-    
+
     UPDATE CUPTI_ACTIVITY_KIND_RUNTIME SET name =
         (SELECT value FROM StringIds WHERE nameId = StringIds.id);
-    
+
 
 Select the 10 longest CUDA API ranges that resulted in kernel execution.
-    
-    
+
+
     SELECT name, kernelName, start, end FROM CUPTI_ACTIVITY_KIND_RUNTIME
         WHERE kernelName IS NOT NULL ORDER BY end - start LIMIT 10;
-    
-    
-    
+
+
+
     # Python equivalent workflow:
     # 1. Load runtime and kernel data
     # 2. Join on correlation_id to match API calls with kernels
     # 3. Add readable names from string table
     # 4. Sort by duration and get top 10
-    
+
     runtime_with_kernels = runtime.merge(kernels, on='correlationId')
     runtime_with_kernels['duration'] = runtime_with_kernels['end'] - runtime_with_kernels['start']
     top_10_longest = runtime_with_kernels.nlargest(10, 'duration')
-    
+
 
 Results:
-    
-    
+
+
     name                    kernelName               start       end
     ----------------------  -----------------------  ----------  ----------
     cudaLaunchKernel_v7000  RadixSortScanBinsKernel  658863435   658868490
@@ -5500,7 +6308,7 @@ Results:
     cudaLaunchKernel_v7000  RadixSortScanBinsKernel  658759955   658765090
     cudaLaunchKernel_v7000  RadixSortScanBinsKernel  681549917   681555059
     cudaLaunchKernel_v7000  RadixSortScanBinsKernel  717812527   717817671
-    
+
 
 **Remove Ranges Overlapping With Overhead**
 
@@ -5511,8 +6319,8 @@ Results:
 Use the this query to count CUDA API ranges overlapping with the overhead ones.
 
 Replace “SELECT COUNT(*)” with “DELETE” to remove such ranges.
-    
-    
+
+
     SELECT COUNT(*) FROM CUPTI_ACTIVITY_KIND_RUNTIME WHERE rowid IN
     (
         SELECT cuda.rowid
@@ -5522,36 +6330,36 @@ Replace “SELECT COUNT(*)” with “DELETE” to remove such ranges.
         OR (cuda.end BETWEEN overhead.start and overhead.end)
         OR (cuda.start < overhead.start AND cuda.end > overhead.end)
     );
-    
-    
-    
+
+
+
     # Python equivalent for finding overlaps:
     def ranges_overlap(range1_start, range1_end, range2_start, range2_end):
         return (range1_start <= range2_end and range1_end >= range2_start)
-    
+
     overlapping_ranges = []
     for cuda_range in cuda_ranges:
         for overhead_range in overhead_ranges:
             if ranges_overlap(cuda_range.start, cuda_range.end,
                             overhead_range.start, overhead_range.end):
                 overlapping_ranges.append(cuda_range)
-    
+
 
 Results:
-    
-    
+
+
     COUNT(*)
     ----------
     1095
-    
+
 
 **Find CUDA API Calls that Resulted in the Original Graph Node Creation**
 
 **Goal:** Identify which CUDA API calls were responsible for creating the original nodes in CUDA graphs (as opposed to cloned or instantiated nodes).
 
 **What the code does:** 1\. Filters graph nodes to find only original creations (those without originalGraphNodeId) 2\. Groups by graphNodeId to get the first occurrence 3\. Correlates with CUDA runtime API calls that were active when the graph node was created 4\. Joins with string table to get readable API function names
-    
-    
+
+
     SELECT graph.graphNodeId, api.start, graph.start as graphStart, api.end,
         api.globalTid, api.correlationId, api.globalTid,
         (SELECT value FROM StringIds where api.nameId == id) as name
@@ -5564,11 +6372,11 @@ Results:
         ) as graph
     ON api.globalTid == graph.globalTid AND api.start < graph.start AND api.end > graph.start
     ORDER BY graphNodeId;
-    
+
 
 Results:
-    
-    
+
+
     graphNodeId  start       graphStart  end         globalTid        correlationId  globalTid        name
     -----------  ----------  ----------  ----------  ---------------  -------------  ---------------  -----------------------------
     1            584366518   584378040   584379102   281560221750233  109            281560221750233  cudaGraphAddMemcpyNode_v10000
@@ -5583,7 +6391,7 @@ Results:
     31           632131546   632133339   632135584   281560221750233  147            281560221750233  cudaMemsetAsync_v3020
     34           632162514   632167393   632169297   281560221750233  151            281560221750233  cudaMemcpyAsync_v3020
     35           632170068   632173334   632175388   281560221750233  152            281560221750233  cudaLaunchHostFunc_v10000
-    
+
 
 **Backtraces for OSRT Ranges**
 
@@ -5592,38 +6400,38 @@ Results:
 **What the code does:** 1\. Adds human-readable columns for function names, symbol names, and module names 2\. Populates these from the string table for better readability 3\. Shows how to query the longest OSRT call with its complete backtrace
 
 Adding text columns makes results of the query below more human-readable.
-    
-    
+
+
     ALTER TABLE OSRT_API ADD COLUMN name TEXT;
     UPDATE OSRT_API SET name = (SELECT value FROM StringIds WHERE OSRT_API.nameId = StringIds.id);
-    
+
     ALTER TABLE OSRT_CALLCHAINS ADD COLUMN symbolName TEXT;
     UPDATE OSRT_CALLCHAINS SET symbolName = (SELECT value FROM StringIds WHERE symbol = StringIds.id);
-    
+
     ALTER TABLE OSRT_CALLCHAINS ADD COLUMN moduleName TEXT;
     UPDATE OSRT_CALLCHAINS SET moduleName = (SELECT value FROM StringIds WHERE module = StringIds.id);
-    
+
 
 Print backtrace of the longest OSRT range.
-    
-    
+
+
     SELECT globalTid / 0x1000000 % 0x1000000 AS PID, globalTid % 0x1000000 AS TID,
         start, end, name, callchainId, stackDepth, symbolName, moduleName
     FROM OSRT_API LEFT JOIN OSRT_CALLCHAINS ON callchainId == OSRT_CALLCHAINS.id
     WHERE OSRT_API.rowid IN (SELECT rowid FROM OSRT_API ORDER BY end - start DESC LIMIT 1)
     ORDER BY stackDepth LIMIT 10;
-    
-    
-    
+
+
+
     # Python equivalent for finding longest call with backtrace:
     longest_call = osrt_api.loc[osrt_api['duration'].idxmax()]
     backtrace = osrt_callchains[osrt_callchains['id'] == longest_call['callchainId']]
     backtrace_ordered = backtrace.sort_values('stackDepth')
-    
+
 
 Results:
-    
-    
+
+
     PID         TID         start       end         name                    callchainId  stackDepth  symbolName                      moduleName
     ----------  ----------  ----------  ----------  ----------------------  -----------  ----------  ------------------------------  ----------------------------------------
     19163       19176       360897690   860966851   pthread_cond_timedwait  88           0           pthread_cond_timedwait@GLIBC_2  /lib/x86_64-linux-gnu/libpthread-2.27.so
@@ -5632,45 +6440,45 @@ Results:
     19163       19176       360897690   860966851   pthread_cond_timedwait  88           3           0x7fbc983b64a8                  /usr/lib/x86_64-linux-gnu/libcuda.so.418
     19163       19176       360897690   860966851   pthread_cond_timedwait  88           4           start_thread                    /lib/x86_64-linux-gnu/libpthread-2.27.so
     19163       19176       360897690   860966851   pthread_cond_timedwait  88           5           __clone                         /lib/x86_64-linux-gnu/libc-2.27.so
-    
+
 
 Profiled processes output streams.
 
 **Goal:** Access stdout and stderr output from profiled processes to correlate application output with performance data.
 
 **What the code does:** Resolves file paths and content from string IDs to show the captured stdout/stderr streams from profiled applications.
-    
-    
+
+
     ALTER TABLE ProcessStreams ADD COLUMN filename TEXT;
     UPDATE ProcessStreams SET filename = (SELECT value FROM StringIds WHERE ProcessStreams.filenameId = StringIds.id);
-    
+
     ALTER TABLE ProcessStreams ADD COLUMN content TEXT;
     UPDATE ProcessStreams SET content = (SELECT value FROM StringIds WHERE ProcessStreams.contentId = StringIds.id);
-    
+
 
 Select all collected stdout and stderr streams.
-    
-    
+
+
     select globalPid / 0x1000000 % 0x1000000 AS PID, filename, content from ProcessStreams;
-    
+
 
 Results:
-    
-    
+
+
     PID         filename                                                 content
     ----------  -------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------
     19163       /tmp/nvidia/nsight_systems/streams/pid_19163_stdout.log  /home/user_name/NVIDIA_CUDA-10.1_Samples/6_Advanced/radixSortThrust/radixSortThrust Starting...
-    
+
     GPU Device 0: "Quadro P2000" with compute capability 6.1
-    
-    
+
+
     Sorting 1048576 32-bit unsigned int keys and values
-    
+
     radixSortThrust, Throughput = 401.0872 MElements/s, Time = 0.00261 s, Size = 1048576 elements
     Test passed
-    
+
     19163       /tmp/nvidia/nsight_systems/streams/pid_19163_stderr.log
-    
+
 
 **Thread Summary**
 
@@ -5681,8 +6489,8 @@ Note that Nsight Systems applies additional logic during sampling events process
 **Approach 1: Using CPU Cycles (when available)**
 
 **What this code does:** Calculates thread CPU utilization using hardware performance counter data (CPU cycles) which provides the most accurate measurement of actual CPU usage per thread.
-    
-    
+
+
     SELECT
         globalTid / 0x1000000 % 0x1000000 AS PID,
         globalTid % 0x1000000 AS TID,
@@ -5703,25 +6511,25 @@ Note that Nsight Systems applies additional logic during sampling events process
     GROUP BY globalTid
     ORDER BY CPU_utilization DESC
     LIMIT 10;
-    
+
 
 Results:
-    
-    
+
+
     PID         TID         CPU_utilization  thread_name
     ----------  ----------  ---------------  ---------------
     19163       19163       98.4             radixSortThrust
     19163       19168       1.35             CUPTI worker th
     19163       19166       0.25             [NS]
-    
+
 
 **Approach 2: Using Scheduling Events (when PMU data not available)**
 
 **What this approach does:** When CPU cycle counter data is not collected, this method calculates thread CPU time based on scheduling events (when threads are scheduled in/out), then calculates utilization percentages. This approach is less precise but still useful for understanding relative thread activity.
-    
-    
+
+
     CREATE INDEX sched_start ON SCHED_EVENTS (start);
-    
+
     CREATE TABLE CPU_USAGE AS
     SELECT
         first.globalTid as globalTid,
@@ -5741,7 +6549,7 @@ Results:
     WHERE first.isSchedIn != 0
     GROUP BY first.globalTid
     ORDER BY total_duration DESC;
-    
+
     SELECT
         globalTid / 0x1000000 % 0x1000000 AS PID,
         globalTid % 0x1000000 AS TID,
@@ -5749,28 +6557,28 @@ Results:
         ROUND(100.0 * total_duration / (SELECT SUM(total_duration) FROM CPU_USAGE), 2) as CPU_utilization
     FROM CPU_USAGE
     ORDER BY CPU_utilization DESC;
-    
-    
-    
+
+
+
     # Python equivalent for scheduling-based calculation:
     def calculate_thread_cpu_time(sched_events):
         cpu_usage = {}
         for tid in unique_tids:
             tid_events = sched_events[sched_events['globalTid'] == tid]
             tid_events = tid_events[tid_events['isSchedIn'] == 1]  # Only sched-in events
-    
+
             total_time = 0
             for i in range(len(tid_events) - 1):
                 time_slice = tid_events.iloc[i+1]['start'] - tid_events.iloc[i]['start']
                 total_time += time_slice
-    
+
             cpu_usage[tid] = total_time
         return cpu_usage
-    
+
 
 Results:
-    
-    
+
+
     PID         TID         thread_name      CPU_utilization
     ----------  ----------  ---------------  ---------------
     19163       19163       radixSortThrust  93.74
@@ -5781,7 +6589,7 @@ Results:
     19163       19167       [NS Comms]       0.05
     19163       19176       radixSortThrust  0.02
     19163       19170       radixSortThrust  0.0
-    
+
 
 **Function Table**
 
@@ -5792,20 +6600,20 @@ Results:
 These examples demonstrate how to calculate Flat and BottomUp (for top level only) views statistics.
 
 To set up:
-    
-    
+
+
     ALTER TABLE SAMPLING_CALLCHAINS ADD COLUMN symbolName TEXT;
     UPDATE SAMPLING_CALLCHAINS SET symbolName = (SELECT value FROM StringIds WHERE symbol = StringIds.id);
-    
+
     ALTER TABLE SAMPLING_CALLCHAINS ADD COLUMN moduleName TEXT;
     UPDATE SAMPLING_CALLCHAINS SET moduleName = (SELECT value FROM StringIds WHERE module = StringIds.id);
-    
+
 
 To get flat view:
 
 **Flat view:** Shows total time spent in each function across all call stacks (inclusive time).
-    
-    
+
+
     SELECT symbolName, moduleName, ROUND(100.0 * sum(cpuCycles) /
         (SELECT SUM(cpuCycles) FROM COMPOSITE_EVENTS), 2) AS flatTimePercentage
     FROM SAMPLING_CALLCHAINS
@@ -5813,13 +6621,13 @@ To get flat view:
     GROUP BY symbol, module
     ORDER BY flatTimePercentage DESC
     LIMIT 5;
-    
+
 
 To get BottomUp view (top level only):
 
 **Bottom-up view:** Shows time spent directly in each function (exclusive time, only leaf functions in call stacks).
-    
-    
+
+
     SELECT symbolName, moduleName, ROUND(100.0 * sum(cpuCycles) /
         (SELECT SUM(cpuCycles) FROM COMPOSITE_EVENTS), 2) AS selfTimePercentage
     FROM SAMPLING_CALLCHAINS
@@ -5828,22 +6636,22 @@ To get BottomUp view (top level only):
     GROUP BY symbol, module
     ORDER BY selfTimePercentage DESC
     LIMIT 5;
-    
-    
-    
+
+
+
     # Python equivalent:
     # Flat view - aggregate all occurrences of each function
     flat_view = callchains.groupby(['symbol', 'module'])['cpuCycles'].sum()
     flat_percentages = (flat_view / total_cycles * 100).sort_values(ascending=False)
-    
+
     # Bottom-up view - only leaf nodes (stackDepth == 0)
     leaf_functions = callchains[callchains['stackDepth'] == 0]
     bottomup_view = leaf_functions.groupby(['symbol', 'module'])['cpuCycles'].sum()
-    
+
 
 Results:
-    
-    
+
+
     symbolName   moduleName   flatTimePercentage
     -----------  -----------  ------------------
     [Max depth]  [Max depth]  99.92
@@ -5858,7 +6666,7 @@ Results:
     thrust::iterat  /home/user_name/NVIDIA_CUDA-10.1_Samples/6_  2.23
     thrust::iterat  /home/user_name/NVIDIA_CUDA-10.1_Samples/6_  1.55
     void thrust::i  /home/user_name/NVIDIA_CUDA-10.1_Samples/6_  1.55
-    
+
 
 **DX12 API Frame Duration Histogram**
 
@@ -5867,10 +6675,10 @@ Results:
 **What the code does:** 1\. Creates a view that pairs consecutive Present calls to calculate frame durations 2\. Groups frame durations into millisecond buckets 3\. Counts how many frames fall into each duration bucket
 
 The example demonstrates how to calculate DX12 CPU frames durartion and construct a histogram out of it.
-    
-    
+
+
     CREATE INDEX DX12_API_ENDTS ON DX12_API (end);
-    
+
     CREATE TEMP VIEW DX12_API_FPS AS SELECT end AS start,
         (SELECT end FROM DX12_API
             WHERE end > outer.end AND nameId == (SELECT id FROM StringIds
@@ -5879,11 +6687,11 @@ The example demonstrates how to calculate DX12 CPU frames durartion and construc
     FROM DX12_API AS outer
         WHERE nameId == (SELECT id FROM StringIds WHERE value == "IDXGISwapChain::Present")
     ORDER BY end;
-    
+
 
 Number of frames with a duration of [X, X + 1] milliseconds.
-    
-    
+
+
     SELECT
         CAST((end - start) / 1000000.0 AS INT) AS duration_ms,
         count(*)
@@ -5891,26 +6699,26 @@ Number of frames with a duration of [X, X + 1] milliseconds.
     WHERE end IS NOT NULL
     GROUP BY duration_ms
     ORDER BY duration_ms;
-    
-    
-    
+
+
+
     # Python equivalent:
     present_calls = dx12_api[dx12_api['function_name'] == 'IDXGISwapChain::Present']
     present_calls = present_calls.sort_values('end')
-    
+
     frame_durations = []
     for i in range(len(present_calls) - 1):
         duration = present_calls.iloc[i+1]['end'] - present_calls.iloc[i]['end']
         duration_ms = duration / 1000000.0  # Convert to milliseconds
         frame_durations.append(int(duration_ms))
-    
+
     # Create histogram
     histogram = pd.Series(frame_durations).value_counts().sort_index()
-    
+
 
 Results:
-    
-    
+
+
     duration_ms  count(*)
     -----------  ----------
     3            1
@@ -5928,7 +6736,7 @@ Results:
     16           3
     17           2
     18           1
-    
+
 
 **GPU Context Switch Events Enumeration**
 
@@ -5939,17 +6747,17 @@ Results:
 **GPU Context Switch Event Tags:** \- **7** : END events (context execution ends) \- **8** : BEGIN events (context execution begins)
 
 GPU context duration is between first BEGIN and a matching END event.
-    
-    
+
+
     SELECT (CASE tag WHEN 8 THEN "BEGIN" WHEN 7 THEN "END" END) AS tag,
         globalPid / 0x1000000 % 0x1000000 AS PID,
         vmId, seqNo, contextId, timestamp, gpuId FROM GPU_CONTEXT_SWITCH_EVENTS
     WHERE tag in (7, 8) ORDER BY seqNo LIMIT 10;
-    
+
 
 Results:
-    
-    
+
+
     tag         PID         vmId        seqNo       contextId   timestamp   gpuId
     ----------  ----------  ----------  ----------  ----------  ----------  ----------
     BEGIN       23371       0           0           1048578     56759171    0
@@ -5962,7 +6770,7 @@ Results:
     END         19397       0           9           1048577     1918521098  0
     BEGIN       19397       0           10          1048577     2024164744  0
     BEGIN       19397       0           11          1048577     2024358650  0
-    
+
 
 **Resolve NVTX Category Name**
 
@@ -5973,19 +6781,19 @@ Results:
 **NVTX Event Types:**
 
 >   * **33** : Category definition events (define new categories)
-> 
+>
 >   * **34** : Mark events (instantaneous markers)
-> 
+>
 >   * **59** : Push/Pop range events (nested ranges)
-> 
+>
 >   * **60** : Start/End range events (paired ranges)
-> 
-> 
+>
+>
 
 
 The example demonstrates how to resolve NVTX category name for NVTX marks and ranges.
-    
-    
+
+
     WITH
       event AS (
         SELECT *
@@ -6011,11 +6819,11 @@ The example demonstrates how to resolve NVTX category name for NVTX marks and ra
       text
     FROM event JOIN category USING (category, domainId)
     ORDER BY start;
-    
+
 
 Results:
-    
-    
+
+
     start       end         globalTid        eventType   domainId    category    categoryName               text
     ----------  ----------  ---------------  ----------  ----------  ----------  -------------------------  ----------------
     18281150    18311960    281534938484214  59          0           1           FirstCategoryUnderDefault  Push Pop Range A
@@ -6026,7 +6834,7 @@ Results:
     18352924    18378342    281534938484214  60          1           2           SecondCategoryUnderMyDoma  Start End Range
     18359634                281534938484214  34          1           1           FirstCategoryUnderMyDomai  Mark A
     18365448                281534938484214  34          1           2           SecondCategoryUnderMyDoma  Mark B
-    
+
 
 **Rename CUDA Kernels with NVTX**
 
@@ -6035,12 +6843,12 @@ Results:
 **What the code does:** 1\. Finds the innermost NVTX push-pop range that encompasses each CUDA kernel launch 2\. Maps the NVTX range text to the corresponding kernel execution 3\. Enables analysis of kernels by their logical function rather than just their technical names
 
 The example demonstrates how to map innermost NVTX push-pop range to a matching CUDA kernel run.
-    
-    
+
+
     ALTER TABLE CUPTI_ACTIVITY_KIND_KERNEL ADD COLUMN nvtxRange TEXT;
     CREATE INDEX nvtx_start ON NVTX_EVENTS (start);
-    
-    
+
+
     UPDATE CUPTI_ACTIVITY_KIND_KERNEL SET nvtxRange = (
         SELECT NVTX_EVENTS.text
         FROM NVTX_EVENTS JOIN CUPTI_ACTIVITY_KIND_RUNTIME ON
@@ -6052,13 +6860,13 @@ The example demonstrates how to map innermost NVTX push-pop range to a matching 
             CUPTI_ACTIVITY_KIND_KERNEL.correlationId == CUPTI_ACTIVITY_KIND_RUNTIME.correlationId
         ORDER BY NVTX_EVENTS.start DESC LIMIT 1
     );
-    
+
     SELECT start, end, globalPid, StringIds.value as shortName, nvtxRange
     FROM CUPTI_ACTIVITY_KIND_KERNEL JOIN StringIds ON shortName == id
     ORDER BY start LIMIT 6;
-    
-    
-    
+
+
+
     # Python equivalent:
     def find_innermost_nvtx_range(kernel_start, kernel_end, nvtx_ranges):
         # Find NVTX ranges that completely contain the kernel
@@ -6066,16 +6874,16 @@ The example demonstrates how to map innermost NVTX push-pop range to a matching 
         for nvtx in nvtx_ranges:
             if nvtx['start'] <= kernel_start and nvtx['end'] >= kernel_end:
                 containing_ranges.append(nvtx)
-    
+
         # Return the innermost (latest starting) range
         if containing_ranges:
             return max(containing_ranges, key=lambda x: x['start'])['text']
         return None
-    
+
 
 Results:
-    
-    
+
+
     start       end         globalPid          shortName      nvtxRange
     ----------  ----------  -----------------  -------------  ----------
     526545376   526676256   72057700439031808  MatrixMulCUDA
@@ -6084,30 +6892,30 @@ Results:
     527163584   527294176   72057700439031808  MatrixMulCUDA  My Kernel
     527296160   527426592   72057700439031808  MatrixMulCUDA  My Range
     527428096   527558656   72057700439031808  MatrixMulCUDA
-    
+
 
 **Select CUDA Calls With Backtraces**
 
 **Goal:** Analyze CUDA API calls along with their call stacks to understand the application code paths that lead to CUDA API usage.
 
 **What the code does:** Joins CUDA runtime API calls with their associated call chains to show the complete stack trace for each CUDA call, helping identify where in the application CUDA calls originate.
-    
-    
+
+
     ALTER TABLE CUPTI_ACTIVITY_KIND_RUNTIME ADD COLUMN name TEXT;
     UPDATE CUPTI_ACTIVITY_KIND_RUNTIME SET name = (SELECT value FROM StringIds WHERE CUPTI_ACTIVITY_KIND_RUNTIME.nameId = StringIds.id);
-    
+
     ALTER TABLE CUDA_CALLCHAINS ADD COLUMN symbolName TEXT;
     UPDATE CUDA_CALLCHAINS SET symbolName = (SELECT value FROM StringIds WHERE symbol = StringIds.id);
-    
+
     SELECT globalTid % 0x1000000 AS TID,
         start, end, name, callchainId, stackDepth, symbolName
     FROM CUDA_CALLCHAINS JOIN CUPTI_ACTIVITY_KIND_RUNTIME ON callchainId == CUDA_CALLCHAINS.id
     ORDER BY callchainId, stackDepth LIMIT 11;
-    
+
 
 Results:
-    
-    
+
+
     TID         start       end         name           callchainId  stackDepth  symbolName
     ----------  ----------  ----------  -------------  -----------  ----------  --------------
     11928       168976467   169077826   cuMemAlloc_v2  1            0           0x7f13c44f02ab
@@ -6121,7 +6929,7 @@ Results:
     11928       168976467   169077826   cuMemAlloc_v2  1            8           main
     11928       168976467   169077826   cuMemAlloc_v2  1            9           __libc_start_m
     11928       168976467   169077826   cuMemAlloc_v2  1            10          _start
-    
+
 
 **SLI Peer-to-Peer Query**
 
@@ -6132,26 +6940,26 @@ Results:
 **SLI P2P Event Classes:** \- **62** : Peer-to-peer transfer events between GPUs
 
 The example demonstrates how to query SLI Peer-to-Peer events with resource size greater than value and within a time range sorted by resource size descending.
-    
-    
+
+
     SELECT *
     FROM SLI_P2P
     WHERE resourceSize < 98304 AND start > 1568063100 AND end < 1579468901
     ORDER BY resourceSize DESC;
-    
-    
-    
+
+
+
     # Python equivalent:
     filtered_transfers = sli_p2p[
         (sli_p2p['resourceSize'] < 98304) &
         (sli_p2p['start'] > 1568063100) &
         (sli_p2p['end'] < 1579468901)
     ].sort_values('resourceSize', ascending=False)
-    
+
 
 Results:
-    
-    
+
+
     start       end         eventClass  globalTid          gpu         frameId     transferSkipped  srcGpu      dstGpu      numSubResources  resourceSize  subResourceIdx  smplWidth   smplHeight  smplDepth   bytesPerElement  dxgiFormat  logSurfaceNames  transferInfo  isEarlyPushManagedByNvApi  useAsyncP2pForResolve  transferFuncName  regimeName  debugName   bindType
     ----------  ----------  ----------  -----------------  ----------  ----------  ---------------  ----------  ----------  ---------------  ------------  --------------  ----------  ----------  ----------  ---------------  ----------  ---------------  ------------  -------------------------  ---------------------  ----------------  ----------  ----------  ----------
     1570351100  1570351101  62          72057698056667136  0           771         0                256         512         1                1048576       0               256         256         1           16               2                            3             0                          0
@@ -6160,7 +6968,7 @@ Results:
     1572345400  1572345401  62          72057698056667136  0           773         0                256         512         1                1048576       0               64          64          64          4                31                           3             0                          0
     1574734300  1574734301  62          72057698056667136  0           775         0                256         512         1                1048576       0               256         256         1           16               2                            3             0                          0
     1574767200  1574767201  62          72057698056667136  0           775         0                256         512         1                1048576       0               64          64          64          4                31                           3             0                          0
-    
+
 
 **Generic Events**
 
@@ -6169,8 +6977,8 @@ Results:
 **What the code does:** Demonstrates how to query generic events stored in JSON format, specifically showing how to create a histogram of syscall usage by process ID. The query uses a subquery to find the specific event type ID for “raw_syscalls:sys_enter” events, then counts occurrences by process ID.
 
 Syscall usage histogram by PID:
-    
-    
+
+
     SELECT json_extract(data, '$.common_pid') AS PID, count(*) AS total
     FROM GENERIC_EVENTS WHERE PID IS NOT NULL AND typeId = (
       SELECT typeId FROM GENERIC_EVENT_TYPES
@@ -6178,26 +6986,26 @@ Syscall usage histogram by PID:
     GROUP BY PID
     ORDER BY total DESC
     LIMIT 10;
-    
-    
-    
+
+
+
     # Python equivalent:
     import json
-    
+
     # Filter for syscall enter events
     syscall_events = []
     for event in generic_events:
         data = json.loads(event['data'])
         if 'common_pid' in data:
             syscall_events.append(data['common_pid'])
-    
+
     # Count syscalls by PID
     pid_counts = pd.Series(syscall_events).value_counts().head(10)
-    
+
 
 Results:
-    
-    
+
+
     PID         total
     ----------  ----------
     5551        32811
@@ -6210,7 +7018,7 @@ Results:
     4355        655
     4356        640
     4354        633
-    
+
 
 **Fetching Generic Events in JSON Format**
 
@@ -6219,21 +7027,21 @@ Results:
 **What the code does:** Constructs JSON objects from the database tables containing generic event data, enabling export to JSON Lines format for further processing with external tools.
 
 Text and JSON export modes don’t include generic events. Use the below queries (without the LIMIT clause) to extract JSON lines representation of generic events, types, and sources.
-    
-    
+
+
     SELECT json_insert('{}',
         '$.sourceId', sourceId,
         '$.data', json(data)
     )
     FROM GENERIC_EVENT_SOURCES LIMIT 2;
-    
+
     SELECT json_insert('{}',
         '$.typeId', typeId,
         '$.sourceId', sourceId,
         '$.data', json(data)
     )
     FROM GENERIC_EVENT_TYPES LIMIT 2;
-    
+
     SELECT json_insert('{}',
         '$.rawTimestamp', rawTimestamp,
         '$.timestamp', timestamp,
@@ -6241,11 +7049,11 @@ Text and JSON export modes don’t include generic events. Use the below queries
         '$.data', json(data)
     )
     FROM GENERIC_EVENTS LIMIT 2;
-    
+
 
 Results:
-    
-    
+
+
     json_insert('{}',
         '$.sourceId', sourceId,
         '$.data', json(data)
@@ -6269,7 +7077,7 @@ Results:
     --------------------------------------------------------------------------------------------------------------------
     {"rawTimestamp":1183694330725221,"timestamp":6236683,"typeId":72057602627862670,"data":{"common_pid":"0","irq":"66","name":"327696","common_type":"142","common_flags":"9","common_preempt_count":"0"}}
     {"rawTimestamp":1183694333695687,"timestamp":9207149,"typeId":72057602627862670,"data":{"common_pid":"0","irq":"66","name":"327696","common_type":"142","common_flags":"9","common_preempt_count":"0"}}
-    
+
 
 ### Arrow
 
@@ -6278,10 +7086,10 @@ The Arrow type exported file, `.arrows`, uses the IPC stream format to store all
 The name of each table is included in the schema metadata. Thus, while reading each table, the user can extract the table title from the metadata. The table name metadata field has the key `table_name`. The titles of all the available tables can be found in section [SQLite Schema Reference](index.html#sqlite-schema-reference).
 
 A sample function that reads all Arrow tables in a `.arrows` file is provided below in Python:
-    
-    
+
+
     import pyarrow as pa
-    
+
     def read_tables(arrow_file):
         with pa.input_stream(arrow_file) as source:
             while source.tell() < source.size():
@@ -6289,7 +7097,7 @@ A sample function that reads all Arrow tables in a `.arrows` file is provided be
                     yield pa.ipc.open_stream(arrow_file).read_all()
                 except:
                     continue
-    
+
 
 The Arrow directory exporter type, `_arwdir`, will create a directory with one arrow file per table/dataset.
 
@@ -6298,13 +7106,13 @@ The Arrow directory exporter type, `_arwdir`, will create a directory with one a
 In the JSON Lines export format ([JSON Lines Documentation](https://jsonlines.org/)), events and other report data (such as strings and processes) are serialized into JSON objects, with each object written to a new line.
 
 Output layout:
-    
-    
+
+
     {"id":0,"table":"StringIds","value":"[Unknown]"}
     {"globalPid":284057963331584,"name":"chrome","pid":153958,"table":"PROCESSES"}
     {"globalTid":281523009882942,"nameId":442,"priority":20,"table":"ThreadNames"}
     {"name":"COLLECT_GPU_CTX_SW_TRACE","table":"META_DATA_CAPTURE","value":"false"}
     ...
-    
+
 
 Note the presence of the “table” field in each JSON object. This field allows readers to identify the type of the event and corresponds to the table name in the `sqlite` export.

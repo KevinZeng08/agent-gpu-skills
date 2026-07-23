@@ -1,6 +1,6 @@
-# Next >
+# 6.1. Device Management
 
-**Source:** group__CUDART__DEVICE.html
+**Source:** group__CUDART__DEVICE.html#group__CUDART__DEVICE
 
 
 ### Functions

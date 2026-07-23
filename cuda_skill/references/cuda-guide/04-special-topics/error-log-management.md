@@ -12,21 +12,21 @@ Traditionally, the only indication of a failed CUDA API call is the return of a 
 
 ## 4.8.2. Activation
 
-Set the _CUDA_LOG_FILE_ environment variable. Acceptable values are _stdout_ , _stderr_ , or a valid path on the system to write a file. The log buffer can be dumped via API even if _CUDA_LOG_FILE_ was not set before program execution. NOTE: An error-free execution may not print any logs.
+Set the _CUDA_LOG_FILE_ environment variable. Acceptable values are _stdout_ , _stderr_ , or a valid path on the system to write a file. The log buffer can be dumped via API even if _CUDA_LOG_FILE_ was not set before program execution. Note that an error-free execution might not print any logs.
 
 ## 4.8.3. Output
 
 Logs are output in the following format:
-    
-    
+
+
     [Time][TID][Source][Severity][API Entry Point] Message
-    
+
 
 The following line is an actual error message that is generated if the developer tries to dump the Error Log Management logs to an unallocated buffer:
-    
-    
+
+
     [22:21:32.099][25642][CUDA][E][cuLogsDumpToMemory] buffer cannot be NULL
-    
+
 
 Where before, all the developer would have gotten is _CUDA_ERROR_INVALID_VALUE_ in the return code and possibly “invalid argument” if _cuGetErrorString_ is called.
 
@@ -35,37 +35,37 @@ Where before, all the developer would have gotten is _CUDA_ERROR_INVALID_VALUE_ 
 The CUDA Driver provides APIs in two categories for interacting with the Error Log Management feature.
 
 This feature allows developers to register callback functions to be used whenever an error log is generated, where the callback signature is:
-    
-    
+
+
     void callbackFunc(void *data, CUlogLevel logLevel, char *message, size_t length)
-    
+
 
 Callbacks are registered with this API:
-    
-    
+
+
     CUresult cuLogsRegisterCallback(CUlogsCallback callbackFunc, void *userData, CUlogsCallbackHandle *callback_out)
-    
+
 
 Where _userData_ is passed to the callback function without modifications. _callback_out_ should be stored by the caller for use in _cuLogsUnregisterCallback_.
-    
-    
+
+
     CUresult cuLogsUnregisterCallback(CUlogsCallbackHandle callback)
-    
+
 
 The other set of API functions are for managing the output of logs. An important concept is the log iterator, which points to the current end of the buffer:
-    
-    
+
+
     CUresult cuLogsCurrent(CUlogIterator *iterator_out, unsigned int flags)
-    
+
 
 The iterator position can be kept by the calling software in situations where a dump of the entire log buffer is not desired. Currently, the flags parameter must be 0, with additional options reserved for future CUDA releases.
 
 At any time, the error log buffer can be dumped to either a file or memory with these functions:
-    
-    
+
+
     CUresult cuLogsDumpToFile(CUlogIterator *iterator, const char *pathToFile, unsigned int flags)
     CUresult cuLogsDumpToMemory(CUlogIterator *iterator, char *buffer, size_t *size, unsigned int flags)
-    
+
 
 If _iterator_ is NULL, the entire buffer will be dumped, up to the maximum of 100 entries. If _iterator_ is not NULL, logs will be dumped starting from that entry and the value of _iterator_ will be updated to the current end of the logs, as if _cuLogsCurrent_ had been called. If there have been more than 100 log entries into the buffer, a note will be added at the start of the dump noting this.
 

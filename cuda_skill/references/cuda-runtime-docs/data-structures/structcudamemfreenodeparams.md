@@ -1,4 +1,4 @@
-# 7.54. cudaMemFreeNodeParams
+# 7.55. cudaMemFreeNodeParams
 
 **Source:** structcudaMemFreeNodeParams.html#structcudaMemFreeNodeParams
 

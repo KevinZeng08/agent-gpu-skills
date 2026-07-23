@@ -1,52 +1,66 @@
 #!/bin/bash
-# GPU Skill 安装脚本
-# 用法: bash install.sh [--agent cursor|claude|codex|gemini] [--copy]
+# GPU skill installer.
+# Usage: bash install.sh [--agent NAME] [--copy] [--skill NAME] [--target-dir DIR]
 #
-# 默认安装到 Cursor。使用 --agent 选择目标工具。
+# Installs for Cursor by default. Use --agent to select another tool.
 #
-# 安装模式（默认混合模式）:
-#   - skill 目录: 真实目录（多数工具不识别软链接目录）
-#   - SKILL.md: 复制真实文件
-#   - repos、references 等子目录/文件: 软链接到项目目录
+# Installation modes (hybrid mode by default):
+#   - Skill directory: regular directory, because most tools do not follow symlinked directories.
+#   - SKILL.md: regular copied file.
+#   - Subdirectories and files such as repos and references: symlinks to this repository.
 #
-# --copy  全量复制模式（适用于无法软链接的场景）
+# --copy enables full-copy mode for environments that cannot use symlinks.
+#
+# Safety policy: create or overwrite matching files only. Never remove existing directories or links.
+# Exit on path conflicts so the user can decide how to resolve them.
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 AGENT="cursor"
 COPY_MODE=false
+SELECTED_SKILL=""
+TARGET_DIR=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --agent) AGENT="$2"; shift 2 ;;
         --copy)  COPY_MODE=true; shift ;;
+        --skill) SELECTED_SKILL="$2"; shift 2 ;;
+        --target-dir) TARGET_DIR="$2"; shift 2 ;;
         -h|--help)
-            echo "用法: bash install.sh [--agent cursor|claude|codex|gemini] [--copy]"
+            echo "Usage: bash install.sh [--agent NAME] [--copy] [--skill NAME] [--target-dir DIR]"
             echo ""
-            echo "首次安装:"
-            echo "  bash update-repos.sh    # 获取源码 repo"
-            echo "  bash install.sh         # 安装到 Cursor (默认，已验证)"
+            echo "Initial setup:"
+            echo "  bash update-repos.sh    # Fetch source repositories."
+            echo "  bash install.sh         # Install for Cursor (default and validated)."
             echo ""
-            echo "安装到其他工具 (未验证，如遇问题让对应 AI 协助排查):"
+            echo "Install for other tools (not validated):"
             echo "  bash install.sh --agent claude   # Claude Code (~/.claude/skills/)"
             echo "  bash install.sh --agent codex    # Codex (~/.codex/skills/)"
             echo "  bash install.sh --agent gemini   # Gemini CLI (~/.gemini/skills/)"
             echo ""
-            echo "选项:"
-            echo "  --copy  全量复制（适用于无法软链接的场景）"
+            echo "Options:"
+            echo "  --copy       Copy all files instead of creating symlinks."
+            echo "  --skill      Install one skill only, for example cuda-skill."
+            echo "  --target-dir Override the agent's default skill root."
             exit 0
             ;;
-        *) echo "未知参数: $1"; exit 1 ;;
+        *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
 
 get_skill_dir() {
+    if [ -n "$TARGET_DIR" ]; then
+        echo "$TARGET_DIR"
+        return
+    fi
+
     case $1 in
         cursor) echo "${HOME}/.cursor/skills" ;;
         claude) echo "${HOME}/.claude/skills" ;;
-        codex)  echo "${HOME}/.codex/skills" ;;
+        codex)  echo "${CODEX_HOME:-${HOME}/.codex}/skills" ;;
         gemini) echo "${HOME}/.gemini/skills" ;;
         qoder)  echo "${HOME}/.qoder/skills" ;;
         *)      echo "Unknown agent: $1" >&2; return 1 ;;
@@ -54,8 +68,8 @@ get_skill_dir() {
 }
 
 if [ ! -d "$SCRIPT_DIR/cuda_skill" ]; then
-    echo "错误: 未找到 cuda_skill/ 目录"
-    echo "请在项目根目录下运行此脚本"
+    echo "Error: cuda_skill/ was not found."
+    echo "Run this script from the repository root."
     exit 1
 fi
 
@@ -65,70 +79,101 @@ SKILLS[triton-skill]="triton_skill"
 SKILLS[cutlass-skill]="cutlass_skill"
 SKILLS[sglang-skill]="sglang_skill"
 
+if [ -n "$SELECTED_SKILL" ] && [ -z "${SKILLS[$SELECTED_SKILL]+set}" ]; then
+    echo "Error: unknown skill: $SELECTED_SKILL"
+    exit 1
+fi
+
 install_to_agent() {
     local agent=$1
     local SKILL_DIR
     SKILL_DIR=$(get_skill_dir "$agent")
 
     echo "================================"
-    echo "安装到 $agent ($SKILL_DIR)"
+    echo "Installing for $agent ($SKILL_DIR)"
     echo "================================"
     echo ""
 
     mkdir -p "$SKILL_DIR"
 
+    local install_failed=0
+
     for skill_name in "${!SKILLS[@]}"; do
-        src_dir="${SKILLS[$skill_name]}"
-        src_path="$SCRIPT_DIR/$src_dir"
-        target="$SKILL_DIR/$skill_name"
+        if [ -n "$SELECTED_SKILL" ] && [ "$skill_name" != "$SELECTED_SKILL" ]; then
+            continue
+        fi
+
+        local src_dir="${SKILLS[$skill_name]}"
+        local src_path="$SCRIPT_DIR/$src_dir"
+        local target="$SKILL_DIR/$skill_name"
 
         echo "--- $skill_name ---"
 
-        # 清理旧安装
+        # Report the legacy name without removing it.
         if [ "$skill_name" = "triton-skill" ]; then
-            old_target="$SKILL_DIR/triton-gluon-skill"
+            local old_target="$SKILL_DIR/triton-gluon-skill"
             if [ -L "$old_target" ] || [ -d "$old_target" ]; then
-                echo "  移除旧版: triton-gluon-skill"
-                rm -rf "$old_target"
+                echo "  Notice: legacy triton-gluon-skill detected and left unchanged."
             fi
         fi
 
-        if [ -L "$target" ]; then
-            rm "$target"
-        elif [ -d "$target" ]; then
-            rm -rf "$target"
+        if [ ! -d "$src_path" ]; then
+            echo "  Skip: $src_dir/ does not exist."
+            continue
         fi
 
-        if [ ! -d "$src_path" ]; then
-            echo "  跳过: $src_dir/ 不存在"
+        if [ -L "$target" ] || { [ -e "$target" ] && [ ! -d "$target" ]; }; then
+            echo "  Conflict: $target is not a regular directory and was left unchanged."
+            install_failed=1
             continue
         fi
 
         if [ "$COPY_MODE" = true ]; then
-            cp -r "$src_path" "$target"
-            echo "  已复制: $src_path -> $target"
+            mkdir -p "$target"
+            cp -a "$src_path/." "$target/"
+            echo "  Merged copy: $src_path -> $target"
         else
             mkdir -p "$target"
             cp "$src_path/SKILL.md" "$target/SKILL.md"
-            echo "  已复制: SKILL.md"
+            echo "  Copied: SKILL.md"
 
             for item in "$src_path"/*; do
-                basename="$(basename "$item")"
-                [ "$basename" = "SKILL.md" ] && continue
-                [[ "$basename" == update-*.sh ]] && continue
-                ln -sf "$item" "$target/$basename"
-                echo "  已链接: $basename"
+                local item_name
+                item_name="$(basename "$item")"
+                [ "$item_name" = "SKILL.md" ] && continue
+                [[ "$item_name" == update-*.sh ]] && continue
+
+                local target_item="$target/$item_name"
+                if [ -L "$target_item" ]; then
+                    if [ "$(readlink -f "$target_item")" = "$(readlink -f "$item")" ]; then
+                        echo "  Already linked: $item_name"
+                    else
+                        echo "  Conflict: $target_item points elsewhere and was left unchanged."
+                        install_failed=1
+                    fi
+                elif [ -e "$target_item" ]; then
+                    echo "  Conflict: $target_item exists and is not a symlink. It was left unchanged."
+                    install_failed=1
+                else
+                    ln -s "$item" "$target_item"
+                    echo "  Linked: $item_name"
+                fi
             done
         fi
     done
     echo ""
+
+    if [ "$install_failed" -ne 0 ]; then
+        echo "Installation incomplete: path conflicts were found. No existing content was removed."
+        return 1
+    fi
 }
 
 install_to_agent "$AGENT"
 
-# 验证
+# Validate the installation.
 echo "================================"
-echo "验证"
+echo "Validation"
 echo "================================"
 echo ""
 
@@ -145,44 +190,56 @@ verify_agent() {
             echo "  OK: $2"
             PASS=$((PASS + 1))
         else
-            echo "  缺失: $2"
+            echo "  Missing: $2"
             FAIL=$((FAIL + 1))
         fi
     }
 
     for skill_name in "${!SKILLS[@]}"; do
+        if [ -n "$SELECTED_SKILL" ] && [ "$skill_name" != "$SELECTED_SKILL" ]; then
+            continue
+        fi
         check "$SKILL_DIR/$skill_name/SKILL.md" "$skill_name/SKILL.md"
     done
 
-    REFS="$SCRIPT_DIR/cuda_skill/references"
-    check "$REFS/ptx-docs" "CUDA 文档: ptx-docs"
-    check "$REFS/cuda-guide" "CUDA 文档: cuda-guide"
-    check "$REFS/cuda-runtime-docs" "CUDA 文档: cuda-runtime-docs"
-    check "$REFS/cuda-driver-docs" "CUDA 文档: cuda-driver-docs"
+    if [ -z "$SELECTED_SKILL" ] || [ "$SELECTED_SKILL" = "cuda-skill" ]; then
+        local REFS="$SCRIPT_DIR/cuda_skill/references"
+        check "$REFS/MANIFEST.md" "CUDA documentation manifest"
+        check "$REFS/ptx-docs/INDEX.md" "CUDA docs: ptx-docs"
+        check "$REFS/cuda-guide/INDEX.md" "CUDA docs: cuda-guide"
+        check "$REFS/cuda-runtime-docs/INDEX.md" "CUDA docs: cuda-runtime-docs"
+        check "$REFS/cuda-driver-docs/INDEX.md" "CUDA docs: cuda-driver-docs"
+    fi
 
-    local TRITON_REPO="$SKILL_DIR/triton-skill/repos/triton"
-    check "$TRITON_REPO/python/tutorials" "Triton 教程"
-    check "$TRITON_REPO/python/tutorials/gluon" "Gluon 教程"
+    if [ -z "$SELECTED_SKILL" ] || [ "$SELECTED_SKILL" = "triton-skill" ]; then
+        local TRITON_REPO="$SKILL_DIR/triton-skill/repos/triton"
+        check "$TRITON_REPO/python/tutorials" "Triton tutorials"
+        check "$TRITON_REPO/python/tutorials/gluon" "Gluon tutorials"
+    fi
 
-    local CUTLASS_REPO="$SKILL_DIR/cutlass-skill/repos/cutlass"
-    check "$CUTLASS_REPO/python/CuTeDSL" "CuTeDSL source"
-    check "$CUTLASS_REPO/include/cute" "CuTe headers"
+    if [ -z "$SELECTED_SKILL" ] || [ "$SELECTED_SKILL" = "cutlass-skill" ]; then
+        local CUTLASS_REPO="$SKILL_DIR/cutlass-skill/repos/cutlass"
+        check "$CUTLASS_REPO/python/CuTeDSL" "CuTeDSL source"
+        check "$CUTLASS_REPO/include/cute" "CuTe headers"
+    fi
 
-    local SGLANG_REPO="$SKILL_DIR/sglang-skill/repos/sglang"
-    check "$SGLANG_REPO/python/sglang/srt" "SGLang SRT core"
-    check "$SGLANG_REPO/sgl-kernel/csrc" "sgl-kernel CUDA source"
+    if [ -z "$SELECTED_SKILL" ] || [ "$SELECTED_SKILL" = "sglang-skill" ]; then
+        local SGLANG_REPO="$SKILL_DIR/sglang-skill/repos/sglang"
+        check "$SGLANG_REPO/python/sglang/srt" "SGLang SRT core"
+        check "$SGLANG_REPO/sgl-kernel/csrc" "sgl-kernel CUDA source"
+    fi
 
-    echo "  验证: $PASS 通过, $FAIL 失败"
+    echo "  Validation: $PASS passed, $FAIL failed."
     echo ""
 
     if [ $FAIL -gt 0 ]; then
-        echo "  提示: 缺失路径可能影响 skill 搜索功能."
-        echo "    - CUDA 文档: 运行 'uv run scrape_docs.py all --force'"
-        echo "    - 源码 repo: 运行 'bash update-repos.sh'"
+        echo "  Hint: missing paths may reduce skill search coverage."
+        echo "    - CUDA docs: scrape into a temporary directory, then review and merge into references/."
+        echo "    - Source repositories: run 'bash update-repos.sh'."
         echo ""
     fi
 }
 
 verify_agent "$AGENT"
 
-echo "安装完成."
+echo "Installation complete."

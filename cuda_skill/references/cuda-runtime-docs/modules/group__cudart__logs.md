@@ -1,6 +1,6 @@
-# Error Log Management Functions
+# 6.29. Error Log Management Functions
 
-**Source:** group__CUDART__LOGS.html
+**Source:** group__CUDART__LOGS.html#group__CUDART__LOGS
 
 
 ### Typedefs

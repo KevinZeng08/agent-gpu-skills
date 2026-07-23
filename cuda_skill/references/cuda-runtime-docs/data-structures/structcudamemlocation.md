@@ -1,4 +1,4 @@
-# 7.55. cudaMemLocation
+# 7.56. cudaMemLocation
 
 **Source:** structcudaMemLocation.html#structcudaMemLocation
 

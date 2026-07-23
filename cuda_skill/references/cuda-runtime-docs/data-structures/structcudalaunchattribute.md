@@ -1,4 +1,4 @@
-# 7.42. cudaLaunchAttribute
+# 7.43. cudaLaunchAttribute
 
 **Source:** structcudaLaunchAttribute.html#structcudaLaunchAttribute
 

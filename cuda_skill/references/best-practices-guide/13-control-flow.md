@@ -1,7 +1,7 @@
 # 13. Control Flow
 
 
-##  13.1. Branching and Divergence 
+##  13.1. Branching and Divergence
 
 Note
 
@@ -20,17 +20,17 @@ For branches including just a few instructions, warp divergence generally result
 Starting with the Volta architecture, Independent Thread Scheduling allows a warp to remain diverged outside of the data-dependent conditional block. An explicit `__syncwarp()` can be used to guarantee that the warp has reconverged for subsequent instructions.
 
 
-##  13.2. Branch Predication 
+##  13.2. Branch Predication
 
 Note
 
 **Low Priority:** Make it easy for the compiler to use branch predication in lieu of loops or control statements.
 
 Sometimes, the compiler may unroll loops or optimize out `if` or `switch` statements by using branch predication instead. In these cases, no warp can ever diverge. The programmer can also control loop unrolling using
-    
-    
+
+
     #pragma unroll
-    
+
 
 For more information on this pragma, refer to the CUDA C++ Programming Guide.
 

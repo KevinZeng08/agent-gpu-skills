@@ -1,4 +1,4 @@
-# 7.59. cudaMemsetParamsV2
+# 7.60. cudaMemsetParamsV2
 
 **Source:** structcudaMemsetParamsV2.html#structcudaMemsetParamsV2
 

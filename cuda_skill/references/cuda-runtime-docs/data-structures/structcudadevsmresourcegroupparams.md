@@ -36,7 +36,7 @@ When possible, combine co-scheduled groups together into larger groups of this s
 unsigned int cudaDevSmResourceGroupParams::reserved[12]
 
 
-Reserved for future use - ensure this is is zero initialized.
+Reserved for future use - ensure this is zero initialized.
 
 unsigned int cudaDevSmResourceGroupParams::smCount
 

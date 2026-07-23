@@ -1,4 +1,4 @@
-# 7.52. cudaMemcpyAttributes
+# 7.53. cudaMemcpyAttributes
 
 **Source:** structcudaMemcpyAttributes.html#structcudaMemcpyAttributes
 

@@ -7,7 +7,7 @@ With each generation of NVIDIA processors, new features are added to the GPU tha
 Programmers should be aware of two version numbers. The first is the [compute capability](#cuda-compute-capability), and the second is the version number of the CUDA Runtime and CUDA Driver APIs.
 
 
-##  15.1. CUDA Compute Capability 
+##  15.1. CUDA Compute Capability
 
 The _compute capability_ describes the features of the hardware and reflects the set of instructions supported by the device as well as other specifications, such as the maximum number of threads per block and the number of registers per multiprocessor. Higher compute capability versions are supersets of lower (that is, earlier) versions, so they are backward compatible.
 
@@ -22,19 +22,19 @@ The major and minor revision numbers of the compute capability are shown on the 
 More details about the compute capabilities of various GPUs are in CUDA-Enabled GPUs and Compute Capabilities of the CUDA C++ Programming Guide. In particular, developers should note the number of multiprocessors on the device, the number of registers and the amount of memory available, and any special capabilities of the device.
 
 
-##  15.2. Additional Hardware Data 
+##  15.2. Additional Hardware Data
 
 Certain hardware features are not described by the compute capability. For example, the ability to overlap kernel execution with asynchronous data transfers between the host and the device is available on most but not all GPUs irrespective of the compute capability. In such cases, call `cudaGetDeviceProperties()` to determine whether the device is capable of a certain feature. For example, the `asyncEngineCount` field of the device property structure indicates whether overlapping kernel execution and data transfers is possible (and, if so, how many concurrent transfers are possible); likewise, the `canMapHostMemory` field indicates whether zero-copy data transfers can be performed.
 
 
-##  15.3. Which Compute Capability Target 
+##  15.3. Which Compute Capability Target
 
 To target specific versions of NVIDIA hardware and CUDA software, use the `-arch`, `-code`, and `-gencode` options of `nvcc`. Code that uses the warp shuffle operation, for example, must be compiled with `-arch=sm_30` (or higher compute capability).
 
 See [Building for Maximum Compatibility](#building-for-maximum-compatibility) for further discussion of the flags used for building code for multiple generations of CUDA-capable device simultaneously.
 
 
-##  15.4. CUDA Runtime 
+##  15.4. CUDA Runtime
 
 The host runtime component of the CUDA software environment can be used only by host functions. It provides functions to handle the following:
 
