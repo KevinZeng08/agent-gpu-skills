@@ -1,4 +1,4 @@
-# 6.36. Profiler Control
+# 6.37. Profiler Control
 
 **Source:** group__CUDART__PROFILER.html#group__CUDART__PROFILER
 

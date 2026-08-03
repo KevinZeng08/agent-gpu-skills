@@ -1,4 +1,4 @@
-# 7.48. cudaMemAllocNodeParamsV2
+# 7.49. cudaMemAllocNodeParamsV2
 
 **Source:** structcudaMemAllocNodeParamsV2.html#structcudaMemAllocNodeParamsV2
 

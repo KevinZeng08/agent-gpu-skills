@@ -1,4 +1,4 @@
-# 7.36. cudaHostNodeParams
+# 7.37. cudaHostNodeParams
 
 **Source:** structcudaHostNodeParams.html#structcudaHostNodeParams
 

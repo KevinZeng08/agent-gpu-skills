@@ -34,7 +34,7 @@ rg -rl "fault tolerance" references/          # find pages on a topic
 ```
 
 - Full deep table of contents: [`references/index.md`](references/index.md)
-- Curated topic map + more search recipes: [`references/INDEX.md`](references/INDEX.md)
+- Curated topic map + more search recipes: [`references/REFERENCE_INDEX.md`](references/REFERENCE_INDEX.md)
 
 ## Reference map
 

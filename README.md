@@ -65,8 +65,9 @@ SKILL.md 格式兼容 Claude Code、Codex、Gemini CLI 等支持 Agent Skills �
 agent-gpu-skills/
 ├── README.md
 ├── INSTALL.md                       # 详细安装指南
-├── install.sh                       # 安装脚本 (支持 --agent cursor|claude|codex|gemini)
-├── update-repos.sh                  # 克隆/更新外部 repo (triton, cutlass, sglang, nccl)
+├── install.sh                       # 安装脚本 (支持 --agent/--skill/--target-dir)
+├── scripts/validate_cuda_skill.py   # cuda-skill 结构与内容校验
+├── update-repos.sh                  # 克隆/更新外部 repo (triton, cutlass, sglang)
 ├── scrape_docs.py                   # 文档爬虫 (uv script)
 ├── cuda_skill/
 │   ├── SKILL.md
@@ -115,17 +116,20 @@ NVIDIA CUDA 全套文档转换为可搜索的 Markdown:
 
 | 文档 | 文件数 | 大小 | 来源 |
 |:-----|:-------|:-----|:-----|
-| PTX ISA 9.1 完整规范 | 405 | 2.3MB | [NVIDIA PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/) |
-| PTX 精简参考 | 13 | 149KB | [triton/.claude/knowledge](https://github.com/facebookexperimental/triton) |
-| CUDA Runtime API 13.1 | 107 | 0.9MB | [NVIDIA Runtime API](https://docs.nvidia.com/cuda/cuda-runtime-api/) |
-| CUDA Driver API 13.1 | 128 | 0.8MB | [NVIDIA Driver API](https://docs.nvidia.com/cuda/cuda-driver-api/) |
-| CUDA Programming Guide v13.1 | 39 | 1.6MB | [NVIDIA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/) |
-| CUDA C++ Best Practices Guide | 73 | 585KB | [NVIDIA Best Practices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/) |
-| Nsight Compute 文档 | 9 | 741KB | [NVIDIA Nsight Compute](https://docs.nvidia.com/nsight-compute/) |
-| Nsight Systems 文档 | 5 | 833KB | [NVIDIA Nsight Systems](https://docs.nvidia.com/nsight-systems/) |
-| 工具指南 (nsys/ncu/debug) | 6 | - | 手写参考 |
+| PTX ISA 9.3 完整规范 | 489 | 2.8MB | [NVIDIA PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/) |
+| CUDA Runtime API 13.3.1 | 106 | 1.1MB | [NVIDIA Runtime API](https://docs.nvidia.com/cuda/cuda-runtime-api/) |
+| CUDA Driver API 13.3.1 | 135 | 2.0MB | [NVIDIA Driver API](https://docs.nvidia.com/cuda/cuda-driver-api/) |
+| CUDA Programming Guide 13.3 | 44 | 1.7MB | [NVIDIA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/) |
+| CUDA C++ Best Practices Guide | 73 | 581KB | [NVIDIA Best Practices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/) |
+| Nsight Compute 2026.2.1 | 9 | 789KB | [NVIDIA Nsight Compute](https://docs.nvidia.com/nsight-compute/) |
+| Nsight Systems 2026.3 | 5 | 921KB | [NVIDIA Nsight Systems](https://docs.nvidia.com/nsight-systems/) |
+| 清单与查询/工具指南 | 9 | - | 本仓库维护 |
 
-文档通过 `scrape_docs.py` 管理，用 `uv run scrape_docs.py all --force` 更新。
+版本、来源和文件清单见 `cuda_skill/references/MANIFEST.md`。文档通过 `scrape_docs.py` 管理，先用 `--output-dir` 抓取到新的暂存目录，比较后再合并。`--force` 只覆盖同名文件，不删除目录或无关文件。
+
+```bash
+python3 scripts/validate_cuda_skill.py
+```
 
 ## cutlass-skill
 
@@ -166,7 +170,7 @@ NVIDIA NCCL 2.30.7 用户指南的离线 Markdown 镜像（已随仓库提交）
 
 | 内容 | 路径 |
 |:-----|:-----|
-| 主题索引 + 搜索配方 | `nccl_skill/references/INDEX.md` |
+| 主题索引 + 搜索配方 | `nccl_skill/references/REFERENCE_INDEX.md` |
 | C API 参考 (comms/colls/types/device_*/...) | `nccl_skill/references/api/` |
 | `NCCL_*` 环境变量 | `nccl_skill/references/env.md` |
 | nccl4py Python 绑定 | `nccl_skill/references/nccl4py/` |

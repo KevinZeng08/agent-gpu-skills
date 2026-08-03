@@ -1,4 +1,4 @@
-# 7.39. cudaIpcMemHandle_t
+# 7.40. cudaIpcMemHandle_t
 
 **Source:** structcudaIpcMemHandle__t.html#structcudaIpcMemHandle__t
 

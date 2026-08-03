@@ -47,8 +47,8 @@ The first steps that are required to for an application to use multiple GPUs are
 ### 3.4.1.1. Device Enumeration
 
 The following code sample shows how to query number of CUDA-enabled devices, enumerate each of the devices, and query their properties.
-    
-    
+
+
     int deviceCount;
     cudaGetDeviceCount(&deviceCount);
     int device;
@@ -58,45 +58,45 @@ The following code sample shows how to query number of CUDA-enabled devices, enu
         printf("Device %d has compute capability %d.%d.\n",
                device, deviceProp.major, deviceProp.minor);
     }
-    
+
 
 ### 3.4.1.2. Device Selection
 
 A host thread can set the device it is currently operating on at any time by calling `cudaSetDevice()`. Device memory allocations and kernel launches are made on the current device; streams and events are created in association with the currently set device. Until a call to `cudaSetDevice()` is made by the host thread, the current device defaults to device 0.
 
 The following code sample illustrates how setting the current device affects subsequent memory allocation and kernel execution operations.
-    
-    
+
+
     size_t size = 1024 * sizeof(float);
     cudaSetDevice(0);            // Set device 0 as current
     float* p0;
     cudaMalloc(&p0, size);       // Allocate memory on device 0
     MyKernel<<<1000, 128>>>(p0); // Launch kernel on device 0
-    
+
     cudaSetDevice(1);            // Set device 1 as current
     float* p1;
     cudaMalloc(&p1, size);       // Allocate memory on device 1
     MyKernel<<<1000, 128>>>(p1); // Launch kernel on device 1
-    
+
 
 ### 3.4.1.3. Multi-Device Stream, Event, and Memory Copy Behavior
 
 A kernel launch will fail if it is issued to a stream that is not associated to the current device as illustrated in the following code sample.
-    
-    
+
+
     cudaSetDevice(0);               // Set device 0 as current
     cudaStream_t s0;
     cudaStreamCreate(&s0);          // Create stream s0 on device 0
     MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 0 in s0
-    
+
     cudaSetDevice(1);               // Set device 1 as current
     cudaStream_t s1;
     cudaStreamCreate(&s1);          // Create stream s1 on device 1
     MyKernel<<<100, 64, 0, s1>>>(); // Launch kernel on device 1 in s1
-    
+
     // This kernel launch will fail, since stream s0 is not associated to device 1:
     MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 1 in s0
-    
+
 
 A memory copy will succeed even if it is issued to a stream that is not associated to the current device.
 
@@ -119,24 +119,24 @@ CUDA can perform memory transfers between devices and will take advantage of ded
 `cudaMemcpy` can be used with the copy type `cudaMemcpyDeviceToDevice` or `cudaMemcpyDefault`.
 
 Otherwise, copies must be performed using `cudaMemcpyPeer()`, `cudaMemcpyPeerAsync()`, `cudaMemcpy3DPeer()`, or `cudaMemcpy3DPeerAsync()` as illustrated in the following code sample.
-    
-    
+
+
     cudaSetDevice(0);                   // Set device 0 as current
     float* p0;
     size_t size = 1024 * sizeof(float);
     cudaMalloc(&p0, size);              // Allocate memory on device 0
-    
+
     cudaSetDevice(1);                   // Set device 1 as current
     float* p1;
     cudaMalloc(&p1, size);              // Allocate memory on device 1
-    
+
     cudaSetDevice(0);                   // Set device 0 as current
     MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
-    
+
     cudaSetDevice(1);                   // Set device 1 as current
     cudaMemcpyPeer(p1, 1, p0, 0, size); // Copy p0 to p1
     MyKernel<<<1000, 128>>>(p1);        // Launch kernel on device 1
-    
+
 
 A copy (in the implicit _NULL_ stream) between the memories of two different devices:
 
@@ -156,22 +156,22 @@ Depending on the system properties, specifically the PCIe and/or NVLink topology
 Peer-to-peer memory access must be enabled between two devices by calling `cudaDeviceEnablePeerAccess()` as illustrated in the following code sample. On non-NVSwitch enabled systems, each device can support a system-wide maximum of eight peer connections.
 
 A unified virtual address space is used for both devices (see [Unified Virtual Address Space](../02-basics/understanding-memory.html#memory-unified-virtual-address-space)), so the same pointer can be used to address memory from both devices as shown in the code sample below.
-    
-    
+
+
     cudaSetDevice(0);                   // Set device 0 as current
     float* p0;
     size_t size = 1024 * sizeof(float);
     cudaMalloc(&p0, size);              // Allocate memory on device 0
     MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
-    
+
     cudaSetDevice(1);                   // Set device 1 as current
     cudaDeviceEnablePeerAccess(0, 0);   // Enable peer-to-peer access
                                         // with device 0
-    
+
     // Launch kernel on device 1
     // This kernel launch can access memory on device 0 at address p0
     MyKernel<<<1000, 128>>>(p0);
-    
+
 
 Note
 
@@ -181,9 +181,9 @@ A more scalable alternative to enabling peer memory access for all device memory
 
 ### 3.4.2.3. Peer-to-Peer Memory Consistency
 
-Synchronization operations must be used to enforce the ordering and correctness of memory accesses by concurrently executing threads in grids distributed across multiple devices. Threads synchronizing across devices operate at the `thread_scope_system` [synchronization scope](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes). Similarly, memory operations fall within the `thread_scope_system` [memory synchronization domain](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains).
+Synchronization operations must be used to enforce the ordering and correctness of memory accesses by concurrently executing threads in grids distributed across multiple devices. Threads synchronizing across devices operate at the `thread_scope_system` [synchronization scope](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/memory_model.html#thread-scopes). Similarly, memory operations fall within the `thread_scope_system` [memory synchronization domain](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains).
 
-CUDA ref::atomic-functions can perform read-modify-write operations on an object in peer device memory when only a single GPU is accessing that object. The requirements and limitations for peer atomicity are described in the CUDA memory model [atomicity requirements](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity) discussion.
+CUDA ref::atomic-functions can perform read-modify-write operations on an object in peer device memory when only a single GPU is accessing that object. The requirements and limitations for peer atomicity are described in the CUDA memory model [atomicity requirements](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/memory_model.html#atomicity) discussion.
 
 ### 3.4.2.4. Multi-Device Managed Memory
 

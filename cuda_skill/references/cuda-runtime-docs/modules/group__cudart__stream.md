@@ -1,9 +1,19 @@
-# Stream Management
+# 6.4. Stream Management
 
-**Source:** group__CUDART__STREAM.html
+**Source:** group__CUDART__STREAM.html#group__CUDART__STREAM
+
+
+### Classes
+
+struct
+
+cudaGraphRecaptureCallbackData
+
 
 
 ### Typedefs
+
+typedef cudaError_t* ( *cudaGraphRecaptureCallback_t )( void*  data,  cudaGraphNode_t node, const cudaGraphNodeParams*  originalParams, const cudaGraphNodeParams*  recaptureParams,  enum cudaGraphRecaptureStatus status )
 
 typedef void(CUDART_CB* cudaStreamCallback_t )( cudaStream_t stream,  cudaError_t status, void*  userData )
 
@@ -162,6 +172,33 @@ Capture may not be initiated if `stream` is cudaStreamLegacy. Capture must be en
 If `mode` is not cudaStreamCaptureModeRelaxed, cudaStreamEndCapture must be called on this stream from the same thread.
 
 Kernels captured using this API must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
+
+######  Parameters
+
+`stream`
+    \- Stream in which to initiate capture
+`mode`
+    \- Controls the interaction of this capture sequence with other API calls that are potentially unsafe. For more details see cudaThreadExchangeStreamCaptureMode.
+`graph`
+    \- Existing CUDA graph to be captured into
+`callbackData`
+    \- Optional struct of callback data that will be invoked for all parameter mismatches from the original graph
+
+###### Returns
+
+cudaSuccess, cudaErrorDeinitialized, cudaErrorNotInitialized, cudaErrorInvalidValue
+
+###### Description
+
+Begin graph capture on `stream` to the existing `graph`. The node creation order while recapturing the graph must be identical to the original graph. The recapture will fail immediately for: * Topology mismatches between the existing graph and the recaptured graph * Parameter mismatches for memory allocation or free nodes
+
+Any other node parameter mismatches during recapture can be configured to call the function provided in `callbackFunc`. The recapture will fail immediately if the callback returns anything other than cudaSuccess.
+
+If the recapture fails for any reason, the `graph` will be in an undefined state and should be destroyed.
+
+See cudaStreamBeginCapture for additional detail on beginning the capture.
+
+Any user objects associated with `graph` will be released prior to the recapture.
 
 ######  Parameters
 

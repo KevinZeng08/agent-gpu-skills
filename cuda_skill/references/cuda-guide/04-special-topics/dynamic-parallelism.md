@@ -28,13 +28,13 @@ The invocation and completion of child grids is properly nested, meaning that th
 
 ![Parent-Child Launch Nesting](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/parent-child-launch-nesting.png)
 
-Figure 54 Parent-Child Launch Nesting
+Figure 57 Parent-Child Launch Nesting
 
 ### 4.18.2.2. Scope of CUDA Primitives
 
 CUDA Dynamic Parallelism relies on the [CUDA Device Runtime](../05-appendices/device-callable-apis.html#cuda-device-runtime), which enables calling a limited set of APIs which are syntactically similar to the CUDA Runtime API, but available in device code. The behavior of the device runtime APIs are similar to their host counterparts, but there are some differences. These differences are captured in the table in section [API Reference](../05-appendices/device-callable-apis.html#device-runtime-api-reference).
 
-On both host and device, the CUDA runtime offers an API for launching kernels and for tracking dependencies between launches via streams and events. On the device, launched kernels and CUDA objects are visible to all threads in the invoking grid. This means, for example, that a stream may be created by one thread and used by any other thread in the same grid. However, CUDA objects such as streams and events which were created on by device API calls are only valid within the grid where they were created.
+On both host and device, the CUDA runtime offers an API for launching kernels and for tracking dependencies between launches via streams and events. On the device, launched kernels and CUDA objects are visible to all threads in the invoking grid. This means, for example, that a stream may be created by one thread and used by any other thread in the same grid. However, CUDA objects such as streams and events which were created by device API calls are only valid within the grid where they were created.
 
 ### 4.18.2.3. Streams and Events
 
@@ -60,14 +60,14 @@ Concurrency may vary as a function of device configuration, application workload
 
 Parent and child grids share the same global and constant memory storage, but have distinct local and shared memory. The following table shows which memory spaces allow parent and child to access via the same pointers. Child grids can never access the local or shared memory of parent grids, nor can parent grids access local or shared memory of child grids.
 
-Table 26 Dynamic Parallelism: Memory Scope Accessibility Between Parent and Child Grids Memory Space | Parent/Child use same pointers?  
----|---  
-Global Memory | Yes  
-Mapped Memory | Yes  
-Local Memory | No  
-Shared Memory | No  
-Texture Memory | Yes (read-only)  
-  
+Table 26 Dynamic Parallelism: Memory Scope Accessibility Between Parent and Child Grids Memory Space | Parent/Child use same pointers?
+---|---
+Global Memory | Yes
+Mapped Memory | Yes
+Local Memory | No
+Shared Memory | No
+Texture Memory | Yes (read-only)
+
 ### 4.18.3.1. Global Memory
 
 Parent and child grids have coherent access to global memory, with weak consistency guarantees between child and parent. There is only one point of time in the execution of a child grid when its view of memory is fully consistent with the parent thread: at the point when the child grid is invoked by the parent.
@@ -75,31 +75,31 @@ Parent and child grids have coherent access to global memory, with weak consiste
 All global memory operations in the parent thread prior to the child grid’s invocation are visible to the child grid. With the removal of `cudaDeviceSynchronize()`, it is no longer possible to access the modifications made by the threads in the child grid from the parent grid. The only way to access the modifications made by the threads in the child grid before the parent grid exits is via a kernel launched into the `cudaStreamTailLaunch` stream.
 
 In the following example, the child grid executing `child_launch` is only guaranteed to see the modifications to `data` made before the child grid was launched. Since thread 0 of the parent is performing the launch, the child will be consistent with the memory seen by thread 0 of the parent. Due to the first `__syncthreads()` call, the child will see `data[0]=0`, `data[1]=1`, …, `data[255]=255` (without the `__syncthreads()` call, only `data[0]=0` would be guaranteed to be seen by the child). The child grid is only guaranteed to return at an implicit synchronization. This means that the modifications made by the threads in the child grid are never guaranteed to become available to the parent grid. To access modifications made by `child_launch`, a `tail_launch` kernel is launched into the `cudaStreamTailLaunch` stream.
-    
-    
+
+
     __global__ void tail_launch(int *data) {
        data[threadIdx.x] = data[threadIdx.x]+1;
     }
-    
+
     __global__ void child_launch(int *data) {
        data[threadIdx.x] = data[threadIdx.x]+1;
     }
-    
+
     __global__ void parent_launch(int *data) {
        data[threadIdx.x] = threadIdx.x;
-    
+
        __syncthreads();
-    
+
        if (threadIdx.x == 0) {
            child_launch<<< 1, 256 >>>(data);
            tail_launch<<< 1, 256, 0, cudaStreamTailLaunch >>>(data);
        }
     }
-    
+
     void host_launch(int *data) {
         parent_launch<<< 1, 256 >>>(data);
     }
-    
+
 
 ### 4.18.3.2. Mapped Memory
 
@@ -118,30 +118,30 @@ Calls to `cudaMemcpy*Async()` or `cudaMemset*Async()` may invoke new child kerne
 Local memory is private storage for an executing thread, and is not visible outside of that thread. It is illegal to pass a pointer to local memory as a launch argument when launching a child kernel. The result of dereferencing such a local memory pointer from a child grid is undefined.
 
 For example the following is illegal, with undefined behavior if `x_array` is accessed by `child_launch`:
-    
-    
+
+
     int x_array[10];       // Creates x_array in parent's local memory
     child_launch<<< 1, 1 >>>(x_array);
-    
+
 
 It is sometimes difficult for a programmer to be aware of when a variable is placed into local memory by the compiler. As a general rule, all storage passed to a child kernel should be allocated explicitly from the global-memory heap, either with `cudaMalloc()`, `new()` or by declaring `__device__` storage at global scope. For example:
-    
-    
+
+
     // Correct - "value" is global storage
     __device__ int value;
     __device__ void x() {
         value = 5;
         child<<< 1, 1 >>>(&value);
     }
-    
-    
-    
+
+
+
     // Invalid - "value" is local storage
     __device__ void y() {
         int value = 5;
         child<<< 1, 1 >>>(&value);
     }
-    
+
 
 #### 4.18.3.4.1. Texture Memory
 
@@ -152,20 +152,20 @@ Writes to the global memory region over which a texture is mapped are incoherent
 ### 4.18.4.1. Basics
 
 The following example shows a simple _Hello World_ program incorporating dynamic parallelism:
-    
-    
+
+
     #include <stdio.h>
-    
+
     __global__ void childKernel()
     {
         printf("Hello ");
     }
-    
+
     __global__ void tailKernel()
     {
         printf("World!\n");
     }
-    
+
     __global__ void parentKernel()
     {
         // launch child
@@ -173,13 +173,13 @@ The following example shows a simple _Hello World_ program incorporating dynamic
         if (cudaSuccess != cudaGetLastError()) {
             return;
         }
-    
+
         // launch tail into cudaStreamTailLaunch stream
         // implicitly synchronizes: waits for child to complete
         tailKernel<<<1,1,0,cudaStreamTailLaunch>>>();
-    
+
     }
-    
+
     int main(int argc, char *argv[])
     {
         // launch parent
@@ -187,21 +187,21 @@ The following example shows a simple _Hello World_ program incorporating dynamic
         if (cudaSuccess != cudaGetLastError()) {
             return 1;
         }
-    
+
         // wait for parent to complete
         if (cudaSuccess != cudaDeviceSynchronize()) {
             return 2;
         }
-    
+
         return 0;
     }
-    
+
 
 This program may be built in a single step from the command line as follows:
-    
-    
+
+
     $ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
-    
+
 
 ### 4.18.4.2. C++ Language Interface for CDP
 
@@ -214,10 +214,10 @@ As with all code in CUDA C++, the APIs and code outlined here is per-thread code
 #### 4.18.4.2.1. Device-Side Kernel Launch
 
 Kernels may be launched from the device using the standard CUDA <<< >>> syntax:
-    
-    
+
+
     kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
-    
+
 
   * `Dg` is of type `dim3` and specifies the dimensions and size of the grid
 
@@ -284,12 +284,12 @@ The size of the fixed-size launch pool is configurable by calling `cudaDeviceSet
 
 CDP2 is the default. Functions can be compiled with `-DCUDA_FORCE_CDP1_IF_SUPPORTED` to opt-out of using CDP2 on devices of compute capability less than 9.0.
 
-| Function compiler with CUDA 12.0 and newer (default) | Function compiled with pre-CUDA 12.0 or with CUDA 12.0 and newer with `-DCUDA_FORCE_CDP1_IF_SUPPORTED` specified  
----|---|---  
-Compilation | Compile error if device code references `cudaDeviceSynchronize`. | Compile error if code references `cudaStreamTailLaunch` or `cudaStreamFireAndForget`. Compile error if device code references `cudaDeviceSynchronize` and code is compiled for sm_90 or newer.  
-Compute capability < 9.0 | New interface is used. | Legacy interface is used.  
-Compute capability 9.0 and higher | New interface is used. | New interface is used. If function references `cudaDeviceSynchronize` in device code, function load returns `cudaErrorSymbolNotFound` (this could happen if the code is compiled for devices of compute capability less than 9.0, but run on devices of compute capability 9.0 or higher using JIT).  
-  
+| Function compiled with CUDA 12.0 and newer (default) | Function compiled with pre-CUDA 12.0 or with CUDA 12.0 and newer with `-DCUDA_FORCE_CDP1_IF_SUPPORTED` specified
+---|---|---
+Compilation | Compile error if device code references `cudaDeviceSynchronize`. | Compile error if code references `cudaStreamTailLaunch` or `cudaStreamFireAndForget`. Compile error if device code references `cudaDeviceSynchronize` and code is compiled for sm_90 or newer.
+Compute capability < 9.0 | New interface is used. | Legacy interface is used.
+Compute capability 9.0 and higher | New interface is used. | New interface is used. If function references `cudaDeviceSynchronize` in device code, function load returns `cudaErrorSymbolNotFound` (this could happen if the code is compiled for devices of compute capability less than 9.0, but run on devices of compute capability 9.0 or higher using JIT).
+
 Functions using CDP1 and CDP2 may be loaded and run simultaneously in the same context. The CDP1 functions are able to use CDP1-specific features (e.g. `cudaDeviceSynchronize`) and CDP2 functions are able to use CDP2-specific features (e.g. tail launch and fire-and-forget launch).
 
 A function using CDP1 cannot launch a function using CDP2, and vice versa. If a function that would use CDP1 contains in its call graph a function that would use CDP2, or vice versa, `cudaErrorCdpVersionMismatch` would result during function load.
@@ -307,8 +307,8 @@ Device-side kernel launches can be implemented using the following two APIs acce
 #### 4.18.6.1.1. cudaLaunchDevice
 
 At the PTX level, `cudaLaunchDevice()`needs to be declared in one of the two forms shown below before it is used.
-    
-    
+
+
     // PTX-level Declaration of cudaLaunchDevice() when .address_size is 64
     .extern .func(.param .b32 func_retval0) cudaLaunchDevice
     (
@@ -320,26 +320,26 @@ At the PTX level, `cudaLaunchDevice()`needs to be declared in one of the two for
       .param .b64 stream
     )
     ;
-    
+
 
 The CUDA-level declaration below is mapped to one of the aforementioned PTX-level declarations and is found in the system header file `cuda_device_runtime_api.h`. The function is defined in the `cudadevrt` system library, which must be linked with a program in order to use device-side kernel launch functionality.
-    
-    
+
+
     // CUDA-level declaration of cudaLaunchDevice()
     extern "C" __device__
     cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
                                  dim3 gridDimension, dim3 blockDimension,
                                  unsigned int sharedMemSize,
                                  cudaStream_t stream);
-    
+
 
 The first parameter is a pointer to the kernel to be launched, and the second parameter is the parameter buffer that holds the actual parameters to the launched kernel. The layout of the parameter buffer is explained in [Parameter Buffer Layout](#parameter-buffer-layout), below. Other parameters specify the launch configuration, i.e., as grid dimension, block dimension, shared memory size, and the stream associated with the launch (please refer to [Kernel Configuration](../05-appendices/cpp-language-extensions.html#execution-configuration) for the detailed description of launch configuration.
 
 #### 4.18.6.1.2. cudaGetParameterBuffer
 
 `cudaGetParameterBuffer()` needs to be declared at the PTX level before it’s used. The PTX-level declaration must be in one of the two forms given below, depending on address size:
-    
-    
+
+
     // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
     .extern .func(.param .b64 func_retval0) cudaGetParameterBuffer
     (
@@ -347,17 +347,17 @@ The first parameter is a pointer to the kernel to be launched, and the second pa
       .param .b64 size
     )
     ;
-    
+
 
 The following CUDA-level declaration of `cudaGetParameterBuffer()` is mapped to the aforementioned PTX-level declaration:
-    
-    
+
+
     // CUDA-level Declaration of cudaGetParameterBuffer()
     extern "C" __device__
     void *cudaGetParameterBuffer(size_t alignment, size_t size);
-    
 
-The first parameter specifies the alignment requirement of the parameter buffer and the second parameter the size requirement in bytes. In the current implementation, the parameter buffer returned by `cudaGetParameterBuffer()` is always guaranteed to be 64- byte aligned, and the alignment requirement parameter is ignored. However, it is recommended to pass the correct alignment requirement value - which is the largest alignment of any parameter to be placed in the parameter buffer - to `cudaGetParameterBuffer()` to ensure portability in the future.
+
+The first parameter specifies the alignment requirement of the parameter buffer and the second parameter the size requirement in bytes. In the current implementation, the parameter buffer returned by `cudaGetParameterBuffer()` is always guaranteed to be 64-byte aligned, and the alignment requirement parameter is ignored. However, it is recommended to pass the correct alignment requirement value - which is the largest alignment of any parameter to be placed in the parameter buffer - to `cudaGetParameterBuffer()` to ensure portability in the future.
 
 ### 4.18.6.2. Parameter Buffer Layout
 

@@ -50,9 +50,9 @@ Executables and library binaries that use GPU computing contain both CPU and GPU
 
 [![Fatbin containers within executables or libraries can contain multiple GPU code versions](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/fatbin.png) ](../_images/fatbin.png)
 
-Figure 8 The binary for an executable or library contains both CPU binary code and a fatbin container for GPU code. A fatbin can contain both cubin GPU binary code and PTX virtual ISA code. PTX code can be JIT compiled for future targets.
+Figure 10 The binary for an executable or library contains both CPU binary code and a fatbin container for GPU code. A fatbin can contain both cubin GPU binary code and PTX virtual ISA code. PTX code can be JIT compiled for future targets.
 
-Fatbins can also contain one or more PTX versions of GPU code, the use for which is described in [PTX Compatibility](#cuda-platform-ptx-compatibility). [Figure 8](#fatbin-graphic) shows an example of an application or library binary which contains multiple cubin versions of GPU code as well as one version of PTX code.
+Fatbins can also contain one or more PTX versions of GPU code, the use for which is described in [PTX Compatibility](#cuda-platform-ptx-compatibility). [Figure 10](#fatbin-graphic) shows an example of an application or library binary which contains multiple cubin versions of GPU code as well as one version of PTX code.
 
 ### 1.3.4.1. Binary Compatibility
 

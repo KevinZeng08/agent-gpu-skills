@@ -1,4 +1,4 @@
-# 7.44. cudaLaunchConfig_t
+# 7.45. cudaLaunchConfig_t
 
 **Source:** structcudaLaunchConfig__t.html#structcudaLaunchConfig__t
 

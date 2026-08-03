@@ -1,4 +1,4 @@
-# 7.40. cudaKernelNodeParams
+# 7.41. cudaKernelNodeParams
 
 **Source:** structcudaKernelNodeParams.html#structcudaKernelNodeParams
 

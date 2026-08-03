@@ -36,7 +36,7 @@ Nsight Compute
       * [3.5.6. Function Stats](#function-stats)
         * [Accessing Function Stats](#accessing-function-stats)
         * [Basic Workflow](#basic-workflow)
-        * [Understanding the Function Stats Table](#understanding-the-function-stats-table)
+        * [Understanding the Function Stats Tree](#understanding-the-function-stats-tree)
         * [Data Source](#data-source)
         * [Metric Naming](#metric-naming)
       * [3.5.7. NVTX](#nvtx)
@@ -45,8 +45,9 @@ Nsight Compute
         * [Memory Allocations](#memory-allocations)
         * [Graphviz DOT and SVG exports](#graphviz-dot-and-svg-exports)
       * [3.5.10. CUDA Graph Viewer](#cuda-graph-viewer)
-      * [3.5.11. Search](#search)
-      * [3.5.12. Metric Selection](#metric-selection)
+      * [3.5.11. Device Information](#device-information)
+      * [3.5.12. Search](#search)
+      * [3.5.13. Metric Selection](#metric-selection)
     * [3.6. Profiler Report](#profiler-report)
       * [3.6.1. Header](#profiler-report-header)
       * [3.6.2. Report Pages](#report-pages)
@@ -114,6 +115,7 @@ Nsight Compute
         * [Report Details Page](#report-details-page)
         * [Report Source Page](#report-source-page)
         * [API Stream View](#api-stream-view)
+        * [CUDA Graph Viewer](#options-profile-graph-viewer)
       * [3.15.2. Fonts and Colors](#fonts-and-colors)
         * [Fonts](#fonts)
         * [Colors](#colors)
@@ -166,7 +168,7 @@ __[NsightCompute](../index.html)
 
   * [](../index.html) »
   * 3\. Nsight Compute
-  *   * v2026.1.0 | [Archive](https://developer.nvidia.com/nsight-compute-history)
+  *   * v2026.2.1 | [Archive](https://developer.nvidia.com/nsight-compute-history)
 
 
 * * *
@@ -220,9 +222,9 @@ When starting NVIDIA Nsight Compute, the _Welcome Page_ will appear. Click on _Q
   2. **Launch the target application with tools instrumentation from the command line**
 
 The ncu can act as a simple wrapper that forces the target application to load the necessary libraries for tools instrumentation. The parameter `--mode=launch` specifies that the target application should be launched and suspended before the first instrumented API call. That way the application waits until we connect with the UI.
-         
+
          $ ncu --mode=launch CuVectorAddDrv.exe
-         
+
 
   3. **Launch NVIDIA Nsight Compute and connect to target application**
 
@@ -318,9 +320,9 @@ On the _Details_ page, many sections provide rules with valuable information on 
 
 Use the _Start Activity Dialog_ to launch and attach to applications on your local and remote platforms. Start by selecting the _Target Platform_ for profiling. By default (and if supported) your local platform will be selected. Select the platform on which you would like to start the target application or connect to a running process.
 
-![../_images/connection-dialog.png](https://docs.nvidia.com/nsight-compute/_images/connection-dialog.png)
+[![../_images/connection-dialog.png](https://docs.nvidia.com/nsight-compute/_images/connection-dialog.png)](../_images/connection-dialog.png)
 
-When using a remote platform, you will be asked to select or create a _Connection_ in the top drop down. To create a new connection, select _+_ and enter your connection details. When using the local platform, _localhost_ will be selected as the default and no further connection settings are required. You can still create or select a remote connection, if profiling will be on a remote system of the same platform.
+When using a remote platform, you will be asked to select or create a _Connection_ in the top drop down. To create a new connection, select _+_ and enter your connection details. When using the local platform, _localhost_ will be selected as the default and no further connection settings are required. You can still create or select a remote connection, if profiling will be on a remote system of the same platform. Use the _Device Information_ button to view system and GPU information for the selected device.
 
 Depending on your target platform, select either _Launch_ or _Remote Launch_ to launch an application for profiling on the target. Note that _Remote Launch_ will only be available if supported on the target platform.
 
@@ -392,16 +394,16 @@ In addition to keyfiles specified by path and plain password authentication, NVI
 
 You can also specify placeholders in the _Deployment Directory_ field. These placeholders will be replaced with the actual values when the connection is used. The following placeholders are supported.
 
-Deployment Directory Placeholders Placeholder | Description  
----|---  
-%C | User cache directory. Resolves to $XDG_CACHE_HOME, if empty resolves to $HOME/.cache  
-%E | User config directory. Resolves to $XDG_CONFIG_HOME, if empty resolves to $HOME/.config  
-%h | User home directory. Resolves to $HOME, if empty resolves to /root  
-%H | Host name. Resolves to $HOSTNAME, if empty resolves to host  
-%T | Temporary directory. Resolves to $TMPDIR, if empty resolves to /tmp  
-%u | User name. Resolves to $USER, if empty resolves to root  
-%S | State directory. Resolves to $XDG_STATE_HOME, if empty resolves to $HOME/.local/state  
-  
+Deployment Directory Placeholders Placeholder | Description
+---|---
+%C | User cache directory. Resolves to $XDG_CACHE_HOME, if empty resolves to $HOME/.cache
+%E | User config directory. Resolves to $XDG_CONFIG_HOME, if empty resolves to $HOME/.config
+%h | User home directory. Resolves to $HOME, if empty resolves to /root
+%H | Host name. Resolves to $HOSTNAME, if empty resolves to host
+%T | Temporary directory. Resolves to $TMPDIR, if empty resolves to /tmp
+%u | User name. Resolves to $USER, if empty resolves to root
+%S | State directory. Resolves to $XDG_STATE_HOME, if empty resolves to $HOME/.local/state
+
 For example, if you specify the _Deployment Directory_ as _%T/nsight-compute_ , the actual directory used will be _/tmp/nsight-compute_ on the remote device.
 
 When all information is entered, click the _Add_ button to make use of this new connection.
@@ -575,18 +577,18 @@ Download an existing file from a remote host and open it locally. The opened fil
 
 Only a subset of file types that are supported locally can be opened from a remote target. The following table lists file types that can be opened remotely.
 
-Remote File Type Support Extensions | Description | Supported  
----|---|---  
-ncu-rep | Nsight Compute Profiler Report | Yes  
-ncu-repz | Nsight Compute Profiler Report (zstd compressed) | Yes  
-ncu-occ | Occupancy Calculator File | Yes  
-ncu-bvh | OptiX AS Viewer File | Yes (except on macOS)  
-section | Section Description | No  
-cubin | Cubin File | No  
-cuh,h,hpp | Header File | No  
-c,cpp,cu | Source File | No  
-txt | Text file | No  
-nsight-cuprof-report | Nsight Compute Profiler Report (legacy) | Yes  
+Remote File Type Support Extensions | Description | Supported
+---|---|---
+ncu-rep | Nsight Compute Profiler Report | Yes
+ncu-repz | Nsight Compute Profiler Report (zstd compressed) | Yes
+ncu-occ | Occupancy Calculator File | Yes
+ncu-bvh | OptiX AS Viewer File | Yes (except on macOS)
+section | Section Description | No
+cubin | Cubin File | No
+cuh,h,hpp | Header File | No
+c,cpp,cu | Source File | No
+txt | Text file | No
+nsight-cuprof-report | Nsight Compute Profiler Report (legacy) | Yes
     * **Save** Save the current file
 
     * **Save As** Save a copy of the current file with a different name or type or in a different location.
@@ -608,6 +610,8 @@ nsight-cuprof-report | Nsight Compute Profiler Report (legacy) | Yes
     * **Disconnect** Disconnect from the current target application, allows the application to continue normally and potentially re-attach.
 
     * **Terminate** Disconnect from and terminate the current target application immediately.
+
+    * **Device Information** Open the [Device Information](index.html#tool-window-device-information) tool window to view system and GPU information for the selected device.
 
   * Debug
 
@@ -808,12 +812,12 @@ The body of this tool window displays a table with sub-launch-specific metrics. 
 
 ### 3.5.6. Function Stats
 
-The _Function Stats_ tool window presents a table of all functions in your profile result with top stalls for each function and all stall reasons. This window is connected with the PM Sampling timeline and automatically updates to show data for the selected time range in the timeline.
+The _Function Stats_ tool window presents a hierarchical tree view of all functions in your profile result with top stalls for each function and source line. This window is connected with the PM Sampling timeline and automatically updates to show data for the selected time range in the timeline.
 
 #### Accessing Function Stats
 
 The Function Stats tool window can be opened using:
-    
+
 
   * The _Function Stats_ entry in the _Profile_ menu. See [Main Menu](index.html#main-menu) for details.
 
@@ -826,35 +830,51 @@ The Function Stats tool window can be opened using:
 
   2. Open the tool window using the **Function Stats** tool bar button.
 
-  3. Sort by a column (default is sorted by **All Samples**).
+  3. Expand a function to see per-source-line statistics.
 
-  4. Click a function to navigate to it on the Source page (if available).
-    
+  4. Sort by a column (default is sorted by **All Samples**).
 
-**Note:** The source view is not updated with the warp sampling data collected with PM sampling.
+  5. Click a function or source line to navigate to it on the Source page (if available).
 
+
+Note
+
+The source view is not updated with the warp sampling data collected with PM sampling.
 
 ![../_images/tool-window-function-stats.png](https://docs.nvidia.com/nsight-compute/_images/tool-window-function-stats.png)
 
 The Function Stats tool window
 
-#### Understanding the Function Stats Table
+#### Understanding the Function Stats Tree
 
-Each row corresponds to a **function**. The columns include:
+The view displays a hierarchical tree with two levels:
 
-**Samples (All)** : Reports the samples collected for this function as % of total samples collected. This also includes all the stall reasons as a stacked bar chart.
+  * **Function entries** (top-level): Each function appears as a parent row showing aggregate statistics across all source lines.
 
-**Samples (Not Issued)** : Reports the samples collected for this function as % of total samples collected where warps were not issued. This also includes all the stall reasons as a stacked bar chart.
+  * **Source line entries** (children): Expand a function to see per-source-line breakdown in `filename:line` format. Up to 10 source lines with the highest sample counts are shown. If a selection results in more than 10 source lines, the remaining ones are aggregated into an **Other** entry.
 
-**Top Stall #1** : Reports the stall reason with the highest incidence for the function.
 
-**Top Stall #2** : Reports the stall reason with the second highest incidence for the function.
+The columns include:
 
-**Top Stall #3** : Reports the stall reason with the third highest incidence for the function.
+**Name** : The function name (for top-level entries) or source location in `filename:line` format (for child entries). Click to navigate to the corresponding location on the Source page.
+
+**Samples (All)** : Reports the samples collected for this entry as % of total samples collected. This also includes all the stall reasons as a stacked bar chart.
+
+**Samples (Not Issued)** : Reports the samples collected for this entry as % of total samples collected where warps were not issued. This also includes all the stall reasons as a stacked bar chart.
+
+**Top Stall #1** : Reports the stall reason with the highest incidence for the entry.
+
+**Top Stall #2** : Reports the stall reason with the second highest incidence for the entry.
+
+**Top Stall #3** : Reports the stall reason with the third highest incidence for the entry.
 
 Note
 
-By default, the table is **sorted by All Samples in decreasing order**.
+By default, the tree is **sorted by All Samples in decreasing order**. When there is only one function in the view, it is automatically expanded to show all source lines.
+
+![../_images/tool-window-function-stats-tree.png](https://docs.nvidia.com/nsight-compute/_images/tool-window-function-stats-tree.png)
+
+The Function Stats tree view with source line links and tooltip
 
 See the _Warp Stall Reasons_ tables in the [Metrics Reference](../ProfilingGuide/index.html#warp-stall-reasons) for a description of the individual warp scheduler states.
 
@@ -934,23 +954,35 @@ Some of the shown _Resources_ can also be exported to _GraphViz DOT_ or SVG* fil
 
 When exporting _OptiX traversable handles_ , the traversable graph node types will be encoded using shapes and colors as described in the following table.
 
-OptiX Traversable Graph Node Types Node Type | Shape | Color  
----|---|---  
-IAS | Hexagon | #8DD3C7  
-Triangle GAS | Box | #FFFFB3  
-AABB GAS | Box | #FCCDE5  
-Curve GAS | Box | #CCEBC5  
-Sphere GAS | Box | #BEBADA  
-Static Transform | Diamond | #FB8072  
-SRT Transform | Diamond | #FDB462  
-Matrix Motion Transform | Diamond | #80B1D3  
-Error | Paralellogram | #D9D9D9  
-  
+OptiX Traversable Graph Node Types Node Type | Shape | Color
+---|---|---
+IAS | Hexagon | #8DD3C7
+Triangle GAS | Box | #FFFFB3
+AABB GAS | Box | #FCCDE5
+Curve GAS | Box | #CCEBC5
+Sphere GAS | Box | #BEBADA
+Static Transform | Diamond | #FB8072
+SRT Transform | Diamond | #FDB462
+Matrix Motion Transform | Diamond | #80B1D3
+Error | Paralellogram | #D9D9D9
+
 ### 3.5.10. CUDA Graph Viewer
 
-The _CUDA Graph Viewer_ provides real-time visualization and inspection of CUDA Graphs during interactive profiling sessions with NVIDIA Nsight Compute. This window becomes available when the target application creates a CUDA Graph while connected to the profiler.
+The _CUDA Graph Viewer_ tool window provides real-time visualization and inspection of CUDA Graphs. Access it through the _CUDA Graph Viewer_ entry in the _Profile_ menu or via the toolbar button.
 
-By default, the viewer opens automatically upon graph creation. To disable this behavior, navigate to _Tools > Options > Profile > CUDA Graph Viewer > Auto-Open Graph Viewer_ and set it to _No_. If the window is closed, you can reopen it by clicking the _CUDA Graph Viewer_ button in _Resources > Graphs: Graphs_ or in any other _Graphs:_ resource from the main menu. The viewer displays the current state of all active CUDA Graphs whenever the target application is suspended.
+The viewer supports two primary workflows:
+
+**Interactive Profiling**
+
+
+When profiling CUDA Graph workloads in an interactive session, the viewer automatically opens and displays graphs as the target application creates them. Each time execution is suspended, the viewer updates to show the current state of all active CUDA Graphs, including any structural changes or execution progress.
+
+**Profile Report Analysis**
+
+
+When opening a profile report containing CUDA Graph data, the viewer automatically opens and displays the associated graphs. You can navigate between graphs by clicking on _Kernel_ or _Graph_ results in the [Summary Page](index.html#profiler-report-summary-page) or [Raw Page](index.html#profiler-report-raw-page) tables. The viewer highlights the specific graph node associated with each selected result.
+
+By default, the viewer opens automatically upon graph creation. To disable this behavior, navigate to _Tools > Options > Profile > CUDA Graph Viewer > Auto-Open Graph Viewer_ and set it to _No_.
 
 ![../_images/tool-window-cuda-graph-viewer.png](https://docs.nvidia.com/nsight-compute/_images/tool-window-cuda-graph-viewer.png)
 
@@ -974,7 +1006,35 @@ The viewer provides dynamic execution tracking during both graph construction an
   * When an instantiated graph is launched, the _Instantiated Graph_ tab automatically displays the graph execution state. As you step through the application, the viewer highlights nodes currently being executed and visually distinguishes completed nodes from pending ones. Execution flow through conditional graph and child graph nodes is clearly indicated.
 
 
-### 3.5.11. Search
+### 3.5.11. Device Information
+
+The _Device Information_ tool window displays system and GPU information for the selected device connection. Access it through the _Device Information_ button (info icon) in the [Start Activity Dialog](index.html#connection-dialog) or via _Connection > Device Information_ from the main menu.
+
+[![../_images/connection-menu.png](https://docs.nvidia.com/nsight-compute/_images/connection-menu.png)](../_images/connection-menu.png)
+
+Access Device Information from the Connection menu.
+
+The window provides two tabs for viewing device details:
+
+**System**
+
+
+Displays operating system information including OS name, CPU architecture, hostname, IP addresses, and collection timestamp.
+
+**GPU**
+
+
+Shows GPU-related information including driver version, CUDA version, and detailed properties for each detected GPU.
+
+[![../_images/tool-window-device-information.png](https://docs.nvidia.com/nsight-compute/_images/tool-window-device-information.png)](../_images/tool-window-device-information.png)
+
+The Device Information window showing system and GPU information tabs.
+
+Use the connection dropdown at the top to select a different device. Information is automatically collected when you select a device. Use the refresh button to manually update the information for the currently selected device.
+
+The Device Information window supports both local and remote device connections. For remote devices, the system automatically deploys a collector binary via SSH and retrieves the information. Remote Windows targets are not supported.
+
+### 3.5.12. Search
 
 The _Search_ tool window can be opened using the _Search_ entry in the _Tools_ menu, or from the tool bar’s search bar. It can be used to search for terms throughout Nsight Compute.
 
@@ -1001,7 +1061,7 @@ Each result is associated with the original source. While some results are plain
   * Online **Developer Forums** entries
 
 
-### 3.5.12. Metric Selection
+### 3.5.13. Metric Selection
 
 The _Metric Selection_ window can be opened from the main menu using _Profile > Metric Selection_. It tracks all metric sets, sections and rules currently loaded in NVIDIA Nsight Compute, independent from a specific connection or report. The directory to load those files from can be configured in the [Profile](index.html#options-profile) options dialog. It is used to inspect available sets, sections and rules, as well as to configure which should be collected, and which rules should be applied. You can also specify a comma separated list of individual metrics, that should be collected. The window has two views, which can be selected using the dropdown in its header.
 
@@ -1069,6 +1129,8 @@ Each group button to the right of the page tabs opens a context menu that featur
 
     * **Launch Details Windows** opens the [Launch Details](index.html#tool-window-launch-details) tool window. When the window is open and a result containing multiple sub-launches is selected, it displays information about each sub-launch in the result.
 
+    * **CUDA Graph Viewer** opens the [CUDA Graph Viewer](index.html#tool-window-cuda-graph-viewer) tool window. When the window is open and a result containing a CUDA Graph is selected, it displays the graph in the viewer.
+
   * View
 
     * **Show/Hide Rules Output** toggles the visibility of rule results.
@@ -1112,7 +1174,7 @@ The _Summary_ page shows a table of all collected results in the report, as well
 
 Summary page with Summary Table and Prioritized Rules.
 
-The _Summary Table_ gives you a quick comparison overview across all profiled workloads. It contains a number of important, pre-selected metrics which can be customized as explained below. Its columns can be sorted by clicking the column header. You can transpose the table with the _Transpose_ button. Aggregate of all results per each counter metric is shown in the table header along with the column name. You can change the aggregated values by selecting the desired results for multiple metrics simultaneously. When selecting any entry by single-click, a list of its _Prioritized Rules_ will be shown below the table. Double-click any entry to make the result the currently active one and switch to the [Details Page](index.html#profiler-report-details-page) page to inspect its performance data. By default, kernel demangled names are simplified, renamed and shown in an optimized manner. This behavior can be changed with [Rename Demangled Names](index.html#options-profile) option. If an auto-simplified name is not useful, you can rename it through a configuration file. You can also persist the updated names directly in the report by double-clicking on the name, renaming and saving the report. Use [Rename Kernels Config Path](index.html#options-profile) option to specify the configuration file which should be used while importing renamed kernels or exporting demangled names with mappings to rename them. To export names to a new file, click _Export_ button and use _Rename Kernels Config_ option. See [Kernel Renaming](../NsightComputeCli/index.html#kernel-renaming) for more details on configuration file usage.
+The _Summary Table_ gives you a quick comparison overview across all profiled workloads. It contains a number of important, pre-selected metrics which can be customized as explained below. Its columns can be sorted by clicking the column header. You can transpose the table with the _Transpose_ button. Aggregate of all results per each counter metric is shown in the table header along with the column name. You can change the aggregated values by selecting the desired results for multiple metrics simultaneously. When selecting any entry by single-click, a list of its _Prioritized Rules_ will be shown below the table. Double-click any entry to make the result the currently active one and switch to the [Details Page](index.html#profiler-report-details-page) page to inspect its performance data. By default, kernel demangled names are simplified, renamed and shown in an optimized manner. This behavior can be changed with [Rename Demangled Names](index.html#options-profile) option. If an auto-simplified name is not useful, you can rename it through a configuration file. You can also persist the updated names directly in the report by double-clicking on the name, renaming and saving the report. Use [Rename Kernels Config Path](index.html#options-profile) option to specify the configuration file which should be used while importing renamed kernels or exporting demangled names with mappings to rename them. To export names to a new file, click _Export_ button and use _Rename Kernels Config_ option. Hovering over a demangled name cell shows the full name in a tooltip and lets you open the kernel renaming config file from there. See [Kernel Renaming](../NsightComputeCli/index.html#kernel-renaming) for more details on configuration file usage. For results associated with CUDA Graphs, clicking on the result opens the [CUDA Graph Viewer](index.html#tool-window-cuda-graph-viewer) tool window. The viewer displays the instantiated graph structure and automatically highlights the graph node from which the selected kernel was launched, making it easy to understand the execution context within the graph topology.
 
 ![../_images/profiler-report-pages-summary-table.png](https://docs.nvidia.com/nsight-compute/_images/profiler-report-pages-summary-table.png)
 
@@ -1122,29 +1184,29 @@ In addition to metrics, you can also configure the table to include any of the f
 
 ##### Properties
 
-> Properties `property__api_call_id` | ID of the API call associated with this profile result.  
-> ---|---  
-> `property__block_size` | Block Size. If the result contains multiple launches, this will contain the maximum value for each dimension of the block.  
-> `property__creation_time` | Local collection time.  
-> `property__demangled_name` | Kernel demangled name, potentially renamed.  
-> `property__device_name` | GPU device name.  
-> `property__estimated_speedup` | Maximal relative speedup achievable for this profile result as estimated by the guided analysis rules.  
-> `property__function_name` | Kernel function name.  
-> `property__grid_dimensions` | Grid Dimensions. If the result contains multiple launches, this will contain the maximum value for each dimension of the grid.  
-> `property__grid_offset` | Grid Offset.  
-> `property__grid_size` | Grid Size. If the result contains multiple launches, this will contain the maximum value for each dimension of the grid.  
-> `property__issues_detected` | Number of issues detected by guided analysis rules for this profile result.  
-> `property__kernel_id` | Kernel ID.  
-> `property__mangled_name` | Kernel mangled name.  
-> `property__original_demangled_name` | Original kernel demangled name without any renaming.  
-> `property__process_name` | Process name.  
-> `property__range_name` | Range name.  
-> `property__result_type` | Result Type. This property shows workload type and execution model of the profile result.  
-> `property__runtime_improvement` | Runtime improvement corresponding to the estimated speedup.  
-> `property__series_id` | ID of the profile series.  
-> `property__series_parameters` | Profile series parameters.  
-> `property__thread_id` | CPU thread ID.  
-  
+> Properties `property__api_call_id` | ID of the API call associated with this profile result.
+> ---|---
+> `property__block_size` | Block Size. If the result contains multiple launches, this will contain the maximum value for each dimension of the block.
+> `property__creation_time` | Local collection time.
+> `property__demangled_name` | Kernel demangled name, potentially renamed.
+> `property__device_name` | GPU device name.
+> `property__estimated_speedup` | Maximal relative speedup achievable for this profile result as estimated by the guided analysis rules.
+> `property__function_name` | Kernel function name.
+> `property__grid_dimensions` | Grid Dimensions. If the result contains multiple launches, this will contain the maximum value for each dimension of the grid.
+> `property__grid_offset` | Grid Offset.
+> `property__grid_size` | Grid Size. If the result contains multiple launches, this will contain the maximum value for each dimension of the grid.
+> `property__issues_detected` | Number of issues detected by guided analysis rules for this profile result.
+> `property__kernel_id` | Kernel ID.
+> `property__mangled_name` | Kernel mangled name.
+> `property__original_demangled_name` | Original kernel demangled name without any renaming.
+> `property__process_name` | Process name.
+> `property__range_name` | Range name.
+> `property__result_type` | Result Type. This property shows workload type and execution model of the profile result.
+> `property__runtime_improvement` | Runtime improvement corresponding to the estimated speedup.
+> `property__series_id` | ID of the profile series.
+> `property__series_parameters` | Profile series parameters.
+> `property__thread_id` | CPU thread ID.
+
 For [Range Replay](../ProfilingGuide/index.html#range-replay) reports, a smaller set of columns is shown by default, as not all apply to such results.
 
 For the currently selected metric result the _Prioritized Rules_ show the most impactful rule results with respect to the estimated potential speedup. Clicking on any of the rule names on the left allows you to easily navigate to the containing section on the details page. With the downward-facing arrow on the right a table with the relevant _key performance indicators_ can be toggled. This table contains the metrics which should be tracked when optimizing performance according to the rule guidance.
@@ -1203,33 +1265,33 @@ Sample roofline chart.
 
 The roofline chart can be zoomed and panned for more effective data analysis, using the controls in the table below. When the [Metric Details](index.html#tool-window-metric-details) tool window is open, you can click on an achieved value in the chart to see its metric formula in the tool window.
 
-Roofline Chart Zoom and Pan Controls Zoom In | Zoom Out | Zoom Reset | Pan  
----|---|---|---  
-  
+Roofline Chart Zoom and Pan Controls Zoom In | Zoom Out | Zoom Reset | Pan
+---|---|---|---
+
   * Click the Zoom In button in the top right corner of the chart.
   * Click the left mouse button and drag to create a rectangle that bounds the area of interest.
   * Press the plus (+) key.
   * Use Ctrl + MouseWheel (Windows and Linux only)
 
-| 
+|
 
   * Click the Zoom Out button in the top right corner of the chart.
   * Click the right mouse button.
   * Press the minus (-) key.
   * Use Ctrl + MouseWheel (Windows and Linux only)
 
-| 
+|
 
   * Click the Zoom Reset button in the top right corner of the chart.
   * Press the Escape (Esc) key.
 
-| 
+|
 
   * Use Ctrl (Command on Mac) + LeftMouseButton to grab the chart, then move the mouse.
   * Use the cursor keys.
 
-  
-  
+
+
 ##### Source
 
 Sections such as _Source Counters_ can contain source hot spot tables. These tables indicate the N highest or lowest values of one or more metrics in your kernel source code. Select the location links to navigate directly to this location in the [Source Page](index.html#profiler-report-source-page). Hover the mouse over a value to see which metrics contribute to it.
@@ -1253,14 +1315,14 @@ You can also use the [Metric Details](index.html#tool-window-metric-details) too
 The timeline has a context menu for further actions regarding copying, zooming or adjusting the viewed data:
 
 >   * Metric rows on the timeline can be scaled (y-axis) based on a theoretical HW peak, or based on the maximum profiled value in the workload. Select the _Scale to Peak_ /_Scale to Max Value_ options in the context menu to switch between the two modes. Note that HW peak info may not be available for all rows.
-> 
+>
 >   * When zoomed out, the bar height may be reduced to represent that multiple samples are aggregated into one bar. The _Show/Hide Max Bars_ options in the context menu can be used to enable/disable showing the maximum value for each time range across all samples in that range, even when zoomed out.
-> 
+>
 >   * In addition, the _Enable/Disable Context Switch Filter_ option can be used to enable or disable the filtering of the timeline data with [context switch](../ProfilingGuide/index.html#pm-sampling) information, if it is available. When the context switch filter is enabled (the default), samples from each pass group are only shown for the active contexts. When the context switch filter is disabled, the raw collected sampling data is shown along with a separate row for each pass group’s context switch trace.
-> 
+>
 >   * When the context menu option is not available, the report does not include context switch trace data. In this case, the option _Enable/Disable Workload Alignment_ is shown instead if workload execution trace is available. When enabled, it aligns all passes based on their first workload execution timestamp.
-> 
-> 
+>
+>
 
 
 The timeline row Workload Execution shows each kernel’s start and end timestamp. When the context switch filter is enabled, kernel execution is only shown for one of the passes for the active contexts. When the context switch filter is disabled, kernel execution is shown for all the passes.
@@ -1417,48 +1479,48 @@ Number of divergent branch targets, including fallthrough. Incremented only when
 
   * **Information on Memory Operations**
 
-**Label** | **Name** | **Description**  
----|---|---  
-Address Space | memory_type | The accessed address space (global/local/shared).  
-Access Operation | memory_access_type | The type of memory access (e.g. load or store).  
-Access Size | memory_access_size_type | The size of the memory access, in bits.  
-L1 Tag Requests Global | memory_l1_tag_requests_global | Number of L1 tag requests generated by global memory instructions.  
-L1 Conflicts Shared N-Way | derived__memory_l1_conflicts_shared_nway | Average N-way conflict in L1 per shared memory instruction. A 1-way access has no conflicts and resolves in a single pass. Note: This is a derived metric which can not be collected directly.  
-L1 Wavefronts Shared Excessive | derived__memory_l1_wavefronts_shared_excessive | Excessive number of wavefronts in L1 from shared memory instructions, because not all not predicated-off threads performed the operation. Note: This is a derived metric which can not be collected directly.  
-L1 Wavefronts Shared | memory_l1_wavefronts_shared | Number of wavefronts in L1 from shared memory instructions.  
-L1 Wavefronts Shared Ideal | memory_l1_wavefronts_shared_ideal | Ideal number of wavefronts in L1 from shared memory instructions, assuming each not predicated-off thread performed the operation.  
-L2 Theoretical Sectors Global Excessive | derived__memory_l2_theoretical_sectors_global_excessive | Excessive theoretical number of sectors requested in L2 from global memory instructions, because not all not predicated-off threads performed the operation. Note: This is a derived metric which can not be collected directly.  
-L2 Theoretical Sectors Global | memory_l2_theoretical_sectors_global | Theoretical number of sectors requested in L2 from global memory instructions.  
-L2 Theoretical Sectors Global Ideal | memory_l2_theoretical_sectors_global_ideal | Ideal number of sectors requested in L2 from global memory instructions, assuming each not predicated-off thread performed the operation.  
-L2 Theoretical Sectors Local | memory_l2_theoretical_sectors_local | Theoretical number of sectors requested in L2 from local memory instructions.  
-  
+**Label** | **Name** | **Description**
+---|---|---
+Address Space | memory_type | The accessed address space (global/local/shared).
+Access Operation | memory_access_type | The type of memory access (e.g. load or store).
+Access Size | memory_access_size_type | The size of the memory access, in bits.
+L1 Tag Requests Global | memory_l1_tag_requests_global | Number of L1 tag requests generated by global memory instructions.
+L1 Conflicts Shared N-Way | derived__memory_l1_conflicts_shared_nway | Average N-way conflict in L1 per shared memory instruction. A 1-way access has no conflicts and resolves in a single pass. Note: This is a derived metric which can not be collected directly.
+L1 Wavefronts Shared Excessive | derived__memory_l1_wavefronts_shared_excessive | Excessive number of wavefronts in L1 from shared memory instructions, because not all not predicated-off threads performed the operation. Note: This is a derived metric which can not be collected directly.
+L1 Wavefronts Shared | memory_l1_wavefronts_shared | Number of wavefronts in L1 from shared memory instructions.
+L1 Wavefronts Shared Ideal | memory_l1_wavefronts_shared_ideal | Ideal number of wavefronts in L1 from shared memory instructions, assuming each not predicated-off thread performed the operation.
+L2 Theoretical Sectors Global Excessive | derived__memory_l2_theoretical_sectors_global_excessive | Excessive theoretical number of sectors requested in L2 from global memory instructions, because not all not predicated-off threads performed the operation. Note: This is a derived metric which can not be collected directly.
+L2 Theoretical Sectors Global | memory_l2_theoretical_sectors_global | Theoretical number of sectors requested in L2 from global memory instructions.
+L2 Theoretical Sectors Global Ideal | memory_l2_theoretical_sectors_global_ideal | Ideal number of sectors requested in L2 from global memory instructions, assuming each not predicated-off thread performed the operation.
+L2 Theoretical Sectors Local | memory_l2_theoretical_sectors_local | Theoretical number of sectors requested in L2 from local memory instructions.
+
 All _L1/L2 Sectors/Wavefronts/Requests_ metrics give the number of achieved (actually required), ideal, and excessive (achieved - ideal) sectors/wavefronts/requests. _Ideal_ metrics indicate the number that would needed, given each not predicated-off thread performed the operation of given width. _Excessive_ metrics indicate the required surplus over the ideal case. Reducing divergence between threads can reduce the excess amount and result in less work for the respective HW units.
 
 
 Several of the above metrics on memory operations were renamed in version 2021.2 as follows:
 
-**Old name** | **New name**  
----|---  
-memory_l2_sectors_global | memory_l2_theoretical_sectors_global  
-memory_l2_sectors_global_ideal | memory_l2_theoretical_sectors_global_ideal  
-memory_l2_sectors_local | memory_l2_theoretical_sectors_local  
-memory_l1_sectors_global | memory_l1_tag_requests_global  
-memory_l1_sectors_shared | memory_l1_wavefronts_shared  
-memory_l1_sectors_shared_ideal | memory_l1_wavefronts_shared_ideal  
-  
+**Old name** | **New name**
+---|---
+memory_l2_sectors_global | memory_l2_theoretical_sectors_global
+memory_l2_sectors_global_ideal | memory_l2_theoretical_sectors_global_ideal
+memory_l2_sectors_local | memory_l2_theoretical_sectors_local
+memory_l1_sectors_global | memory_l1_tag_requests_global
+memory_l1_sectors_shared | memory_l1_wavefronts_shared
+memory_l1_sectors_shared_ideal | memory_l1_wavefronts_shared_ideal
+
   * **L2 Explicit Evict Policy Metrics**
 
 Starting with the NVIDIA Ampere architecture the eviction policy of the L2 cache can be tuned to match the kernel’s access pattern. The eviction policy can be either set implicitly for a memory window (for more details see [CUaccessProperty](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaAccessPolicyWindow.html)) or set explicitly per executed memory instruction. If set explicitly, the desired eviction behavior for the cases of an L2 cache hit or miss are passed as input to the instruction. For more details refer to CUDA’s [Cache Eviction Priority Hints](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-eviction-priority-hints).
 
-**Label** | **Name** | **Description**  
----|---|---  
-L2 Explicit Evict Policies | smsp__inst_executed_memdesc_explicit_evict_type | Comma separated list of configured explicit eviction policies. As the policies can be set dynamically at runtime, this list includes all policies that were part of any executed instruction.  
-L2 Explicit Hit Policy Evict First | smsp__inst_executed_memdesc_explicit_hitprop_evict_first | Number of times a memory instruction was executed by any warp which had the `evict_first` policy set in case the access leads to a cache hit in L2. Data cached with this policy will be first in the eviction priority order and will likely be evicted when cache eviction is required. This policy is suitable for streaming data.  
-L2 Explicit Hit Policy Evict Last | smsp__inst_executed_memdesc_explicit_hitprop_evict_last | Number of times a memory instruction was executed by any warp which had the `evict_last` policy set in case the access leads to a cache hit in L2. Data cached with this policy will be last in the eviction priority order and will likely be evicted only after other data with `evict_normal` or `evict_first` eviction policy is already evicted. This policy is suitable for data that should remain persistent in cache.  
-L2 Explicit Hit Policy Evict Normal | smsp__inst_executed_memdesc_explicit_hitprop_evict_normal | Number of times a memory instruction was executed by any warp which had the `evict_normal` (default) policy set in case the access leads to a cache hit in L2.  
-L2 Explicit Hit Policy Evict Normal Demote | smsp__inst_executed_memdesc_explicit_hitprop_evict_normal_demote | Number of times a memory instruction was executed by any warp which had the `evict_normal_demote` policy set in case the access leads to a cache hit in L2.  
-L2 Explicit Miss Policy Evict First | smsp__inst_executed_memdesc_explicit_missprop_evict_first | Number of times a memory instruction was executed by any warp which had the `evict_first` policy set in case the access leads to a cache miss in L2. Data cached with this policy will be first in the eviction priority order and will likely be evicted cache eviction is required. This policy is suitable for streaming data.  
-L2 Explicit Miss Policy Evict Normal | smsp__inst_executed_memdesc_explicit_missprop_evict_normal | Number of times a memory instruction was executed by any warp which had the `evict_normal` (default) policy set in case the access leads to a cache miss in L2.  
+**Label** | **Name** | **Description**
+---|---|---
+L2 Explicit Evict Policies | smsp__inst_executed_memdesc_explicit_evict_type | Comma separated list of configured explicit eviction policies. As the policies can be set dynamically at runtime, this list includes all policies that were part of any executed instruction.
+L2 Explicit Hit Policy Evict First | smsp__inst_executed_memdesc_explicit_hitprop_evict_first | Number of times a memory instruction was executed by any warp which had the `evict_first` policy set in case the access leads to a cache hit in L2. Data cached with this policy will be first in the eviction priority order and will likely be evicted when cache eviction is required. This policy is suitable for streaming data.
+L2 Explicit Hit Policy Evict Last | smsp__inst_executed_memdesc_explicit_hitprop_evict_last | Number of times a memory instruction was executed by any warp which had the `evict_last` policy set in case the access leads to a cache hit in L2. Data cached with this policy will be last in the eviction priority order and will likely be evicted only after other data with `evict_normal` or `evict_first` eviction policy is already evicted. This policy is suitable for data that should remain persistent in cache.
+L2 Explicit Hit Policy Evict Normal | smsp__inst_executed_memdesc_explicit_hitprop_evict_normal | Number of times a memory instruction was executed by any warp which had the `evict_normal` (default) policy set in case the access leads to a cache hit in L2.
+L2 Explicit Hit Policy Evict Normal Demote | smsp__inst_executed_memdesc_explicit_hitprop_evict_normal_demote | Number of times a memory instruction was executed by any warp which had the `evict_normal_demote` policy set in case the access leads to a cache hit in L2.
+L2 Explicit Miss Policy Evict First | smsp__inst_executed_memdesc_explicit_missprop_evict_first | Number of times a memory instruction was executed by any warp which had the `evict_first` policy set in case the access leads to a cache miss in L2. Data cached with this policy will be first in the eviction priority order and will likely be evicted cache eviction is required. This policy is suitable for streaming data.
+L2 Explicit Miss Policy Evict Normal | smsp__inst_executed_memdesc_explicit_missprop_evict_normal | Number of times a memory instruction was executed by any warp which had the `evict_normal` (default) policy set in case the access leads to a cache miss in L2.
   * **Individual Warp Stall Sampling Metrics**
 
 All _stall_*_ metrics show the information combined in _Warp Stall Sampling_ individually. See [Statistical Sampler](../ProfilingGuide/index.html#statistical-sampler) for their descriptions.
@@ -1483,12 +1545,12 @@ Dependencies across source files and functions are not tracked.
 The Register Dependencies Tracking feature is enabled by default, but can be disabled completely in _Tools > Options > Profile > Report Source Page > Enable Register Dependencies_.
 
 [1](#id6)
-    
+
 
 This metric was previously called Sampling Data (All).
 
 [2](#id7)
-    
+
 
 This metric was previously called Sampling Data (Not Issued).
 
@@ -1520,6 +1582,8 @@ The _Attributed Stalls_ column shows the number of warp stalls from the selectio
 
   * **Output Scoreboard Dependencies** : The consumers of scoreboards produced by the selection. A scoreboard producer is an operation producing a scoreboard a consumer is waiting on. Use this to understand who is waiting (stalled) on the selection. Note that these lines may wait for other instructions than the current selection, too.
 
+
+Scoreboards are used to synchronize data dependencies, state updates and ensure memory ordering. This includes true data dependencies (read-after-write) and anti-dependencies (write-after-read).
 
 Relative percentage values in these tables are calculated based on the total value of the respective data in the entire view, not just in the selection.
 
@@ -1647,10 +1711,10 @@ Profiler report with one baseline
 Select _Add Baseline_ to promote the current result in focus to become a baseline. If a baseline is set, most metrics on the [Details Page](index.html#profiler-report-details-page), [Raw Page](index.html#profiler-report-raw-page) and [Summary Page](index.html#profiler-report-summary-page) show two values: the current value of the result in focus, and the corresponding value of the baseline or the percentage of change from the corresponding baseline value. (Note that an infinite percentage gain, _inf%_ , may be displayed when the baseline value for the metric is zero, while the focus value is not.)
 
 If multiple baselines are selected, each metric will show the following notation:
-    
-    
+
+
     <focus value> (<difference to baselines average [%]>, z=<standard score>@<number of values>)
-    
+
 
 The standard score is the difference between the current value and the average across all baselines, normalized by the standard deviation. If the number of metric values contributing to the standard score equals the number of results (current and all baselines), the @<number of values> notation is omitted.
 
@@ -1853,7 +1917,7 @@ Clustering Window
 
   3. **Configure Parameters** (Optional):
 
-     * _Minimum Cluster Size_ : How many reports are needed to form a cluster (default: 3)
+     * _Minimum Cluster Size_ : How many reports are needed to form a cluster (default: 3, minimum allowed: 2)
 
      * _Maximum Cluster Size_ : Maximum reports per cluster (0 = no limit)
 
@@ -2016,37 +2080,37 @@ The viewer is multi-paned: it shows a hierarchical view of the acceleration stru
 
 In the hierarchical view on the left of the _Acceleration Structure Viewer_ , the following information is displayed where applicable.
 
-Acceleration Structure Hierarchical Columns Column | Description  
----|---  
-Name | An identifier for each row in the hierarchy. Click on the check box next to the name to show or hide the selected geometry or hierarchy. Double-click on this entry to jump to the item in the rendering view.  
-# Prims | The number of primitives that make up this acceleration structure.  
-Surface Area | A calculation of the total surface area for the AABB that bounds the particular entry.  
-Size | The size of the output buffer on the device holding this _acceleration structure_.  
-  
+Acceleration Structure Hierarchical Columns Column | Description
+---|---
+Name | An identifier for each row in the hierarchy. Click on the check box next to the name to show or hide the selected geometry or hierarchy. Double-click on this entry to jump to the item in the rendering view.
+# Prims | The number of primitives that make up this acceleration structure.
+Surface Area | A calculation of the total surface area for the AABB that bounds the particular entry.
+Size | The size of the output buffer on the device holding this _acceleration structure_.
+
 Performance analysis tools are accessible in the bottom left corner on the main view. These tools help identify potential performance problems that are outlined in the [RTX Ray Tracing Best Practices Guide](https://developer.nvidia.com/blog/best-practices-using-nvidia-rtx-ray-tracing). These analysis tools aim to give a broad picture of acceleration structures that may exhibit sub-optimal performance. To find the most optimal solution, profiling and experimentation is recommended but these tools may paint a better picture as to why one structure performs poorly compared to another.
 
-Acceleration Structure Analysis Tools Action | Description  
----|---  
-Instance Overlaps | Identifies instance AABBs that overlap with other instances in 3D. Consider merging GASes when instance world-space AABBs overlap significantly to potentially increase performance.  
-Instance Heatmap | This allows you to set the threshold used by the AABB heatmap rendered in the visualizer.  
-  
+Acceleration Structure Analysis Tools Action | Description
+---|---
+Instance Overlaps | Identifies instance AABBs that overlap with other instances in 3D. Consider merging GASes when instance world-space AABBs overlap significantly to potentially increase performance.
+Instance Heatmap | This allows you to set the threshold used by the AABB heatmap rendered in the visualizer.
+
 ### 3.14.1. Navigation
 
 The _Acceleration Structure Viewer_ supports multiple navigation modes. The navigation mode can be changed using the combo box in the camera controls pane, to the right of the rendering pane. The keyboard and mouse bindings for each mode are as follows:
 
-Acceleration Structure Key Bindings Binding | Fly Camera | Dolly Camera | Orbit Camera  
----|---|---|---  
-**WASD/Arrow Keys** | Move forward, backward, left, right | Move forward, backward, left, right | Track (Move up, down, left, right)  
-**E/Q** | Move up/down | Move up/down | n/a  
-**Z/C** | Increase/decrease field of view | Increase/decrease field of view | Increase/decrease field of view  
-**Shift/Ctrl** | Move faster/slower | Move faster/slower | Move faster/slower  
-**Mousewheel** | Zoom in/out | Zoom in/out | Zoom in/out  
-**LMB + Drag** | Rotate in place | Rotate left/right, move forward/backward | Rotate around the geometry  
-**RMB + Drag** | Zoom in/out | Rotate in place | Zoom in/out  
-**MMB + Drag** | Track (Move up, down, left, right) | Track (Move up, down, left, right) | Track (Move up, down, left, right)  
-**Alt** | Temporarily switch to Orbit Camera | Temporarily switch to Orbit Camera | n/a  
-**F/Double Click** | Focus on the selected geometry | Focus on the selected geometry | Focus on the selected geometry  
-  
+Acceleration Structure Key Bindings Binding | Fly Camera | Dolly Camera | Orbit Camera
+---|---|---|---
+**WASD/Arrow Keys** | Move forward, backward, left, right | Move forward, backward, left, right | Track (Move up, down, left, right)
+**E/Q** | Move up/down | Move up/down | n/a
+**Z/C** | Increase/decrease field of view | Increase/decrease field of view | Increase/decrease field of view
+**Shift/Ctrl** | Move faster/slower | Move faster/slower | Move faster/slower
+**Mousewheel** | Zoom in/out | Zoom in/out | Zoom in/out
+**LMB + Drag** | Rotate in place | Rotate left/right, move forward/backward | Rotate around the geometry
+**RMB + Drag** | Zoom in/out | Rotate in place | Zoom in/out
+**MMB + Drag** | Track (Move up, down, left, right) | Track (Move up, down, left, right) | Track (Move up, down, left, right)
+**Alt** | Temporarily switch to Orbit Camera | Temporarily switch to Orbit Camera | n/a
+**F/Double Click** | Focus on the selected geometry | Focus on the selected geometry | Focus on the selected geometry
+
 Based on the coordinate system of the input geometry, you may need to change the **Up Direction** setting to Z-Axis or the **Coordinates** setting to RHS. To reset the camera to its original location, click **Reset Camera**.
 
 There are also a selection of Camera Controls for fast and precise navigation. To save a position, use the bookmarks controls. Each node within the acceleration structure hierarchy can also be double-clicked to quickly navigate to that location.
@@ -2089,27 +2153,27 @@ Profile options
 
 Configure the directories and import settings for section files and rules.
 
-NVIDIA Nsight Compute Report Section Options Option Name | Description | Values  
----|---|---  
-Sections Directory | Directory from which to import section files and rules. Relative paths are with respect to the NVIDIA Nsight Compute installation directory. |   
-Include Sub- Directories | Recursively include section files and rules from sub-directories. | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Report Section Options Option Name | Description | Values
+---|---|---
+Sections Directory | Directory from which to import section files and rules. Relative paths are with respect to the NVIDIA Nsight Compute installation directory. |
+Include Sub- Directories | Recursively include section files and rules from sub-directories. | Yes (Default)/No
+
 #### Report Rules
 
 Configure how rules are applied and reloaded during profiling sessions.
 
-NVIDIA Nsight Compute Report Rules Options Option Name | Description | Values  
----|---|---  
-Apply Applicable Rules Automatically | Automatically apply active and applicable rules. | Yes (Default)/No  
-Reload Rules Before Applying | Force a rule reload before applying the rule to ensure changes in the rule script are recognized. | Yes/No (Default)  
-  
+NVIDIA Nsight Compute Report Rules Options Option Name | Description | Values
+---|---|---
+Apply Applicable Rules Automatically | Automatically apply active and applicable rules. | Yes (Default)/No
+Reload Rules Before Applying | Force a rule reload before applying the rule to ensure changes in the rule script are recognized. | Yes/No (Default)
+
 #### Report UI
 
 Customize the user interface behavior for report viewing and navigation.
 
-NVIDIA Nsight Compute Report UI Options Option Name | Description | Values  
----|---|---  
-Default Report Page | The report page to show when a report is generated or opened. _Auto_ lets the tool decide the best page to show when opening a report. | 
+NVIDIA Nsight Compute Report UI Options Option Name | Description | Values
+---|---|---
+Default Report Page | The report page to show when a report is generated or opened. _Auto_ lets the tool decide the best page to show when opening a report. |
 
   * Summary (Default)
   * Details
@@ -2120,112 +2184,120 @@ Default Report Page | The report page to show when a report is generated or open
   * Session
   * Auto
 
-  
-Function Name Mode | Determines how function/kernel names are shown. | 
+
+Function Name Mode | Determines how function/kernel names are shown. |
 
   * Auto (Default)
   * Demangled
   * Function
   * Mangled
 
-  
-NVTX Rename Mode | Determines how NVTX information is used for renaming. Range replay results are always renamed when possible. | 
+
+NVTX Rename Mode | Determines how NVTX information is used for renaming. Range replay results are always renamed when possible. |
 
   * None
   * Kernel
   * Resources (Default)
   * All
 
-  
-Show Metrics Aggregation | Show aggregate of all results per each counter metric in the table header and aggregated value of randomly selected metrics in the bottom-right label. | Yes (Default)/No  
-Show Y-axis labels | Display Y-axis labels on the timeline to improve the interpretation of minimum and maximum metric value. | Yes (Default)/No  
-Rename Demangled Names | Perform auto-simplification on kernel demangled names or import renamed names from a configuration file. | Yes (Default)/No  
-Rename Kernels Config Path | Use a configuration file to rename multiple demangled names and export demangled names from the report. | ncu-kernel-renames.yaml  
-  
+
+Show Metrics Aggregation | Show aggregate of all results per each counter metric in the table header and aggregated value of randomly selected metrics in the bottom-right label. | Yes (Default)/No
+Show Y-axis labels | Display Y-axis labels on the timeline to improve the interpretation of minimum and maximum metric value. | Yes (Default)/No
+Rename Demangled Names | Perform auto-simplification on kernel demangled names or import renamed names from a configuration file. | Yes (Default)/No
+Rename Kernels Config Path | Use a configuration file to rename multiple demangled names and export demangled names from the report. | ncu-kernel-renames.yaml
+
 #### Report Baselines
 
 Configure baseline display settings for result comparison.
 
-NVIDIA Nsight Compute Report Baselines Options Option Name | Description | Values  
----|---|---  
-Maximum Baseline Name Length | The maximum length of baseline names. | 1..N (Default: 40)  
-Number of Full Baselines to Display | Number of baselines to display in the report header with all details in addition to the current result or the baseline added for the current result. | 0..N (Default: 2)  
-  
+NVIDIA Nsight Compute Report Baselines Options Option Name | Description | Values
+---|---|---
+Maximum Baseline Name Length | The maximum length of baseline names. | 1..N (Default: 40)
+Number of Full Baselines to Display | Number of baselines to display in the report header with all details in addition to the current result or the baseline added for the current result. | 0..N (Default: 2)
+
 #### Report Metrics
 
 Configure how metrics are displayed and processed in reports.
 
-NVIDIA Nsight Compute Report Metrics Options Option Name | Description | Values  
----|---|---  
-Auto-Convert Metric Units | Auto-adjust displayed metric units and values (e.g. Bytes to KBytes). | Yes (Default)/No  
-Show Instanced Metric Values | Show the individual values of instanced metrics in tables. | Yes/No (Default)  
-Show Metrics As Floating Point | Show all numeric metrics as floating-point numbers. | Yes/No (Default)  
-Show Knowledge Base Information | Show information from the knowledge base in (metric) tooltips to explain terminology. Note: Nsight Compute needs to be restarted for this option to take effect. | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Report Metrics Options Option Name | Description | Values
+---|---|---
+Auto-Convert Metric Units | Auto-adjust displayed metric units and values (e.g. Bytes to KBytes). | Yes (Default)/No
+Show Instanced Metric Values | Show the individual values of instanced metrics in tables. | Yes/No (Default)
+Show Metrics As Floating Point | Show all numeric metrics as floating-point numbers. | Yes/No (Default)
+Show Knowledge Base Information | Show information from the knowledge base in (metric) tooltips to explain terminology. Note: Nsight Compute needs to be restarted for this option to take effect. | Yes (Default)/No
+
 #### Report Summary Page
 
 Configure settings for the Summary page in reports.
 
-NVIDIA Nsight Compute Report Summary Page Options Option Name | Description | Values  
----|---|---  
-Metrics/ Properties | List of metrics and properties to show on the summary page. Comma-separated list of metric entries. Each entry has the format {Label:MetricName}. |   
-  
+NVIDIA Nsight Compute Report Summary Page Options Option Name | Description | Values
+---|---|---
+Metrics/ Properties | List of metrics and properties to show on the summary page. Comma-separated list of metric entries. Each entry has the format {Label:MetricName}. |
+
 #### Report Details Page
 
 Configure settings for the Details page in reports.
 
-NVIDIA Nsight Compute Report Summary Page Options Option Name | Description | Values  
----|---|---  
-Default Section Body Visibility | Controls the default visibility of section bodies when opening a report. | Default (Default)/All  
-  
+NVIDIA Nsight Compute Report Summary Page Options Option Name | Description | Values
+---|---|---
+Default Section Body Visibility | Controls the default visibility of section bodies when opening a report. | Default (Default)/All
+
 #### Report Source Page
 
 Configure settings for the Source page view.
 
-NVIDIA Nsight Compute Source Page Options Option Name | Description | Values  
----|---|---  
-Delay Load ‘Source’ Page | Delays loading the content of the report page until the page becomes visible. Avoids processing costs and memory overhead until the report page is opened. | Yes/No (Default)  
-Show Single File For Multi-File Sources | Shows a single file in each Source page view, even for multi-file sources. | Yes/No (Default)  
-Show Only Executed Functions | Shows only executed functions in the source page views. Disabling this can impact performance. | Yes (Default)/No  
-Default Metric Value Mode | Default setting for the mode in which the metric values are displayed. | Relative (Default)/Absolute  
-Default Metric Precision Mode | Default setting for the precision in which absolute metric values are displayed. | Abbreviated (Default)/Full  
-Auto-Resolve Remote Source Files | Automatically try to resolve remote source files on the source page (e.g. via SSH) if the connection is still registered. | Yes/No (Default)  
-Enable Register Dependencies | Track dependencies between SASS registers/predicates and display them in the SASS view. | Yes (Default)/No  
-SASS Analysis Size Threshold (KB) | Enable SASS flow graph analysis for functions below this threshold. SASS analysis is required for Live Register and Register Dependency information. Set to -1 to enable analysis for all functions. | -1..N (Default: 1024)  
-Enable ELF Verification | Enable ELF (cubin) verification to run every time before SASS analysis. This should only be enabled when working with applications compiled before CUDA 11.0 or when encountering source page issues. | Yes/No (Default)  
-  
+NVIDIA Nsight Compute Source Page Options Option Name | Description | Values
+---|---|---
+Delay Load ‘Source’ Page | Delays loading the content of the report page until the page becomes visible. Avoids processing costs and memory overhead until the report page is opened. | Yes/No (Default)
+Show Single File For Multi-File Sources | Shows a single file in each Source page view, even for multi-file sources. | Yes/No (Default)
+Show Only Executed Functions | Shows only executed functions in the source page views. Disabling this can impact performance. | Yes (Default)/No
+Default Metric Value Mode | Default setting for the mode in which the metric values are displayed. | Relative (Default)/Absolute
+Default Metric Precision Mode | Default setting for the precision in which absolute metric values are displayed. | Abbreviated (Default)/Full
+Auto-Resolve Remote Source Files | Automatically try to resolve remote source files on the source page (e.g. via SSH) if the connection is still registered. | Yes/No (Default)
+Enable Register Dependencies | Track dependencies between SASS registers/predicates and display them in the SASS view. | Yes (Default)/No
+SASS Analysis Size Threshold (KB) | Enable SASS flow graph analysis for functions below this threshold. SASS analysis is required for Live Register and Register Dependency information. Set to -1 to enable analysis for all functions. | -1..N (Default: 1024)
+Enable ELF Verification | Enable ELF (cubin) verification to run every time before SASS analysis. This should only be enabled when working with applications compiled before CUDA 11.0 or when encountering source page issues. | Yes/No (Default)
+
 #### API Stream View
 
 Configure settings for the API Stream View.
 
-NVIDIA Nsight Compute API Stream View Options Option Name | Description | Values  
----|---|---  
-API Call History | Number of recent API calls shown in API Stream View. | 1..N (Default: 100)  
-  
+NVIDIA Nsight Compute API Stream View Options Option Name | Description | Values
+---|---|---
+API Call History | Number of recent API calls shown in API Stream View. | 1..N (Default: 100)
+
+#### CUDA Graph Viewer
+
+Configure settings for the CUDA Graph Viewer.
+
+NVIDIA Nsight Compute CUDA Graph Viewer Options Option Name | Description | Values
+---|---|---
+Auto-Open Graph Viewer | Automatically open the CUDA Graph Viewer when CUDA graphs are detected during profiling or when opening reports containing CUDA graph results. | Yes (Default)/No
+
 ### 3.15.2. Fonts and Colors
 
 #### Fonts
 
 Configure the fonts used throughout the application interface. General fonts affect all UI elements except code, while code fonts are specifically used for source code display and similar content.
 
-NVIDIA Nsight Compute Font Options Option Name | Description | Values  
----|---|---  
-General Font | General font used for all non-code UI elements. | Select an installed font via “Change…” button. (Default: Roboto@9pt)  
-Code Font | Font used for source code and code-like UI elements. | Select an installed font via “Change…” button. (Default: Cascadia Mono@9pt)  
-  
+NVIDIA Nsight Compute Font Options Option Name | Description | Values
+---|---|---
+General Font | General font used for all non-code UI elements. | Select an installed font via “Change…” button. (Default: Roboto@9pt)
+Code Font | Font used for source code and code-like UI elements. | Select an installed font via “Change…” button. (Default: Cascadia Mono@9pt)
+
 #### Colors
 
 Customize the visual appearance of the application through theme selection and color scale preferences. These settings affect the overall look and feel of the interface and how data is represented visually.
 
-NVIDIA Nsight Compute Color Options Option Name | Description | Values  
----|---|---  
-Color Theme | The currently selected application color theme. | 
+NVIDIA Nsight Compute Color Options Option Name | Description | Values
+---|---|---
+Color Theme | The currently selected application color theme. |
 
   * Dark (Default)
   * Light
 
-  
-Default Color Scale | Default color map used to represent a qualitative scale of values. | 
+
+Default Color Scale | Default color map used to represent a qualitative scale of values. |
 
   * Flammenmeer
   * Viridis
@@ -2234,57 +2306,57 @@ Default Color Scale | Default color map used to represent a qualitative scale of
   * Plasma
   * Jet (Default)
 
-  
-  
+
+
 ### 3.15.3. Environment
 
 #### Visual Experience
 
 Configure how NVIDIA Nsight Compute handles display and windowing behaviors, particularly for multi-monitor setups.
 
-NVIDIA Nsight Compute Visual Experience Options Option Name | Description | Values  
----|---|---  
-Use Enhanced Windowing Experience | Disable Mixed DPI Scaling if unwanted artifacts are detected when using monitors with different DPIs. Requires app restart. | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Visual Experience Options Option Name | Description | Values
+---|---|---
+Use Enhanced Windowing Experience | Disable Mixed DPI Scaling if unwanted artifacts are detected when using monitors with different DPIs. Requires app restart. | Yes (Default)/No
+
 #### Windowing
 
 Control window behavior and management settings.
 
-NVIDIA Nsight Compute Windowing Options Option Name | Description | Values  
----|---|---  
-Floating Windows Always on Top | Configure floating tool windows to always stay on top of the main window. Requires app restart. | Yes/No (Default)  
-  
+NVIDIA Nsight Compute Windowing Options Option Name | Description | Values
+---|---|---
+Floating Windows Always on Top | Configure floating tool windows to always stay on top of the main window. Requires app restart. | Yes/No (Default)
+
 #### Documents Folder
 
 Configure where NVIDIA Nsight Compute stores project files and documentation.
 
-NVIDIA Nsight Compute Documents Folder Options Option Name | Description | Values  
----|---|---  
-Documents Folder | The folder where projects and documents will be saved. |   
-  
+NVIDIA Nsight Compute Documents Folder Options Option Name | Description | Values
+---|---|---
+Documents Folder | The folder where projects and documents will be saved. |
+
 #### Startup Behavior
 
 Define how NVIDIA Nsight Compute behaves when launched.
 
-NVIDIA Nsight Compute Startup Behavior Options Option Name | Description | Values  
----|---|---  
-At Startup | What to do when the host is launched. | 
+NVIDIA Nsight Compute Startup Behavior Options Option Name | Description | Values
+---|---|---
+At Startup | What to do when the host is launched. |
 
   * Show Welcome Page (Default)
   * Show Quick Launch Dialog
   * Load Last Project
   * Show Empty Environment
 
-  
-  
+
+
 #### Updates
 
 Configure version update notification settings.
 
-NVIDIA Nsight Compute Updates Options Option Name | Description | Values  
----|---|---  
-Show version update notifications | Show notifications when a new version of this product is available. | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Updates Options Option Name | Description | Values
+---|---|---
+Show version update notifications | Show notifications when a new version of this product is available. | Yes (Default)/No
+
 ### 3.15.4. Connection
 
 Connection properties are grouped into _Target Connection Options_ and _Host Connection Properties_.
@@ -2293,53 +2365,53 @@ Connection properties are grouped into _Target Connection Options_ and _Host Con
 
 The _Target Connection Properties_ determine how the host connects to the target application during an _Interactive Profile Activity_. This connection is used to transfer profile information to the host during the profile session.
 
-NVIDIA Nsight Compute Target Connection Properties Option Name | Description | Values  
----|---|---  
-Base Port | Base port used to establish a connection from the host to the target application during an _Interactive Profile_ activity (both local and remote). | 1-65535 (Default: 49152)  
-Maximum Ports | Maximum number of ports to try (starting from _Base Port_) when attempting to connect to the target application. | 2-65534 (Default: 64)  
-  
+NVIDIA Nsight Compute Target Connection Properties Option Name | Description | Values
+---|---|---
+Base Port | Base port used to establish a connection from the host to the target application during an _Interactive Profile_ activity (both local and remote). | 1-65535 (Default: 49152)
+Maximum Ports | Maximum number of ports to try (starting from _Base Port_) when attempting to connect to the target application. | 2-65534 (Default: 64)
+
 #### Host Connection Properties
 
 The _Host Connection Properties_ determine how the command line profiler will connect to the host application during a _Profile Activity_. This connection is used to transfer profile information to the host during the profile session.
 
-NVIDIA Nsight Compute Host Connection Options Option Name | Description | Values  
----|---|---  
-Base Port | Base port used to establish a connection from the command line profiler to the host application during a _Profile_ activity (both local and remote). | 1-65535 (Default: 50152)  
-Maximum Ports | Maximum number of ports to try (starting from _Base Port_) when attempting to connect to the host application. | 1-100 (Default: 10)  
-  
+NVIDIA Nsight Compute Host Connection Options Option Name | Description | Values
+---|---|---
+Base Port | Base port used to establish a connection from the command line profiler to the host application during a _Profile_ activity (both local and remote). | 1-65535 (Default: 50152)
+Maximum Ports | Maximum number of ports to try (starting from _Base Port_) when attempting to connect to the host application. | 1-100 (Default: 10)
+
 #### SSH ProxyJump Connection Properties
 
 The _SSH ProxyJump Connection Properties_ configure how NVIDIA Nsight Compute handles connections through SSH jump hosts. This is useful when profiling applications on target machines that are not directly accessible and require connecting through intermediate SSH servers. The ProxyJump feature allows for secure, multi-hop SSH connections while maintaining the profiling functionality.
 
-NVIDIA Nsight Compute SSH ProxyJump Connection Options Option Name | Description | Values  
----|---|---  
-Process Scan Timeout (seconds) | Maximum time to try searching for attachable process when using SSH ProxyJump connection. | 1-65535 (Default: 10)  
-  
+NVIDIA Nsight Compute SSH ProxyJump Connection Options Option Name | Description | Values
+---|---|---
+Process Scan Timeout (seconds) | Maximum time to try searching for attachable process when using SSH ProxyJump connection. | 1-65535 (Default: 10)
+
 ### 3.15.5. Timeline
 
 #### Basic Settings
 
 The _Timeline Basic Settings_ control the visualization and behavior of the Timeline view in NVIDIA Nsight Compute.
 
-NVIDIA Nsight Compute Timeline Options Option Name | Description | Values  
----|---|---  
-Show correlation arrows | Show arrows on correlated items on the Timeline | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Timeline Options Option Name | Description | Values
+---|---|---
+Show correlation arrows | Show arrows on correlated items on the Timeline | Yes (Default)/No
+
 ### 3.15.6. Source Lookup
 
 The Source Lookup options control how NVIDIA Nsight Compute locates and validates CUDA source files when displaying source code in the Source page. These settings are particularly important for debugging and profiling sessions where source files may have moved from their original compilation locations or when working with different development environments. The options help ensure accurate source code resolution and provide flexibility in handling file location mismatches.
 
-NVIDIA Nsight Compute Source Lookup Options Option Name | Description | Values  
----|---|---  
-Program Source Locations | Set program source search paths. These paths are used to resolve CUDA-C source files on the Source page if the respective file cannot be found in its original location. Files which cannot be found are marked with a _File Not Found_ error. See the _Ignore File Properties_ option for files that are found but don’t match. |   
-Ignore File Properties | Ignore file properties (e.g. timestamp, size) for source resolution. If this is disabled, all file properties like modification timestamp and file size are checked against the information stored by the compiler in the application during compilation. If a file with the same name exists on a source lookup path, but not all properties match, it won’t be used for resolution (and a _File Mismatch_ error will be shown). | Yes/No (Default)  
-  
+NVIDIA Nsight Compute Source Lookup Options Option Name | Description | Values
+---|---|---
+Program Source Locations | Set program source search paths. These paths are used to resolve CUDA-C source files on the Source page if the respective file cannot be found in its original location. Files which cannot be found are marked with a _File Not Found_ error. See the _Ignore File Properties_ option for files that are found but don’t match. |
+Ignore File Properties | Ignore file properties (e.g. timestamp, size) for source resolution. If this is disabled, all file properties like modification timestamp and file size are checked against the information stored by the compiler in the application during compilation. If a file with the same name exists on a source lookup path, but not all properties match, it won’t be used for resolution (and a _File Mismatch_ error will be shown). | Yes/No (Default)
+
 ### 3.15.7. Send Feedback…
 
-NVIDIA Nsight Compute Send Feedback Options Option Name | Description | Values  
----|---|---  
-Collect Usage and Platform Data | Choose whether or not you wish to allow NVIDIA Nsight Compute to collect usage and platform data. | Yes (Default)/No  
-  
+NVIDIA Nsight Compute Send Feedback Options Option Name | Description | Values
+---|---|---
+Collect Usage and Platform Data | Choose whether or not you wish to allow NVIDIA Nsight Compute to collect usage and platform data. | Yes (Default)/No
+
 ## 3.16. Projects
 
 NVIDIA Nsight Compute uses _Project Files_ to group and organize profiling reports. At any given time, only one project can be open in NVIDIA Nsight Compute. Collected reports are automatically assigned to the current project. Reports stored on disk can be assigned to a project at any time. In addition to profiling reports, related files such as notes or source code can be associated with the project for future reference.

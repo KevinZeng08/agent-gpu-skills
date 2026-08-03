@@ -1,279 +1,125 @@
-# NVTX Patterns Reference
+# NVTX Instrumentation Guide
 
-## Table of Contents
+NVTX names application phases so Nsight Systems can relate CPU work, CUDA API calls, kernels, and memory operations to user-level intent.
 
-- [Overview](#overview) — Custom markers for profiling
-- [Setup](#setup) — Include header, compilation, profiling
-- [Basic API](#basic-api) — Range push/pop, colors, marks, named threads
-- [Common Patterns](#common-patterns) — Phase tracking, iteration tracking, kernel wrapper, CPU vs GPU time, color-coded categories, RAII wrapper, conditional profiling
-- [Analysis with nsys](#analysis-with-nsys) — NVTX summary, correlation with CUDA
-- [Best Practices](#best-practices) — Consistency, hierarchy, overhead considerations
-- [Overhead Considerations](#overhead-considerations) — Performance impact
+## Basic ranges
 
-## Overview
+Use paired push and pop calls in the same thread:
 
-NVIDIA Tools Extension (NVTX) provides custom markers for profiling. Use when kernel-level granularity isn't enough.
+    #include <nvtx3/nvToolsExt.h>
 
-## Setup
-
-### Include Header
-
-```cuda
-#include <nvtx3/nvToolsExt.h>
-```
-
-### Compilation
-
-```bash
-nvcc program.cu -lnvToolsExt -o program
-```
-
-### Profiling
-
-```bash
-nsys profile --trace=cuda,nvtx -o report ./program
-nsys stats report.nsys-rep --report nvtx_sum
-```
-
-## Basic API
-
-### Range Push/Pop
-
-```cuda
-nvtxRangePush("Region Name");
-// ... code ...
-nvtxRangePop();
-```
-
-Ranges can nest:
-```cuda
-nvtxRangePush("Outer");
-  nvtxRangePush("Inner");
-  // ...
-  nvtxRangePop();
-nvtxRangePop();
-```
-
-### Range with Color
-
-```cuda
-nvtxEventAttributes_t attr = {0};
-attr.version = NVTX_VERSION;
-attr.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
-attr.colorType = NVTX_COLOR_ARGB;
-attr.color = 0xFF00FF00;  // Green
-attr.messageType = NVTX_MESSAGE_TYPE_ASCII;
-attr.message.ascii = "Green Region";
-nvtxRangePushEx(&attr);
-// ...
-nvtxRangePop();
-```
-
-### Marks (Instant Events)
-
-```cuda
-nvtxMark("Checkpoint reached");
-```
-
-### Named Threads
-
-```cuda
-nvtxNameOsThread(pthread_self(), "Worker Thread");
-```
-
-## Common Patterns
-
-### Pattern: Phase Tracking
-
-```cpp
-void runPipeline() {
-    nvtxRangePush("Pipeline");
-    
-    nvtxRangePush("Load Data");
-    loadData();
+    nvtxRangePushA("decode");
+    run_decode();
     nvtxRangePop();
-    
-    nvtxRangePush("Preprocess");
-    preprocess();
+
+Use an instant mark for a point event:
+
+    nvtxMarkA("weights-loaded");
+
+Keep range names stable across runs so reports can be compared.
+
+## Scope-safe C++ range
+
+    class NvtxRange {
+    public:
+        explicit NvtxRange(const char* name) {
+            nvtxRangePushA(name);
+        }
+
+        ~NvtxRange() {
+            nvtxRangePop();
+        }
+
+        NvtxRange(const NvtxRange&) = delete;
+        NvtxRange& operator=(const NvtxRange&) = delete;
+    };
+
+    void run_iteration() {
+        NvtxRange range("iteration");
+        launch_work();
+    }
+
+RAII prevents unbalanced ranges on early returns or exceptions.
+
+## Domains and categories
+
+Use domains when independent libraries may reuse the same range names:
+
+    nvtxDomainHandle_t domain = nvtxDomainCreateA("inference");
+
+    nvtxEventAttributes_t event = {};
+    event.version = NVTX_VERSION;
+    event.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+    event.messageType = NVTX_MESSAGE_TYPE_ASCII;
+    event.message.ascii = "attention";
+    event.colorType = NVTX_COLOR_ARGB;
+    event.color = 0xFF4C78A8;
+
+    nvtxDomainRangePushEx(domain, &event);
+    run_attention();
+    nvtxDomainRangePop(domain);
+
+    nvtxDomainDestroy(domain);
+
+Choose colors as a visual aid, not as the only category encoding. Names and domains remain usable in CLI reports.
+
+## Asynchronous work
+
+An NVTX range measures the host interval between push and pop. CUDA kernels launched inside it can finish later.
+
+Do not add cudaDeviceSynchronize solely to make a range appear to contain GPU time. That changes overlap and performance. Nsight Systems correlates CUDA API launches with GPU activity; use the timeline or GPU-aware report for device duration.
+
+Add synchronization only when it is part of the real algorithm or an explicit measurement boundary.
+
+## Iterations and dynamic names
+
+Avoid creating millions of unique strings. Prefer a stable name plus a bounded category or payload when supported.
+
+For warmup and steady state:
+
+    nvtxRangePushA("warmup");
+    run_warmup();
     nvtxRangePop();
-    
-    nvtxRangePush("Inference");
-    inference();
+
+    nvtxRangePushA("steady-state");
+    run_benchmark();
     nvtxRangePop();
-    
-    nvtxRangePush("Postprocess");
-    postprocess();
-    nvtxRangePop();
-    
-    nvtxRangePop();
-}
-```
 
-### Pattern: Iteration Tracking
+This makes capture-range selection and before/after comparison clearer.
 
-```cpp
-for (int i = 0; i < iterations; i++) {
-    char name[64];
-    snprintf(name, sizeof(name), "Iteration %d", i);
-    nvtxRangePush(name);
-    
-    processIteration(i);
-    
-    nvtxRangePop();
-}
-```
+## Conditional instrumentation
 
-### Pattern: Kernel Wrapper
+    #if defined(ENABLE_NVTX)
+    #define NVTX_PUSH(name) nvtxRangePushA(name)
+    #define NVTX_POP() nvtxRangePop()
+    #else
+    #define NVTX_PUSH(name) ((void)0)
+    #define NVTX_POP() ((void)0)
+    #endif
 
-```cpp
-void launchMyKernel(float* data, int n) {
-    nvtxRangePush("MyKernel");
-    
-    myKernel<<<grid, block>>>(data, n);
-    cudaDeviceSynchronize();  // Include sync in range
-    
-    nvtxRangePop();
-}
-```
+Integrate NVTX headers and any required platform linkage through the project's CUDA toolkit configuration. Do not assume one linker command works across every NVTX generation and platform.
 
-### Pattern: CPU vs GPU Time
+## Nsight Systems workflow
 
-```cpp
-void compute() {
-    nvtxRangePush("CPU Prep");
-    prepareData();
-    nvtxRangePop();
-    
-    nvtxRangePush("GPU Compute");
-    kernel<<<grid, block>>>(data);
-    cudaDeviceSynchronize();
-    nvtxRangePop();
-    
-    nvtxRangePush("CPU Post");
-    processResults();
-    nvtxRangePop();
-}
-```
+    nsys profile --trace=cuda,nvtx +      -o report +      ./program
 
-### Pattern: Color-Coded Categories
+    nsys stats report.nsys-rep --report nvtx_sum
+    nsys stats report.nsys-rep +      --report nvtx_sum +      --report cuda_gpu_kern_sum
 
-```cpp
-// Define colors for different categories
-#define COLOR_MEMORY  0xFFFF0000  // Red
-#define COLOR_COMPUTE 0xFF00FF00  // Green
-#define COLOR_IO      0xFF0000FF  // Blue
+For range-controlled capture, verify the active CLI syntax:
 
-void pushColoredRange(const char* name, uint32_t color) {
-    nvtxEventAttributes_t attr = {0};
-    attr.version = NVTX_VERSION;
-    attr.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
-    attr.colorType = NVTX_COLOR_ARGB;
-    attr.color = color;
-    attr.messageType = NVTX_MESSAGE_TYPE_ASCII;
-    attr.message.ascii = name;
-    nvtxRangePushEx(&attr);
-}
+    nsys profile --help
+    nsys profile --capture-range=nvtx +      --trace=cuda,nvtx +      -o report +      ./program
 
-void process() {
-    pushColoredRange("Allocate", COLOR_MEMORY);
-    allocate();
-    nvtxRangePop();
-    
-    pushColoredRange("Compute", COLOR_COMPUTE);
-    compute();
-    nvtxRangePop();
-    
-    pushColoredRange("Save", COLOR_IO);
-    save();
-    nvtxRangePop();
-}
-```
+Range capture normally needs a matching range name or domain configuration. Read the current Nsight Systems User Guide before scripting it.
 
-### Pattern: RAII Wrapper (C++)
+## Naming rules
 
-```cpp
-class NvtxRange {
-public:
-    NvtxRange(const char* name) { nvtxRangePush(name); }
-    ~NvtxRange() { nvtxRangePop(); }
-    
-    // Non-copyable
-    NvtxRange(const NvtxRange&) = delete;
-    NvtxRange& operator=(const NvtxRange&) = delete;
-};
+- Name application phases, not individual source lines.
+- Use a consistent hierarchy such as request, prefill, decode, attention.
+- Keep push and pop balanced on each thread.
+- Avoid high-cardinality dynamic names in hot loops.
+- Instrument boundaries that remain meaningful after kernels are fused or reordered.
+- Preserve instrumentation across before and after runs.
 
-// Usage
-void process() {
-    NvtxRange range("Process");
-    // ... automatically pops when scope exits
-}
-```
-
-### Pattern: Conditional Profiling
-
-```cpp
-#ifdef ENABLE_NVTX
-#define NVTX_PUSH(name) nvtxRangePush(name)
-#define NVTX_POP() nvtxRangePop()
-#else
-#define NVTX_PUSH(name)
-#define NVTX_POP()
-#endif
-
-void process() {
-    NVTX_PUSH("Process");
-    // ...
-    NVTX_POP();
-}
-```
-
-Compile with:
-```bash
-nvcc -DENABLE_NVTX program.cu -lnvToolsExt -o program
-```
-
-## Analysis with nsys
-
-### Get NVTX Summary
-
-```bash
-nsys profile --trace=cuda,nvtx -o report ./program
-nsys stats report.nsys-rep --report nvtx_sum
-```
-
-Output shows:
-- Total time per named range
-- Instance count
-- Average/min/max duration
-- Percentage of total time
-
-### Correlate with CUDA
-
-```bash
-nsys stats report.nsys-rep --report nvtx_sum --report cuda_gpu_kern_sum
-```
-
-Compare NVTX phases with kernel execution time.
-
-### Export for Analysis
-
-```bash
-nsys stats report.nsys-rep --report nvtx_sum --format csv > nvtx.csv
-```
-
-## Best Practices
-
-1. **Be consistent** — Use same naming convention throughout
-2. **Don't over-instrument** — Too many ranges add overhead
-3. **Include sync in ranges** — When measuring GPU work, include `cudaDeviceSynchronize()`
-4. **Use hierarchy** — Nest ranges to show structure
-5. **Color-code categories** — Makes timeline easier to read
-6. **Make conditional** — Use macros to disable in production
-
-## Overhead Considerations
-
-NVTX has minimal overhead, but:
-- Avoid in tight loops
-- Don't create millions of ranges
-- Keep names short (they're stored)
-- Use conditional compilation for production builds
+Use nsys-guide.md for collection and export details. Search nsys-docs/UserGuide.md for the current NVTX capture and trace options.

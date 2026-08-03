@@ -1,21 +1,19 @@
 ---
 name: cuda-skill
-description: "Query NVIDIA PTX ISA 9.1, CUDA Runtime API 13.1, Driver API 13.1, Programming Guide v13.1, Best Practices Guide, Nsight Compute, Nsight Systems local documentation. Debug and optimize GPU kernels with nsys/ncu/compute-sanitizer workflows. Use when writing, debugging, or optimizing CUDA code, GPU kernels, PTX instructions, inline PTX, TensorCore operations (WMMA, WGMMA, TMA, tcgen05), or when the user mentions CUDA API functions, error codes, device properties, memory management, profiling, GPU performance, compute capabilities, CUDA Graphs, Cooperative Groups, Unified Memory, dynamic parallelism, CUDA programming model concepts, bank conflicts, shared memory optimization, warp divergence, memory coalescing, occupancy tuning, register pressure, L2 cache control, async copy, mbarrier, thread block clusters, or CUDA architecture questions (Ampere sm_80, Hopper sm_90, Blackwell sm_100)."
+description: "Query current NVIDIA CUDA, PTX ISA, Runtime API, Driver API, Programming Guide, Best Practices, Nsight Compute, and Nsight Systems references. Use for direct CUDA C++ or PTX work, and for framework tasks only when they need NVIDIA ISA, API, architecture, or tool facts. Triggers include inline PTX, WMMA, WGMMA, TMA, tcgen05, mbarrier, fabric operations, CUDA APIs and Graphs, memory ordering, compute capability, Ampere, Hopper, Blackwell, Rubin, nsys, ncu, and compute-sanitizer."
 ---
 
-# CUDA & PTX Reference
+# NVIDIA CUDA Reference
 
-## Documentation Locations
+Use this skill as the source of truth for CUDA, PTX, NVIDIA GPU architecture, and NVIDIA profiling or debugging tools. Prefer the local official-document snapshots, then verify against NVIDIA's current online documentation when a fact is version-sensitive or absent locally.
 
-All documentation is under the `references/` directory within this skill's install location.
-The base path depends on which agent tool is used:
-- Cursor: `~/.cursor/skills/cuda-skill/references/`
-- Claude Code: `~/.claude/skills/cuda-skill/references/`
-- Codex: `~/.codex/skills/cuda-skill/references/`
+For framework-specific implementation, use the corresponding skill first:
 
-Below, `CUDA_REFS` refers to the `references/` directory inside the skill's install path.
-For example: `~/.cursor/skills/cuda-skill/references/` (Cursor) or `~/.claude/skills/cuda-skill/references/` (Claude Code).
-**Replace with the actual path** in all search commands.
+- Triton or Gluon kernel code: triton-skill
+- CUTLASS, CuTe, or CuTeDSL code: cutlass-skill
+- SGLang serving and kernels: sglang-skill
+
+Add this skill when those tasks require CUDA API, PTX ISA, architecture, or NVIDIA tool facts.
 
 ```
 references/
@@ -45,292 +43,142 @@ references/
 └── performance-traps.md   # Bank conflicts, coalescing
 ```
 
-### ptx-simple/ Contents (Condensed Quick-Ref)
+## Locate the references
 
-```
-ptx-simple/
-├── ptx-isa-arithmetic.md       # add, sub, mul, mad, fma, div, min, max
-├── ptx-isa-data-types.md       # Types, cvt, rounding, pack
-├── ptx-isa-memory-spaces.md    # .reg, .global, .shared, fences
-├── ptx-isa-load-store.md       # ld, st, prefetch
-├── ptx-isa-control-flow.md     # @p, setp, bra, call, ret, exit
-├── ptx-isa-tensor-cores.md     # mma.sync, ldmatrix, wgmma
-├── ptx-isa-async-copy.md       # cp.async, cp.async.bulk, TMA
-├── ptx-isa-barriers.md         # bar.sync, mbarrier
-├── ptx-isa-warp-ops.md         # shfl, vote, match, redux
-├── ptx-isa-cache-hints.md      # Cache control
-├── ptx-isa-sm90-hopper.md      # Hopper-specific (sm_90)
-├── ptx-isa-sm100-blackwell.md  # Blackwell-specific (sm_100, tcgen05)
-└── ptx-isa-misc.md             # Other instructions
-```
+Resolve the directory containing this SKILL.md, then use its references/ child. Do not assume a Cursor, Claude, or Codex-specific install path.
 
-## Search Strategy
+In examples below, set a task-scoped variable to the resolved absolute path:
 
-**Use Grep tool** to search documentation. Never load entire files into context.
+    CUDA_REFS=/absolute/path/to/cuda-skill/references
 
-### PTX Instruction Lookup
+Read MANIFEST.md before making version claims. It records the snapshot version, source URL, and document inventory.
 
-```bash
-# Find specific instruction
-rg "mbarrier.init" ~/.cursor/skills/cuda-skill/references/ptx-docs/9-instruction-set/
+## Source routing
 
-# Find WGMMA register fragments
-rg "register fragment" ~/.cursor/skills/cuda-skill/references/ptx-docs/9-instruction-set/ | rg -i wgmma
+| Question | Primary source |
+|---|---|
+| PTX syntax, semantics, ISA or target requirements | ptx-docs/ |
+| CUDA Runtime functions, errors, and structs | cuda-runtime-docs/ |
+| CUDA Driver functions, contexts, modules, VMM | cuda-driver-docs/ |
+| CUDA programming model and feature behavior | cuda-guide/ |
+| General CUDA optimization guidance | best-practices-guide/ |
+| Nsight Compute metrics, sections, and CLI | ncu-docs/, ncu-guide.md |
+| Nsight Systems tracing and CLI | nsys-docs/, nsys-guide.md |
+| Correctness tools and cuda-gdb | debugging-tools.md |
+| NVTX instrumentation | nvtx-patterns.md |
+| Frequent performance mistakes | performance-traps.md |
 
-# Find TMA swizzling modes
-rg "swizzle_mode" ~/.cursor/skills/cuda-skill/references/ptx-docs/
+The short guide files are search maps, not substitutes for the full official snapshots.
 
-# Quick PTX syntax lookup (condensed)
-rg "wgmma" ~/.cursor/skills/cuda-skill/references/ptx-simple/ptx-isa-tensor-cores.md
-```
+## Query workflow
 
-### CUDA Runtime API Lookup
+Start with file discovery. Do not load a large chapter or the whole specification when a focused page exists.
 
-```bash
-# Error code meaning
-rg "cudaErrorInvalidValue" ~/.cursor/skills/cuda-skill/references/cuda-runtime-docs/
+    # Discover focused PTX pages.
+    rg -l -i 'wgmma\.mma_async' "$CUDA_REFS/ptx-docs"
 
-# Function documentation
-rg -A 20 "cudaStreamSynchronize" ~/.cursor/skills/cuda-skill/references/cuda-runtime-docs/modules/group__cudart__stream.md
+    # Read the relevant lines with context.
+    rg -n -C 12 'Target ISA Notes|PTX ISA Notes|wgmma\.mma_async' \
+      "$CUDA_REFS/ptx-docs/9-instruction-set"
 
-# Struct fields
-rg "" ~/.cursor/skills/cuda-skill/references/cuda-runtime-docs/data-structures/structcudadeviceprop.md
-```
+    # Runtime and Driver API lookup.
+    rg -l 'cudaStreamSynchronize' "$CUDA_REFS/cuda-runtime-docs"
+    rg -l 'cuMemMap' "$CUDA_REFS/cuda-driver-docs"
 
-### CUDA Driver API Lookup
+    # Programming and optimization concepts.
+    rg -l -i 'thread block cluster' "$CUDA_REFS/cuda-guide"
+    rg -l -i 'coalesc' "$CUDA_REFS/best-practices-guide"
 
-```bash
-# Context management
-rg -A 20 "cuCtxCreate" ~/.cursor/skills/cuda-skill/references/cuda-driver-docs/modules/group__cuda__ctx.md
+For PTX instructions, inspect all of the following before answering:
 
-# Module loading
-rg "cuModuleLoad" ~/.cursor/skills/cuda-skill/references/cuda-driver-docs/modules/group__cuda__module.md
+- instruction syntax and operands;
+- semantic description and memory ordering;
+- PTX ISA introduction version;
+- target ISA or sm_* requirements;
+- architecture-specific restrictions and undefined behavior.
 
-# Virtual memory
-rg "cuMemMap" ~/.cursor/skills/cuda-skill/references/cuda-driver-docs/modules/group__cuda__va.md
-```
+Keep these four layers separate:
 
-### CUDA Programming Guide Lookup
+    PTX ISA version
+      → virtual target accepted by the assembler
+      → toolkit/compiler support
+      → physical GPU capability
 
-```bash
-# Compute Capabilities table
-rg -A 5 "sm_90" ~/.cursor/skills/cuda-skill/references/cuda-guide/05-appendices/compute-capabilities.md
+A documented target does not by itself prove that the local toolkit accepts it or that the current machine implements it. For unreleased or preview architectures such as Rubin, verify the current official online documentation.
 
-# CUDA Graphs usage
-rg "cudaGraph" ~/.cursor/skills/cuda-skill/references/cuda-guide/04-special-topics/cuda-graphs.md
+## CUDA API lookup
 
-# Cooperative Groups
-rg "cooperative" ~/.cursor/skills/cuda-skill/references/cuda-guide/04-special-topics/cooperative-groups.md
+Search by exact symbol first, then read the containing module and related type pages.
 
-# Unified Memory behavior
-rg "managed" ~/.cursor/skills/cuda-skill/references/cuda-guide/04-special-topics/unified-memory.md
+    rg -n -C 20 'cudaErrorInvalidValue' "$CUDA_REFS/cuda-runtime-docs"
+    rg -n -C 25 'cudaLaunchKernelEx' "$CUDA_REFS/cuda-runtime-docs"
+    rg -n -C 25 'cuCtxCreate' "$CUDA_REFS/cuda-driver-docs"
+    rg -n -C 25 'cuMemCreate|cuMemMap' "$CUDA_REFS/cuda-driver-docs"
 
-# Thread Block Clusters (Hopper+)
-rg "cluster" ~/.cursor/skills/cuda-skill/references/cuda-guide/01-introduction/programming-model.md
+Check parameter lifetime, synchronization behavior, error propagation, version notes, and deprecation status. Do not infer Runtime API behavior from a similarly named Driver API function.
 
-# Programming Guide index (discover all topics)
-cat ~/.cursor/skills/cuda-skill/references/cuda-guide/INDEX.md
-```
+## Debugging workflow
 
-### Best Practices Guide Lookup
+Minimize the reproducer, preserve the failing launch configuration, then use the narrowest correctness tool:
 
-```bash
-# Memory coalescing best practices
-rg -i "coalescing" ~/.cursor/skills/cuda-skill/references/best-practices-guide/
+    compute-sanitizer --tool memcheck ./program
+    compute-sanitizer --tool racecheck ./program
+    compute-sanitizer --tool initcheck ./program
+    compute-sanitizer --tool synccheck ./program
 
-# Occupancy optimization
-rg -i "occupancy" ~/.cursor/skills/cuda-skill/references/best-practices-guide/
+Use debugging-tools.md for tool options and limitations. After a fix, rerun the original workload because sanitizer execution changes scheduling and timing.
 
-# Shared memory usage patterns
-rg -i "shared memory" ~/.cursor/skills/cuda-skill/references/best-practices-guide/
-```
+## Profiling workflow
 
-### Nsight Compute Lookup
+Use Nsight Systems to locate time and overlap problems, then Nsight Compute to explain one selected kernel.
 
-```bash
-# Metric meanings and collection
-rg -i "metric" ~/.cursor/skills/cuda-skill/references/ncu-docs/ProfilingGuide.md
+    nsys profile -o report ./program
+    nsys stats report.nsys-rep --report cuda_gpu_kern_sum
 
-# CLI usage and options
-rg -i "section" ~/.cursor/skills/cuda-skill/references/ncu-docs/NsightComputeCli.md
+    ncu --list-sets
+    ncu --list-sections
+    ncu --query-metrics
+    ncu --kernel-name regex:myKernel --launch-count 1 -o report ./program
 
-# Roofline analysis
-rg -i "roofline" ~/.cursor/skills/cuda-skill/references/ncu-docs/ProfilingGuide.md
-```
+Metric names, section identifiers, predefined sets, and report formats can change between releases and architectures. Discover what the active tool supports, then confirm semantics in the latest local Nsight documentation. Do not bind guidance to the machine's installed NCU version.
 
-### Nsight Systems Lookup
+Base conclusions on measured evidence:
 
-```bash
-# CLI profiling options
-rg -i "nsys profile" ~/.cursor/skills/cuda-skill/references/nsys-docs/UserGuide.md
+- timeline placement, launch gaps, synchronization, and CPU/GPU overlap from Nsight Systems;
+- achieved throughput, instruction mix, stalls, memory traffic, occupancy, and source correlation from Nsight Compute;
+- compiler resource usage from ptxas -v or the build log.
 
-# CUDA trace analysis
-rg -i "cuda.*trace" ~/.cursor/skills/cuda-skill/references/nsys-docs/UserGuide.md
-```
+Change one hypothesis at a time and remeasure against the same baseline.
 
-## When to Use Each Source
+## Architecture questions
 
-| Need | Source | Path shorthand |
-|------|--------|----------------|
-| PTX instruction syntax/semantics | Full PTX docs | `ptx-docs/9-instruction-set/` |
-| Quick PTX syntax check | Condensed PTX | `ptx-simple/` |
-| State spaces, data types | Full PTX docs | `ptx-docs/5-state-spaces-types-and-variables/` |
-| Memory consistency model | Full PTX docs | `ptx-docs/8-memory-consistency-model/` |
-| Special registers (%tid, etc.) | Full PTX docs | `ptx-docs/10-special-registers/` |
-| Directives (.version, .target) | Full PTX docs | `ptx-docs/11-directives/` |
-| CUDA Runtime functions | Runtime docs | `cuda-runtime-docs/modules/` |
-| CUDA structs (cudaDeviceProp) | Runtime docs | `cuda-runtime-docs/data-structures/` |
-| Driver API (cuCtx, cuModule) | Driver docs | `cuda-driver-docs/modules/` |
-| sm_90 / Hopper specifics | Condensed PTX | `ptx-simple/ptx-isa-sm90-hopper.md` |
-| sm_100 / Blackwell / tcgen05 | Condensed PTX | `ptx-simple/ptx-isa-sm100-blackwell.md` |
-| CUDA C++ programming concepts | Programming Guide | `cuda-guide/02-basics/` |
-| Thread/block/grid model | Programming Guide | `cuda-guide/01-introduction/programming-model.md` |
-| Compute Capabilities table | Programming Guide | `cuda-guide/05-appendices/compute-capabilities.md` |
-| CUDA Graphs usage | Programming Guide | `cuda-guide/04-special-topics/cuda-graphs.md` |
-| Unified Memory | Programming Guide | `cuda-guide/04-special-topics/unified-memory.md` |
-| Cooperative Groups | Programming Guide | `cuda-guide/04-special-topics/cooperative-groups.md` |
-| Async barriers/pipelines (C++) | Programming Guide | `cuda-guide/04-special-topics/async-barriers.md` |
-| L2 cache control | Programming Guide | `cuda-guide/04-special-topics/l2-cache-control.md` |
-| Dynamic parallelism | Programming Guide | `cuda-guide/04-special-topics/dynamic-parallelism.md` |
-| C++ language extensions | Programming Guide | `cuda-guide/05-appendices/cpp-language-extensions.md` |
-| Math functions (device) | Programming Guide | `cuda-guide/05-appendices/mathematical-functions.md` |
-| Multi-GPU programming | Programming Guide | `cuda-guide/03-advanced/multi-gpu-systems.md` |
-| Environment variables | Programming Guide | `cuda-guide/05-appendices/environment-variables.md` |
-| Memory optimization practices | Best Practices | `best-practices-guide/` |
-| Performance profiling strategy | Best Practices | `best-practices-guide/` |
-| ncu metrics, sections, roofline | Nsight Compute | `ncu-docs/ProfilingGuide.md` |
-| ncu CLI options and workflows | Nsight Compute | `ncu-docs/NsightComputeCli.md` |
-| nsys profiling and tracing | Nsight Systems | `nsys-docs/UserGuide.md` |
+For Ampere, Hopper, Blackwell, or Rubin questions, distinguish public architecture disclosures from ISA availability. Check:
 
-## Debugging Workflow
+- cuda-guide/05-appendices/compute-capabilities.md;
+- the instruction's PTX ISA and target notes;
+- ptx-docs/13-release-notes/;
+- current NVIDIA architecture or CUDA release documentation when local snapshots do not cover the claim.
 
-1. **Reproduce minimally** — Isolate failing kernel with smallest input
-2. **Add printf** — `if (idx == 0) printf(...)` in device code
-3. **Run compute-sanitizer**:
-   ```bash
-   compute-sanitizer --tool memcheck ./program
-   compute-sanitizer --tool racecheck ./program
-   ```
-4. **cuda-gdb backtrace** (non-interactive):
-   ```bash
-   cuda-gdb -batch -ex "run" -ex "bt" ./program
-   ```
-5. **When tools fail** — Minimize diff between working/broken code, read it carefully
+Do not identify a GPU architecture solely from a failed CUDA runtime query or a product label. Use explicit compute-capability or compilation-target evidence when available.
 
-For detailed tool options, read `~/.cursor/skills/cuda-skill/references/debugging-tools.md`.
+## Updating the snapshots
 
-## Performance Optimization Workflow
+Always scrape into a fresh staging root. --force overwrites matching files but does not delete the output directory or unrelated files.
 
-**Never optimize without profiling.** GPU bottleneck intuition is almost always wrong.
+    cd /path/to/agent-gpu-skills
+    uv run scrape_docs.py all \
+      --output-dir /tmp/cuda-docs-staging \
+      --force
 
-1. **Establish baseline** timing
-2. **nsys** — Where is time spent?
-   ```bash
-   nsys profile -o report ./program
-   nsys stats report.nsys-rep --report cuda_gpu_kern_sum
-   ```
-3. **ncu** — Why is this kernel slow?
-   ```bash
-   ncu --kernel-name "myKernel" --set full -o report ./program
-   ```
-4. **Hypothesize** based on metrics, change ONE thing, verify
+    diff -qr cuda_skill/references/ptx-docs \
+      /tmp/cuda-docs-staging/ptx-docs
 
-| Symptom | Likely Cause | Tool |
-|---------|--------------|------|
-| Low GPU utilization | Launch overhead, CPU bottleneck | nsys timeline |
-| Memory bound | Poor coalescing, low cache hit | ncu memory section |
-| Compute bound but slow | Low occupancy, register pressure | ncu occupancy |
-| High sectors/request (>4) | Poor coalescing | ncu memory metrics |
+Review version changes, page-count changes, renamed files, and representative instruction/API pages before merging. Do not remove obsolete live files without explicit user approval.
 
-For detailed guides, read:
-- `~/.cursor/skills/cuda-skill/references/nsys-guide.md` (quick reference)
-- `~/.cursor/skills/cuda-skill/references/ncu-guide.md` (quick reference)
-- `~/.cursor/skills/cuda-skill/references/performance-traps.md`
-- `~/.cursor/skills/cuda-skill/references/ncu-docs/ProfilingGuide.md` (full Nsight Compute profiling guide)
-- `~/.cursor/skills/cuda-skill/references/nsys-docs/UserGuide.md` (full Nsight Systems user guide)
-- `~/.cursor/skills/cuda-skill/references/best-practices-guide/` (CUDA C++ Best Practices)
+Run the repository validator after any update:
 
-## Compilation Reference
+    python3 scripts/validate_cuda_skill.py
 
-```bash
-# Debug
-nvcc -g -G -lineinfo -O0 program.cu -o program_debug
+## Answer quality
 
-# Release with line info (always use -lineinfo for profiling)
-nvcc -O3 -lineinfo program.cu -o program
-
-# Target architecture
-nvcc -arch=sm_80 program.cu   # Ampere
-nvcc -arch=sm_90 program.cu   # Hopper
-nvcc -arch=sm_100 program.cu  # Blackwell
-
-# Generate PTX / inspect binary
-nvcc -ptx program.cu
-cuobjdump -ptx ./program
-cuobjdump -sass ./program
-nvcc --ptxas-options=-v program.cu  # Register usage
-```
-
-## Inline PTX in CUDA
-
-```cuda
-__device__ int myAdd(int a, int b) {
-    int result;
-    asm("add.s32 %0, %1, %2;"
-        : "=r"(result)
-        : "r"(a), "r"(b));
-    return result;
-}
-// Constraint codes: r=32b reg, l=64b reg, f=f32, d=f64, n=immediate
-```
-
-## PTX Documentation Structure
-
-```
-ptx-docs/
-├── 1-introduction/
-├── 2-programming-model/          # Thread hierarchy, memory
-├── 3-ptx-machine-model/          # SIMT architecture
-├── 4-syntax/                     # PTX syntax rules
-├── 5-state-spaces-types-and-variables/  # Memory spaces, data types
-├── 6-instruction-operands/       # Operand types
-├── 7-abstracting-the-abi/        # Functions, calling conventions
-├── 8-memory-consistency-model/   # Memory ordering, atomics
-├── 9-instruction-set/            # 186 instruction files
-│   ├── 9.7.1-*   Integer arithmetic
-│   ├── 9.7.3-*   Floating point
-│   ├── 9.7.9-*   Data movement (includes TMA)
-│   ├── 9.7.14-*  WMMA (sm_70+)
-│   ├── 9.7.15-*  WGMMA (sm_90+)
-│   └── 9.7.16-*  TensorCore Gen5 (sm_100+)
-├── 10-special-registers/         # %tid, %ctaid, %clock64
-├── 11-directives/                # .version, .target, .entry
-├── 12-descriptions-ofpragmastrings/
-└── 13-release-notes/
-```
-
-## Updating Documentation
-
-```bash
-cd /path/to/cursor-gpu-skills
-
-# Update everything
-uv run scrape_docs.py all --force
-
-# Or update individually:
-uv run scrape_docs.py ptx-simple --force    # Condensed PTX from triton repo
-uv run scrape_docs.py ptx                    # Full PTX ISA from NVIDIA
-uv run scrape_docs.py runtime                # CUDA Runtime API
-uv run scrape_docs.py driver                 # CUDA Driver API
-uv run scrape_docs.py guide --force          # CUDA Programming Guide v13.1
-uv run scrape_docs.py best-practices --force # CUDA C++ Best Practices Guide
-uv run scrape_docs.py ncu-docs --force       # Nsight Compute docs
-uv run scrape_docs.py nsys-docs --force      # Nsight Systems docs
-```
-
-## Additional References
-
-For deeper investigation, read the search guide files:
-- PTX search workflow: `~/.cursor/skills/cuda-skill/references/ptx-isa.md`
-- Runtime API guide: `~/.cursor/skills/cuda-skill/references/cuda-runtime.md`
-- Driver API guide: `~/.cursor/skills/cuda-skill/references/cuda-driver.md`
+State which document version supports the answer. Cite the focused local file and section when possible. If online verification was required, link the official NVIDIA page and label any inference. Avoid hardcoded performance thresholds unless they come from the user's measurements or a cited document.

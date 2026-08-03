@@ -1,4 +1,4 @@
-# 7.62. cudaPointerAttributes
+# 7.63. cudaPointerAttributes
 
 **Source:** structcudaPointerAttributes.html#structcudaPointerAttributes
 

@@ -74,7 +74,7 @@ x86_64 or Arm SBSA
 
   * OS (64 bit only)
 
-    * Ubuntu 22.04, and 24.04
+    * Ubuntu 22.04, 24.04, and 26.04
 
     * CentOS 8.0 and RedHat Enterprise Linux 8+
 
@@ -103,13 +103,13 @@ Networking Components
 
 Note that CUDA version and driver version must be compatible.
 
-CUDA Version | Driver minimum version  
----|---  
-11.0 | 450  
-10.2 | 440.30  
-10.1 | 418.39  
-10.0 | 410.48  
-  
+CUDA Version | Driver minimum version
+---|---
+11.0 | 450
+10.2 | 440.30
+10.1 | 418.39
+10.0 | 410.48
+
 From CUDA 11.X on, any driver from 450 on will be supported, although new features introduced in more recent drivers will not be available.
 
 For information about which drivers were specifically released with each toolkit, see [CUDA Toolkit Release Notes - Major Component Versions](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#cuda-major-component-versions)
@@ -120,21 +120,21 @@ When attaching to x86_64 or Arm SBSA Linux-based target from the GUI on the host
 
 **Use of Linux Perf** : To collect thread scheduling data and IP (instruction pointer) samples, the Linux operating system’s `perf_event_paranoid` level must be 2 or less. Use the following command to check:
 
-> 
+>
 >     cat /proc/sys/kernel/perf_event_paranoid
->     
+>
 
 If the output is >2, then do the following to temporarily adjust the paranoid level (note that this has to be done after each reboot):
 
-> 
+>
 >     sudo sh -c 'echo 2 >/proc/sys/kernel/perf_event_paranoid'
->     
+>
 
 To make the change permanent, use the following command:
 
-> 
+>
 >     sudo sh -c 'echo kernel.perf_event_paranoid=2 > /etc/sysctl.d/local.conf'
->     
+>
 
 **Kernel version** : To collect thread scheduling data and IP (instruction pointer) samples and backtraces, the kernel version must be:
 
@@ -145,9 +145,9 @@ To make the change permanent, use the following command:
 
 To check the version number of the kernel on a target device, run the following command on the device:
 
-> 
+>
 >     uname -a
->     
+>
 
 Note
 
@@ -155,17 +155,17 @@ Only CentOS, RedHat, and Ubuntu distros are tested/confirmed to work correctly.
 
 **glibc version** : To check the glibc version on a target device, run the following command:
 
-> 
+>
 >     ldd --version
->     
+>
 
 Nsight Systems requires glibc 2.17 or newer.
 
 **CUDA** : See above for supported CUDA versions in this release. Use the deviceQuery command to determine the CUDA driver and runtime versions on the system. The deviceQuery command is available in the CUDA SDK. It is normally installed at:
 
-> 
+>
 >     /usr/local/cuda/samples/1_Utilities/deviceQuery
->     
+>
 
 Only pure 64-bit environments are supported. In other words, 32-bit systems or 32-bit processes running within a 64-bit environment are not supported.
 
@@ -202,14 +202,14 @@ The _prod_debug_extra_ overlay is required to enable Nsight Systems in safety en
 
 Available features:
 
-Feature name | First supported in  
----|---  
-Tracelogger trace (CPU thread states and context switches) | 6.0.8.x  
-Hypervisor trace (VM context switches, interrupts, traps, etc. - collected through eventlib) | 6.0.8.x  
-VMProfiler (Cross-Hypervisor sampling) | 6.0.8.x  
-OSRT trace (trace of C runtime functions) | 6.0.8.x  
-NVTX trace (trace of user-added NVTX instrumentation) | 6.0.8.x  
-  
+Feature name | First supported in
+---|---
+Tracelogger trace (CPU thread states and context switches) | 6.0.8.x
+Hypervisor trace (VM context switches, interrupts, traps, etc. - collected through eventlib) | 6.0.8.x
+VMProfiler (Cross-Hypervisor sampling) | 6.0.8.x
+OSRT trace (trace of C runtime functions) | 6.0.8.x
+NVTX trace (trace of user-added NVTX instrumentation) | 6.0.8.x
+
 Note
 
 For DRIVE OS installation details, more information on running environments or filesystem overlays, please refer to [NVIDIA DRIVE OS Documentation](https://docs.nvidia.com/drive).
@@ -284,45 +284,45 @@ Users can download Nsight Systems (full package **nsight-systems** or CLI-only p
 **Ubuntu (minimal setup for containers)**
 
 These instructions assume that you have root in the container. Example command to launch a container: `sudo docker run -it --rm ubuntu:latest bash`
-    
-    
+
+
     apt update
     apt install -y --no-install-recommends gnupg
     echo "deb http://developer.download.nvidia.com/devtools/repos/ubuntu$(source /etc/lsb-release; echo "$DISTRIB_RELEASE" | tr -d .)/$(dpkg --print-architecture) /" | tee /etc/apt/sources.list.d/nvidia-devtools.list
     apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
     apt update
     apt install nsight-systems-cli
-    
+
 
 **Ubuntu (desktop)**
-    
-    
+
+
     sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
     sudo add-apt-repository "deb https://developer.download.nvidia.com/devtools/repos/ubuntu$(source /etc/lsb-release; echo "$DISTRIB_RELEASE" | tr -d .)/$(dpkg --print-architecture)/ /"
     sudo apt install nsight-systems
-    
+
 
 **CentOS and RHEL (minimal setup for containers)**
 
 Same as above for Ubuntu, these instructions assume that you have root in the container. Example command to launch a container: `sudo docker run -it --rm centos:latest bash`
-    
-    
+
+
     rpm --import https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
     sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
     dnf install -y 'dnf-command(config-manager)'
     dnf config-manager --add-repo "https://developer.download.nvidia.com/devtools/repos/rhel$(source /etc/os-release; echo ${VERSION_ID%%.*})/$(rpm --eval '%{_arch}' | sed s/aarch/arm/)/"
     dnf install -y nsight-systems-cli
-    
+
 
 **CentOS and RHEL (desktop)**
-    
-    
+
+
     sudo rpm --import https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
     sudo dnf install -y 'dnf-command(config-manager)'
     sudo dnf config-manager --add-repo "https://developer.download.nvidia.com/devtools/repos/rhel$(source /etc/os-release; echo ${VERSION_ID%%.*})/$(rpm --eval '%{_arch}' | sed s/aarch/arm/)/"
     sudo dnf install nsight-systems
-    
+
 
 ### Installing GUI on the Host System
 
@@ -345,10 +345,10 @@ The CLI can be found in the Target directory of the Nsight Systems installation.
 If you wish to run the CLI without root (recommended mode) you will want to install in a directory where you have full access.
 
 Once you have the CLI set up, you can use the `nsys status -e` command to check your environment.
-    
-    
+
+
     ~$ nsys status -e
-    
+
     Sampling Environment Check
     Linux Kernel Paranoid Level = 1: OK
     Linux Distribution = Ubuntu
@@ -357,7 +357,7 @@ Once you have the CLI set up, you can use the `nsys status -e` command to check 
     Sampling trigger event available: OK
     Intel(c) Last Branch Record support: Available
     Sampling Environment: OK
-    
+
 
 This status check allows you to ensure that the system requirements for CPU sampling using Nsight Systems are met in your local environment. If the Sampling Environment is not OK, you will still be able to run various trace operations.
 
@@ -384,17 +384,17 @@ The recipe system is supported on the currently maintained Python releases, as s
 **Pip/venv on Ubuntu**
 
 If pip/venv were not installed with Python, run:
-    
-    
+
+
     $ sudo apt-get install python3-pip
     $ sudo apt-get install python3-venv
-    
+
 
 On a fresh Ubuntu install, you need to run the following before the above commands:
-    
-    
+
+
     $ sudo apt-get update
-    
+
 
 The dependent packages can either be installed automatically by an automated script or manually.
 
@@ -432,10 +432,10 @@ We recommend creating a virtual environment to avoid installing packages directl
 See [venv - python doc](https://docs.python.org/3/library/venv.html).
 
 To create a venv named recipe_env:
-        
+
         $ python3 -m venv recipe_env
         $ source recipe_env/bin/activate
-        
+
 
   * List of dependencies.
 
@@ -451,50 +451,50 @@ We have three files located in `<install-dir>/target-linux-x64/python/packages/n
 **One-step installation**
 
 The following command will install all dependencies for CLI and GUI. Please note that you will want to activate your venv first as described above, otherwise the modules will not be available in the venv.
-    
-    
+
+
     $ python3 -m pip install -r nsys_recipe/requirements/dask.txt -r nsys_recipe/requirements/common.txt -r nsys_recipe/requirements/jupyter.txt
-    
+
 
 **Two-step installation (for machines without internet)**
 
 If you wish to download the dependencies on a machine without internet, you can download the wheel packages on a machine with internet, transfer them to the target machine and install the packages there.
 
 On the machine with internet:
-    
-    
+
+
     $ python3 -m pip download -r nsys_recipe/requirements/dask.txt -r nsys_recipe/requirements/common.txt -r nsys_recipe/requirements/jupyter.txt -d recipe-deps
     $ tar -cvzf recipe-deps.tar.gz recipe-deps
-    
+
 
 On the machine with no internet:
-    
-    
+
+
     $ tar -xvzf recipe-deps.tar.gz
     $ python3 -m pip install recipe-deps/*.whl --no-index
-    
+
 
 **Jupyter Notebook**
 
 The Nsight Systems UI has the ability to internally load a Jupyter notebook. It uses the Jupyter notebook installation associated with the Python on your $PATH, which is expected to be the Python installed into the virtual environment created in the earlier steps of this guide.
 
 If Jupyter is installed in a different location, you can add a third variable to the config.ini file that will override the default path to Jupyter:
-    
-    
+
+
     JupyterPythonExe="/path/to/recipe_env/bin/python"
-    
+
 
 This config.ini file should be placed in `<install_dir>/host-linux-x64`
 
 Note that on Windows, the path should use Windows slashes and they must be double slashes:
-    
-    
+
+
     JupyterPythonExe="c:\\path\\to\\recipe_env\\bin\\python.exe"
-    
+
 
 Alternatively, you may launch Jupyter Lab independently to view the recipe outside of the Nsight Systems UI.
 
 Ensure that the appropriate virtual environment is activated first if you have configured one, then navigate to the recipe directory and run:
-    
-    
+
+
     jupyter-lab

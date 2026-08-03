@@ -7,6 +7,6 @@
 
 unsigned long long bytesOverBudget
 
-cudaAsyncNotificationInfo_t::@36 info
+cudaAsyncNotificationInfo_t::@38 info
 
-cudaAsyncNotificationInfo_t::@36::@37 overBudget
+cudaAsyncNotificationInfo_t::@38::@39 overBudget

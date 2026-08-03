@@ -1,6 +1,6 @@
-# Data types used by CUDA Runtime
+# 6.38. Data types used by CUDA Runtime
 
-**Source:** group__CUDART__TYPES.html
+**Source:** group__CUDART__TYPES.html#group__CUDART__TYPES
 
 
 ### Classes

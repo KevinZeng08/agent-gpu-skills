@@ -1,4 +1,4 @@
-# 7.53. cudaMemcpyNodeParams
+# 7.54. cudaMemcpyNodeParams
 
 **Source:** structcudaMemcpyNodeParams.html#structcudaMemcpyNodeParams
 

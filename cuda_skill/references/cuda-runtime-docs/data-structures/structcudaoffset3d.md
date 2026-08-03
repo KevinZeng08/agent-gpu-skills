@@ -1,4 +1,4 @@
-# 7.60. cudaOffset3D
+# 7.61. cudaOffset3D
 
 **Source:** structcudaOffset3D.html#structcudaOffset3D
 

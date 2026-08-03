@@ -4,7 +4,7 @@
 There are several key strategies for parallelizing sequential code. While the details of how to apply these strategies to a particular application is a complex and problem-specific topic, the general themes listed here apply regardless of whether we are parallelizing code to run on for multicore CPUs or for use on CUDA GPUs.
 
 
-##  6.1. Parallel Libraries 
+##  6.1. Parallel Libraries
 
 The most straightforward approach to parallelizing an application is to leverage existing libraries that take advantage of parallel architectures on our behalf. The CUDA Toolkit includes a number of such libraries that have been fine-tuned for NVIDIA CUDA GPUs, such as `cuBLAS`, `cuFFT`, and so on.
 
@@ -13,7 +13,7 @@ The key here is that libraries are most useful when they match well with the nee
 Also of note is the Thrust library, which is a parallel C++ template library similar to the C++ Standard Template Library. Thrust provides a rich collection of data parallel primitives such as scan, sort, and reduce, which can be composed together to implement complex algorithms with concise, readable source code. By describing your computation in terms of these high-level abstractions you provide Thrust with the freedom to select the most efficient implementation automatically. As a result, Thrust can be utilized in rapid prototyping of CUDA applications, where programmer productivity matters most, as well as in production, where robustness and absolute performance are crucial.
 
 
-##  6.2. Parallelizing Compilers 
+##  6.2. Parallelizing Compilers
 
 Another common approach to parallelization of sequential codes is to make use of parallelizing compilers. Often this means the use of directives-based approaches, where the programmer uses a pragma or other similar notation to provide hints to the compiler about where parallelism can be found without needing to modify or adapt the underlying code itself. By exposing parallelism to the compiler, directives allow the compiler to do the detailed work of mapping the computation onto the parallel architecture.
 
@@ -22,7 +22,7 @@ The OpenACC standard provides a set of compiler directives to specify loops and 
 See <http://www.openacc.org/> for details.
 
 
-##  6.3. Coding to Expose Parallelism 
+##  6.3. Coding to Expose Parallelism
 
 For applications that need additional functionality or performance beyond what existing parallel libraries or parallelizing compilers can provide, parallel programming languages such as CUDA C++ that integrate seamlessly with existing sequential code are essential.
 

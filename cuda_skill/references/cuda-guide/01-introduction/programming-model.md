@@ -86,6 +86,44 @@ One implication of warp execution is that thread blocks are best specified to ha
 
 > SIMT is often compared to Single Instruction Multiple Data (SIMD) parallelism, but there are some important differences. In SIMD, execution follows a single control flow path, while in SIMT, each thread is allowed to follow its own control flow path. Because of this, SIMT does not have a fixed data-width like SIMD. A more detailed discussion of SIMT can be found in [SIMT Execution Model](../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture).
 
+### 1.2.2.3. Tile Programming in CUDA
+
+In addition to the SIMT model described in the preceding sections, CUDA supports a tile programming model. In tile programming, the programmer writes code at the level of an entire thread block, describing operations on multidimensional collections of data called **tiles**. The compiler maps these operations to the individual threads of the block.
+
+Tile kernels are launched on a grid of blocks, as described in the [Thread Blocks and Grids](#programming-model-threads-grids) section. Each block executes the tile kernel and can query its position within the grid to determine which portion of the data it is responsible for. The programmer specifies only the grid dimensions; the number of threads per block is determined by the compiler based on the tile operations in the kernel ([Figure 8](#figure-tile-programming-abstraction)).
+
+[![Programmer's view in the SIMT and tile programming models](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/tile-simt.png) ](../_images/tile-simt.png)
+
+Figure 8 Programmer’s view in the SIMT and tile programming models. In SIMT, the programmer writes per-thread code and controls how each thread accesses data. In tile programming, the programmer writes per-block code that operates on tiles; the compiler maps operations to the threads of the block.
+
+Within a tile kernel, the block executes a single control flow. The programmer specifies operations on tiles, and the compiler distributes the work across the threads of the block. Standard control flow constructs such as conditionals and loops are supported, but because the block follows a single control flow, there is no concept of warp divergence. Scalar operations, such as computing an index or a loop bound, are executed by a single thread of the block. Tile operations, such as adding two tiles element by element, are collectively executed in parallel by all threads of the block.
+
+It is important not to confuse blocks—units of execution—with tiles—units of data. A single block may create and operate on many tiles of different shapes and data types.
+
+#### 1.2.2.3.1. Arrays and tiles
+
+Tile kernels work with two types of data: **arrays** and **tiles**. An array (or global array) is a multidimensional container of elements stored in device memory. Arrays are mutable: their contents can be modified by store operations within a kernel. An array has a shape and a data type.
+
+A tile is a multidimensional collection of values that exists only within tile code and is local to a single block. Tiles are immutable: every operation on a tile produces a new tile rather than modifying an existing one. Unlike an array, a tile does not necessarily have a representation in memory—the compiler decides how tile data is stored, and may use registers, shared memory, or other resources of the SM. Each dimension of a tile must be a power of two and must be known at compile time (that is, its value must be determinable before the kernel executes, rather than computed during execution). Tiles cannot be passed as kernel parameters; they are created and consumed entirely within tile code.
+
+#### 1.2.2.3.2. Tile space and data movement
+
+Data moves between arrays and tiles through load and store operations. These operations use a concept called the **tile space** , which is the result of conceptually partitioning an array into equally sized, non-overlapping tiles. For example, consider a two-dimensional array of shape (M, N). If a load operation specifies a tile shape of (tm, tn), the array is conceptually divided into \\(\lceil M/t_m \rceil\\) rows and \\(\lceil N/t_n \rceil\\) columns of tiles. An index into this tile space, such as (i, j), identifies which tile to load. The load returns a tile of shape (tm, tn) containing the corresponding elements from the array. When a tile extends beyond the boundaries of the array—for example, at the edges when the array dimensions are not exact multiples of the tile dimensions—the load specifies how out-of-bounds elements are handled, such as by filling them with zeros ([Figure 9](#figure-tile-space-data-movement)).
+
+[![Tile space and data movement](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/tile-data-movement.png) ](../_images/tile-data-movement.png)
+
+Figure 9 Tile space and data movement. A two-dimensional array of shape (M, N) is conceptually partitioned into a grid of tiles with shape (tm, tn). A load at tile-space index (i, j) returns the corresponding tile. At the array boundary, elements that fall outside the array can be filled with zeros. A store writes a tile back to the array at a given tile-space index.
+
+A store operation performs the inverse: given a tile and an index into the tile space, it writes the tile’s elements to the corresponding region of the array. Any writes that fall outside the array boundaries are silently discarded. Tile programs also support gather and scatter operations, which load from or store to arbitrary positions in an array.
+
+#### 1.2.2.3.3. Operations on tiles
+
+Tile programs provide a set of built-in operations that act on tiles, including elementwise arithmetic, matrix multiplication, reductions (such as sum and maximum) along one or more axes, shape manipulation (such as reshape and transpose), and type conversion. When two tiles of different shapes are combined in an operation, the smaller tile is automatically expanded to match the larger one before the operation is applied.
+
+#### 1.2.2.3.4. Relationship to SIMT programming
+
+Tile programming and SIMT programming coexist within CUDA. An application may contain both SIMT and tile kernels, and both types of kernels can operate on the same data in device memory. The choice of programming model is a per-kernel decision. Tile programming does not replace SIMT programming. SIMT provides fine-grained control over individual threads, which remains necessary for some algorithms and optimization techniques. Tile programming provides a higher-level abstraction that can simplify kernel development. Because thread-level decisions are left to the compiler, the same tile kernel can run on different GPU architectures without requiring changes to the source. Both models are built on the same underlying hardware—SMs, thread blocks, and grids—described in the preceding sections. Both models also use the same device memory spaces, which are introduced in the following section.
+
 ## 1.2.3. GPU Memory
 
 In modern computing systems, efficiently utilizing memory is just as important as maximizing the use of functional units performing computations. Heterogeneous systems have multiple memory spaces, and GPUs contain various types of programmable on-chip memory in addition to caches. The following sections introduce these memory spaces in more details.
@@ -100,7 +138,7 @@ There are CUDA APIs to allocate GPU memory, CPU memory, and to copy between allo
 
 ### 1.2.3.2. On-Chip Memory in GPUs
 
-In addition to the global memory, each GPU has some on-chip memory. Each SM has its own register file and shared memory. These memories are part of the SM and can be accessed extremely quickly from threads executing within the SM, but they are not accessible to threads running in other SMs.
+In addition to the global memory, each GPU has some on-chip memory. Each SM has its own register file and shared memory. These memories are part of the SM and can be accessed extremely quickly from threads executing within the SM.
 
 The register file stores thread local variables which are usually allocated by the compiler. The shared memory is accessible by all threads within a thread block or cluster. Shared memory can be used for exchanging data between threads of a thread block or cluster.
 
@@ -126,6 +164,6 @@ The hardware features of the system determine how access and exchange of data be
 
 In certain situations when using features such as [CUDA Dynamic Parallelism](../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism), a thread block may be suspended to memory. This means the state of the SM is stored to a system-managed area of GPU memory and the SM is freed to execute other thread blocks. This is similar to context swapping on CPUs. This is not common.
 
-[[2](#id3)]
+[[2](#id4)]
 
 An exception to this is [mapped memory](../02-basics/understanding-memory.html#memory-mapped-memory), which is CPU memory allocated with properties that enable it to be directly accessed from the GPU. However, mapped access occurs over the PCIe or NVLINK connection. The GPU is unable to hide the higher latency and lower bandwidth behind parallelism, so mapped memory is not a performant replacement to unified memory or placing data in the appropriate memory space.

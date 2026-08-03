@@ -25,7 +25,7 @@ The last paradigm, where unified memory support is limited, is discussed in deta
 
 These systems include hardware-coherent memory systems, such as NVIDIA Grace Hopper and modern Linux systems with Heterogeneous Memory Management (HMM) enabled. HMM is a software-based memory management system, providing the same programming model as hardware-coherent memory systems.
 
-Linux HMM requires Linux kernel version 6.1.24+, 6.2.11+ or 6.3+, devices with compute capability 7.5 or higher and a CUDA driver version 535+ installed with [Open Kernel Modules](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#nvidia-open-gpu-kernel-modules).
+Linux HMM requires Linux kernel version 6.1.24+, 6.2.11+ or 6.3+, devices with compute capability 7.5 or higher and a CUDA driver version 535+ installed with [Open Kernel Modules](https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/kernel-modules.html#open-gpu-kernel-modules-installation).
 
 Note
 
@@ -34,8 +34,8 @@ We refer to systems with a combined page table for both CPUs and GPUs as _hardwa
 Hardware-coherent systems such as NVIDIA Grace Hopper offer a logically combined page table for both CPUs and GPUs, see [CPU and GPU Page Tables: Hardware Coherency vs. Software Coherency](#um-hw-coherency). The following section only applies to hardware-coherent systems:
 
 >   * [Access Counter Migration](#um-access-counters)
-> 
-> 
+>
+>
 
 
 ### 4.1.1.1. Unified Memory: In-Depth Examples
@@ -43,21 +43,21 @@ Hardware-coherent systems such as NVIDIA Grace Hopper offer a logically combined
 Systems with full CUDA unified memory support, see table [Overview of Unified Memory Paradigms](../02-basics/understanding-memory.html#table-unified-memory-levels), allow the device to access any memory owned by the host process interacting with the device.
 
 This section shows a few advanced use-cases, using a kernel that simply prints the first 8 characters of an input character array to the standard output stream:
-    
-    
+
+
     __global__ void kernel(const char* type, const char* data) {
       static const int n_char = 8;
       printf("%s - first %d characters: '", type, n_char);
       for (int i = 0; i < n_char; ++i) printf("%c", data[i]);
       printf("'\n");
     }
-    
+
 
 The following tabs show various ways of how this kernel may be called with system-allocated memory:
 
 Malloc
-    
-    
+
+
     void test_malloc() {
       const char test_string[] = "Hello World";
       char* heap_data = (char*)malloc(sizeof(test_string));
@@ -67,11 +67,11 @@ Malloc
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
       free(heap_data);
     }
-    
+
 
 Managed
-    
-    
+
+
     void test_managed() {
       const char test_string[] = "Hello World";
       char* data;
@@ -82,84 +82,84 @@ Managed
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
       cudaFree(data);
     }
-    
+
 
 Stack variable
-    
-    
+
+
     void test_stack() {
       const char test_string[] = "Hello World";
       kernel<<<1, 1>>>("stack", test_string);
       ASSERT(cudaDeviceSynchronize() == cudaSuccess,
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
     }
-    
+
 
 File-scope static variable
-    
-    
+
+
     void test_static() {
       static const char test_string[] = "Hello World";
       kernel<<<1, 1>>>("static", test_string);
       ASSERT(cudaDeviceSynchronize() == cudaSuccess,
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
     }
-    
+
 
 Global-scope variable
-    
-    
+
+
     const char global_string[] = "Hello World";
-    
+
     void test_global() {
       kernel<<<1, 1>>>("global", global_string);
       ASSERT(cudaDeviceSynchronize() == cudaSuccess,
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
     }
-    
+
 
 Global-scope extern variable
-    
-    
+
+
     // declared in separate file, see below
     extern char* ext_data;
-    
+
     void test_extern() {
       kernel<<<1, 1>>>("extern", ext_data);
       ASSERT(cudaDeviceSynchronize() == cudaSuccess,
         "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
     }
-    
-    
-    
+
+
+
     /** This may be a non-CUDA file */
     char* ext_data;
     static const char global_string[] = "Hello World";
-    
+
     void __attribute__ ((constructor)) setup(void) {
       ext_data = (char*)malloc(sizeof(global_string));
       strncpy(ext_data, global_string, sizeof(global_string));
     }
-    
+
     void __attribute__ ((destructor)) tear_down(void) {
       free(ext_data);
     }
-    
+
 
 Note that for the extern variable, it could be declared and its memory owned and managed by a third-party library, which does not interact with CUDA at all.
 
 Also note that stack variables as well as file-scope and global-scope variables can only be accessed through a pointer by the GPU. In this specific example, this is convenient because the character array is already declared as a pointer: `const char*`. However, consider the following example with a global-scope integer:
-    
-    
+
+
     // this variable is declared at global scope
     int global_variable;
-    
+
     __global__ void kernel_uncompilable() {
       // this causes a compilation error: global (__host__) variables must not
       // be accessed from __device__ / __global__ code
       printf("%d\n", global_variable);
     }
-    
+
     // On systems with pageableMemoryAccess set to 1, we can access the address
     // of a global variable. The below kernel takes that address as an argument
     __global__ void kernel(int* global_variable_addr) {
@@ -170,7 +170,7 @@ Also note that stack variables as well as file-scope and global-scope variables 
       ...
       return 0;
     }
-    
+
 
 In the example above, we need to ensure to pass a _pointer_ to the global variable to the kernel instead of directly accessing the global variable in the kernel. This is because global variables without the `__managed__` specifier are declared as `__host__`-only by default, thus most compilers won’t allow using these variables directly in device code as of now.
 
@@ -179,17 +179,17 @@ In the example above, we need to ensure to pass a _pointer_ to the global variab
 Since systems with full CUDA unified memory support allow the device to access any memory owned by the host process, they can directly access file-backed memory.
 
 Here, we show a modified version of the initial example shown in the previous section to use file-backed memory in order to print a string from the GPU, read directly from an input file. In the following example, the memory is backed by a physical file, but the example applies to memory-backed files too.
-    
-    
+
+
     __global__ void kernel(const char* type, const char* data) {
       static const int n_char = 8;
       printf("%s - first %d characters: '", type, n_char);
       for (int i = 0; i < n_char; ++i) printf("%c", data[i]);
       printf("'\n");
     }
-    
-    
-    
+
+
+
     void test_file_backed() {
       int fd = open(INPUT_FILE_NAME, O_RDONLY);
       ASSERT(fd >= 0, "Invalid file handle");
@@ -204,7 +204,7 @@ Here, we show a modified version of the initial example shown in the previous se
       ASSERT(munmap(mapped, file_stat.st_size) == 0, "Cannot unmap file");
       ASSERT(close(fd) == 0, "Cannot close file");
     }
-    
+
 
 Note that on systems without the `hostNativeAtomicSupported` property (see [Host Native Atomics](#um-host-native-atomics)) including systems with Linux HMM enabled, atomic accesses to file-backed memory are not supported.
 
@@ -303,27 +303,37 @@ This impacts the performance of the following scenarios:
   * signaling a GPU thread from a CPU thread or vice-versa.
 
 
+##### 4.1.1.2.1.3. Mixing Hardware and Software Coherency
+
+Some systems with hardware coherence such as NVIDIA DGX Station also support installing discrete, non-coherent GPU hardware. Accesses from a hardware coherent GPU will continue to use the hardware based coherency as described in [CPU and GPU Page Tables: Hardware Coherency vs. Software Coherency](#um-hw-coherency) while accesses from the discrete GPU will use software based coherency.
+
+Sharing of the unified address space is permitted between both classes of GPU. This results in different performance and migration behaviour based on accessing GPU. In particular accesses from a software coherent GPU will have more page faults and memory migration, while accesses from hardware coherent GPU will fault less and map remotely where possible.
+
+For best performance, sharing of data between both GPUs should be limited or done via explicit copies. Alternatively steps such as calling `cudaMemAdviseSetPreferredLocation` should be taken to ensure frequently shared data remains physically resident on CPU or coherent GPU memory as by default accessing software coherent memory requires a fault and migration of data.
+
+On mixed coherency systems, the behavior of `cudaHostRegister` and other host memory access APIs also changes for the software coherent GPU. Instead of using pinned mappings, software coherent GPUs on a mixed coherence system use software mirroring of CPU page tables. This means some GPU accesses may page fault where they would not on a non-mixed coherency system, although such faults are rare and should only occur under memory pressure.
+
 #### 4.1.1.2.2. Direct Unified Memory Access from the Host
 
 Some devices have hardware support for coherent reads, stores and atomic accesses from the host on GPU-resident unified memory. These devices have the attribute `cudaDevAttrDirectManagedMemAccessFromHost` set to 1. Note that all hardware-coherent systems have this attribute set for NVLink-connected devices. On these systems, the host has direct access to GPU-resident memory without page faults and data migration. Note that with CUDA managed memory, the `cudaMemAdviseSetAccessedBy` hint with location type `cudaMemLocationTypeHost` is necessary to enable this direct access without page faults, see example below.
 
 System Allocator
-    
-    
+
+
     __global__ void write(int *ret, int a, int b) {
       ret[threadIdx.x] = a + b + threadIdx.x;
     }
-    
+
     __global__ void append(int *ret, int a, int b) {
       ret[threadIdx.x] += a + b + threadIdx.x;
     }
-    
+
     void test_malloc() {
       int *ret = (int*)malloc(1000 * sizeof(int));
       // for shared page table systems, the following hint is not necesary
       cudaMemLocation location = {.type = cudaMemLocationTypeHost};
       cudaMemAdvise(ret, 1000 * sizeof(int), cudaMemAdviseSetAccessedBy, location);
-    
+
       write<<< 1, 1000 >>>(ret, 10, 100);            // pages populated in GPU memory
       cudaDeviceSynchronize();
       for(int i = 0; i < 1000; i++)
@@ -333,25 +343,25 @@ System Allocator
       cudaDeviceSynchronize();                        // directManagedMemAccessFromHost=0: GPU faults and triggers host-to-device migrations
       free(ret);
     }
-    
+
 
 Managed
-    
-    
+
+
     __global__ void write(int *ret, int a, int b) {
       ret[threadIdx.x] = a + b + threadIdx.x;
     }
-    
+
     __global__ void append(int *ret, int a, int b) {
       ret[threadIdx.x] += a + b + threadIdx.x;
     }
-    
+
     void test_managed() {
       int *ret;
       cudaMallocManaged(&ret, 1000 * sizeof(int));
       cudaMemLocation location = {.type = cudaMemLocationTypeHost};
       cudaMemAdvise(ret, 1000 * sizeof(int), cudaMemAdviseSetAccessedBy, location);  // set direct access hint
-    
+
       write<<< 1, 1000 >>>(ret, 10, 100);            // pages populated in GPU memory
       cudaDeviceSynchronize();
       for(int i = 0; i < 1000; i++)
@@ -359,14 +369,14 @@ Managed
                                                       // directManagedMemAccessFromHost=0: CPU faults and triggers device-to-host migrations
       append<<< 1, 1000 >>>(ret, 10, 100);            // directManagedMemAccessFromHost=1: GPU accesses GPU memory without migrations
       cudaDeviceSynchronize();                        // directManagedMemAccessFromHost=0: GPU faults and triggers host-to-device migrations
-      cudaFree(ret); 
-    
+      cudaFree(ret);
+
 
 After `write` kernel is completed, `ret` will be created and initialized in GPU memory. Next, the CPU will access `ret` followed by `append` kernel using the same `ret` memory again. This code will show different behavior depending on the system architecture and support of hardware coherency:
 
-  * on systems with `directManagedMemAccessFromHost=1`: CPU accesses to the managed buffer will not trigger any migrations; the data will remain resident in GPU memory and any subsequent GPU kernels can continue to access it directly without inflicting faults or migrations
+  * on devices with `directManagedMemAccessFromHost=1`: CPU accesses to the managed buffer will not trigger any migrations; the data will remain resident in GPU memory and any subsequent GPU kernels can continue to access it directly without inflicting faults or migrations
 
-  * on systems with `directManagedMemAccessFromHost=0`: CPU accesses to the managed buffer will page fault and initiate data migration; any GPU kernel trying to access the same data first time will page fault and migrate pages back to GPU memory.
+  * on devices with `directManagedMemAccessFromHost=0`: CPU accesses to the managed buffer will page fault and initiate data migration; any GPU kernel trying to access the same data first time will page fault and migrate pages back to GPU memory.
 
 
 #### 4.1.1.2.3. Host Native Atomics
@@ -375,23 +385,23 @@ Some devices, including NVLink-connected devices of hardware-coherent systems, s
 
 #### 4.1.1.2.4. Atomic Accesses and Synchronization Primitives
 
-CUDA unified memory supports all atomic operations available to host and device threads, enabling all threads to cooperate by concurrently accessing the same shared memory location. The [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html) library provides many heterogeneous synchronization primitives tuned for concurrent use between host and device threads, including `cuda::atomic`, `cuda::atomic_ref`, `cuda::barrier`, `cuda::semaphore`, among many others.
+CUDA unified memory supports all atomic operations available to host and device threads, enabling all threads to cooperate by concurrently accessing the same shared memory location. The [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives.html) library provides many heterogeneous synchronization primitives tuned for concurrent use between host and device threads, including `cuda::atomic`, `cuda::atomic_ref`, `cuda::barrier`, `cuda::semaphore`, among many others.
 
 On software-coherent systems, atomic accesses from the device to file-backed host memory are not supported. The following example code is valid on hardware-coherent systems but exhibits undefined behavior on other systems:
-    
-    
+
+
     #include <cuda/atomic>
-    
+
     #include <cstdio>
     #include <fcntl.h>
     #include <sys/mman.h>
-    
+
     #define ERR(msg, ...) { fprintf(stderr, msg, ##__VA_ARGS__); return EXIT_FAILURE; }
-    
+
     __global__ void kernel(int* ptr) {
       cuda::atomic_ref{*ptr}.store(2);
     }
-    
+
     int main() {
       // this will be closed/deleted by default on exit
       FILE* tmp_file = tmpfile64();
@@ -400,20 +410,20 @@ On software-coherent systems, atomic accesses from the device to file-backed hos
       if (status != 0) ERR("Failed to allocate space in temp file\n");
       int* ptr = (int*)mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(tmp_file), 0);
       if (ptr == MAP_FAILED) ERR("Failed to map temp file\n");
-    
+
       // initialize the value in our file-backed memory
       *ptr = 1;
       printf("Atom value: %d\n", *ptr);
-    
+
       // device and host thread access ptr concurrently, using cuda::atomic_ref
       kernel<<<1, 1>>>(ptr);
       while (cuda::atomic_ref{*ptr}.load() != 2);
       // this will always be 2
       printf("Atom value: %d\n", *ptr);
-    
+
       return EXIT_SUCCESS;
     }
-    
+
 
 On software-coherent systems, atomic accesses to unified memory may incur page faults which can lead to significant latencies. Note that this is not the case for all GPU atomics to CPU memory on these systems: operations listed by `nvidia-smi -q | grep "Atomic Caps Outbound"` may avoid page faults.
 
@@ -440,15 +450,15 @@ Thus, it is recommended to follow the following performance advice:
 
 For systems with full CUDA unified memory support various different allocators may be used to allocate unified memory. The following table shows an overview of a selection of allocators with their respective features. Note that all information in this section is subject to change in future CUDA versions.
 
-Table 7 Overview of unified memory support of different allocators API | Placement Policy | Accessible From | Migrate Based On Access [[2]](#id8) | Page Sizes [[4]](#id10) [[5]](#id11)  
----|---|---|---|---  
-`malloc`, `new`, `mmap` | First touch/hint [[1]](#id7) | CPU, GPU | Yes [[3]](#id9) | System or huge page size [[6]](#id12)  
-`cudaMallocManaged` | First touch/hint | CPU, GPU | Yes | CPU resident: system page size GPU resident: 2MB  
-`cudaMalloc` | GPU | GPU | No | GPU page size: 2MB  
-`cudaMallocHost`, `cudaHostAlloc`, `cudaHostRegister` | CPU | CPU, GPU | No | Mapped by CPU: system page size Mapped by GPU: 2MB  
-Memory pools, location type host: `cuMemCreate`, `cudaMemPoolCreate` | CPU | CPU, GPU | No | Mapped by CPU: system page size Mapped by GPU: 2MB  
-Memory pools, location type device: `cuMemCreate`, `cudaMemPoolCreate`, `cudaMallocAsync` | GPU | GPU | No | 2MB  
-  
+Table 7 Overview of unified memory support of different allocators API | Placement Policy | Accessible From | Migrate Based On Access [[2]](#id8) | Page Sizes [[4]](#id10) [[5]](#id11)
+---|---|---|---|---
+`malloc`, `new`, `mmap` | First touch/hint [[1]](#id7) | CPU, GPU | Yes [[3]](#id9) | System or huge page size [[6]](#id12)
+`cudaMallocManaged` | First touch/hint | CPU, GPU | Yes | CPU resident: system page size GPU resident: 2MB
+`cudaMalloc` | GPU | GPU | No | GPU page size: 2MB
+`cudaMallocHost`, `cudaHostAlloc`, `cudaHostRegister` | CPU | CPU, GPU | No | Mapped by CPU: system page size Mapped by GPU: 2MB
+Memory pools, location type host: `cuMemCreate`, `cudaMemPoolCreate` | CPU | CPU, GPU | No | Mapped by CPU: system page size Mapped by GPU: 2MB
+Memory pools, location type device: `cuMemCreate`, `cudaMemPoolCreate`, `cudaMallocAsync` | GPU | GPU | No | 2MB
+
 [[1](#id4)]
 
 For `mmap`, file-backed memory is placed on the CPU by default, unless specified otherwise through `cudaMemAdviseSetPreferredLocation` (or `mbind`, see bullet points below).
@@ -501,15 +511,15 @@ Current systems allow the use of access-counter migration with managed memory wh
 If the host accesses unified memory, cache misses may introduce more traffic than expected between host and device. Many CPU architectures require all memory operations to go through the cache hierarchy, including writes. If system memory is resident on the GPU, this means that frequent writes by the CPU to this memory can cause cache misses, thus transferring the data first from the GPU to CPU before writing the actual value into the requested memory range. On software-coherent systems, this may introduce additional page faults, while on hardware-coherent systems, it may cause higher latencies between CPU operations. Thus, in order to share data produced by the host with the device, consider writing to CPU-resident memory and reading the values directly from the device. The code below shows how to achieve this with unified memory.
 
 System Allocator
-    
-    
+
+
       size_t data_size = sizeof(int);
       int* data = (int*)malloc(data_size);
       // ensure that data stays local to the host and avoid faults
       cudaMemLocation location = {.type = cudaMemLocationTypeHost};
       cudaMemAdvise(data, data_size, cudaMemAdviseSetPreferredLocation, location);
       cudaMemAdvise(data, data_size, cudaMemAdviseSetAccessedBy, location);
-    
+
       // frequent exchanges of small data: if the CPU writes to CPU-resident memory,
       // and GPU directly accesses that data, we can avoid the CPU caches re-loading
       // data if it was evicted in between writes
@@ -520,11 +530,11 @@ System Allocator
         // CPU cache potentially evicted data here
       }
       free(data);
-    
+
 
 Managed
-    
-    
+
+
       int* data;
       size_t data_size = sizeof(int);
       cudaMallocManaged(&data, data_size);
@@ -532,7 +542,7 @@ Managed
       cudaMemLocation location = {.type = cudaMemLocationTypeHost};
       cudaMemAdvise(data, data_size, cudaMemAdviseSetPreferredLocation, location);
       cudaMemAdvise(data, data_size, cudaMemAdviseSetAccessedBy, location);
-    
+
       // frequent exchanges of small data: if the CPU writes to CPU-resident memory,
       // and GPU directly accesses that data, we can avoid the CPU caches re-loading
       // data if it was evicted in between writes
@@ -543,7 +553,7 @@ Managed
         // CPU cache potentially evicted data here
       }
       cudaFree(data);
-    
+
 
 #### 4.1.1.2.9. Exploiting Asynchronous Access to System Memory
 
@@ -559,8 +569,8 @@ If an application needs to share results from work on the device with the host, 
 If independent work can be scheduled on the device while the result is transferred/accessed by the host, options 1 or 3 are preferred. If the device is starved until the host has accessed the result, option 2 might be preferred. This is because the device can generally write at a higher bandwidth than the host can read, unless many host threads are used to read the data.
 
 1\. Explicit Copy
-    
-    
+
+
     void exchange_explicit_copy(cudaStream_t stream) {
       int* data, *host_data;
       size_t n_bytes = sizeof(int) * 16;
@@ -580,11 +590,11 @@ If independent work can be scheduled on the device while the result is transferr
       cudaFree(data);
       free(host_data);
     }
-    
+
 
 2\. Device Direct Write
-    
-    
+
+
     void exchange_device_direct_write(cudaStream_t stream) {
       int* data;
       size_t n_bytes = sizeof(int) * 16;
@@ -601,11 +611,11 @@ If independent work can be scheduled on the device while the result is transferr
       printf("Got values %d - %d from GPU\n", data[0], data[15]);
       cudaFree(data);
     }
-    
+
 
 3\. Host Direct Read
-    
-    
+
+
     void exchange_host_direct_read(cudaStream_t stream) {
       int* data;
       size_t n_bytes = sizeof(int) * 16;
@@ -625,7 +635,7 @@ If independent work can be scheduled on the device while the result is transferr
       // read data directly from host
       printf("Got values %d - %d from GPU\n", data[0], data[15]);
       cudaFree(data);
-    
+
 
 Finally, in the Explicit Copy example above, instead of using `cudaMemcpy*` to transfer data, one could use a host or device kernel to perform this transfer explicitly. For contiguous data, using the CUDA copy-engines is preferred because operations performed by copy-engines can be overlapped with work on both the host and device. Copy-engines might be used in `cudaMemcpy*` and `cudaMemPrefetchAsync` APIs, but there is no guarantee. that copy-engines are used with `cudaMemcpy*` API calls. For the same reason, explicitly copy is preferred over direct host read for large enough data: if both host and device perform work that does not saturate their respective memory systems, the transfer can be performed by the copy-engines concurrently with the work performed by both host and device.
 
@@ -678,8 +688,8 @@ Alternatively, on Windows users can also set `CUDA_MANAGED_FORCE_DEVICE_ALLOC` t
 To ensure coherency the unified memory programming model puts constraints on data accesses while both the CPU and GPU are executing concurrently. In effect, the GPU has exclusive access to all managed data and the CPU is not permitted to access it, while any kernel operation is executing, regardless of whether the specific kernel is actively using the data. Concurrent CPU/GPU accesses, even to different managed memory allocations, will cause a segmentation fault because the page is considered inaccessible to the CPU.
 
 For example the following code runs successfully on devices of compute capability 6.x due to the GPU page faulting capability which lifts all restrictions on simultaneous access but fails on on pre-6.x architectures and Windows platforms because the GPU program kernel is still active when the CPU touches `y`:
-    
-    
+
+
     __device__ __managed__ int x, y=2;
     __global__  void  kernel() {
         x = 10;
@@ -687,15 +697,15 @@ For example the following code runs successfully on devices of compute capabilit
     int main() {
         kernel<<< 1, 1 >>>();
         y = 20;            // Error on GPUs not supporting concurrent access
-    
+
         cudaDeviceSynchronize();
         return  0;
     }
-    
+
 
 The program must explicitly synchronize with the GPU before accessing `y` (regardless of whether the GPU kernel actually touches `y` (or any managed data at all):
-    
-    
+
+
     __device__ __managed__ int x, y=2;
     __global__  void  kernel() {
         x = 10;
@@ -706,7 +716,7 @@ The program must explicitly synchronize with the GPU before accessing `y` (regar
         y = 20;            //  Success on GPUs not supporting concurrent access
         return  0;
     }
-    
+
 
 Note that any function call that logically guarantees the GPU completes its work is valid to ensure logically that the GPU work is completed, see [Explicit Synchronization](../03-advanced/advanced-host-programming.html#advanced-host-explicit-synchronization).
 
@@ -730,8 +740,8 @@ It is legal for the CPU to access managed data from within a stream callback, pr
 
 
 Note how the last point allows for races between GPU kernels, as is currently the case for non-managed GPU memory. In the perspective of the GPU, managed memory functions are identical to non-managed memory. The following code example illustrates these points:
-    
-    
+
+
     int main() {
         cudaStream_t stream1, stream2;
         cudaStreamCreate(&stream1);
@@ -754,18 +764,18 @@ Note how the last point allows for races between GPU kernels, as is currently th
         kernel<<< 1, 1 >>>(managed);
         return  0;
     }
-    
+
 
 #### 4.1.3.3.2. Managed memory associated to streams allows for finer-grained control
 
 Unified memory builds upon the stream-independence model by allowing a CUDA program to explicitly associate managed allocations with a CUDA stream. In this way, the programmer indicates the use of data by kernels based on whether they are launched into a specified stream or not. This enables opportunities for concurrency based on program-specific data access patterns. The function to control this behavior is:
-    
-    
+
+
     cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream,
                                          void *ptr,
                                          size_t length=0,
                                          unsigned int flags=0);
-    
+
 
 The `cudaStreamAttachMemAsync()` function associates length bytes of memory starting from ptr with the specified stream. This allows CPU access to that memory region so long as all operations in stream have completed, regardless of whether other streams are active. In effect, this constrains exclusive ownership of the managed memory region by an active GPU to per-stream activity instead of whole-GPU activity. Most importantly, if an allocation is not associated with a specific stream, it is visible to all running kernels regardless of their stream. This is the default visibility for a `cudaMallocManaged()` allocation or a `__managed__` variable; hence, the simple-case rule that the CPU may not touch the data while any kernel is running.
 
@@ -778,8 +788,8 @@ Note
 In addition to allowing greater concurrency, the use of `cudaStreamAttachMemAsync()` can enable data transfer optimizations within the unified memory system that may affect latencies and other overhead.
 
 The following example shows how to explicitly associate `y` with host accessibility, thus enabling access at all times from the CPU. (Note the absence of `cudaDeviceSynchronize()` after the kernel call.) Accesses to `y` by the GPU running kernel will now produce undefined results.
-    
-    
+
+
     __device__ __managed__ int x, y=2;
     __global__  void  kernel() {
         x = 10;
@@ -794,13 +804,13 @@ The following example shows how to explicitly associate `y` with host accessibil
                                           // has been associated with no stream.
         return  0;
     }
-    
+
 
 #### 4.1.3.3.3. A more elaborate example on multithreaded host programs
 
 The primary use for `cudaStreamAttachMemAsync()` is to enable independent task parallelism using CPU threads. Typically in such a program, a CPU thread creates its own stream for all work that it generates because using CUDA’s NULL stream would cause dependencies between threads. The default global visibility of managed data to any GPU stream can make it difficult to avoid interactions between CPU threads in a multi-threaded program. Function `cudaStreamAttachMemAsync()` is therefore used to associate a thread’s managed allocations with that thread’s own stream, and the association is typically not changed for the life of the thread. Such a program would simply add a single call to `cudaStreamAttachMemAsync()` to use unified memory for its data accesses:
-    
-    
+
+
     // This function performs some task, in its own , in its own private stream and can be run in parallel
     void run_task(int *in, int *out, int length) {
         // Create a stream for us to use.
@@ -825,7 +835,7 @@ The primary use for `cudaStreamAttachMemAsync()` is to enable independent task p
         cudaStreamDestroy(stream);
         cudaFree(data);
     }
-    
+
 
 In this example, the allocation-stream association is established just once, and then data is used repeatedly by both the host and device. The result is much simpler code than occurs with explicitly copying data between host and device, although the result is the same.
 
@@ -850,13 +860,13 @@ When using `cudaMemset*()` with unified memory, the data must be coherently acce
 When data is accessed from the device either by `cudaMemcpy*` or `cudaMemset*`, the stream of operation is considered to be active on the GPU. During this time, any CPU access of data that is associated with that stream or data that has global visibility, will result in a segmentation fault if the GPU has a zero value for the device attribute `concurrentManagedAccess`. The program must synchronize appropriately to ensure the operation has completed before accessing any associated data from the CPU.
 
 >   1. Coherently accessible from the host in a given stream means that the memory neither has global visibility nor is it associated with the given stream.
-> 
-> 
+>
+>
 
 
 >   2. Coherently accessible from the device in a given stream means that the memory either has global visibility or is associated with the given stream.
-> 
-> 
+>
+>
 
 
 ## 4.1.4. Performance Hints
@@ -872,141 +882,141 @@ Performance hints may be used on any unified memory allocation, including CUDA m
 ### 4.1.4.1. Data Prefetching
 
 The `cudaMemPrefetchAsync` API is an asynchronous stream-ordered API that may migrate data to reside closer to the specified processor. The data may be accessed while it is being prefetched. The migration does not begin until all prior operations in the stream have completed, and completes before any subsequent operation in the stream.
-    
-    
+
+
     cudaError_t cudaMemPrefetchAsync(const void *devPtr,
                                      size_t count,
                                      struct cudaMemLocation location,
                                      unsigned int flags,
                                      cudaStream_t stream=0);
-    
+
 
 A memory region containing `[devPtr, devPtr + count)` may be migrated to the destination device `location.id` if `location.type` is `cudaMemLocationTypeDevice`, or CPU if `location.type` is `cudaMemLocationTypeHost`, when the prefetch task is executed in the given `stream`. For details on `flags`, see the current [CUDA Runtime API documentation](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html).
 
 Consider the simple code example below:
 
 System Allocator
-    
-    
+
+
     void test_prefetch_sam(const cudaStream_t& s) {
       // initialize data on CPU
       char *data = (char*)malloc(dataSizeBytes);
-      init_data(data, dataSizeBytes);                                     
+      init_data(data, dataSizeBytes);
       cudaMemLocation location = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
-    
+
       // encourage data to move to GPU before use
       const unsigned int flags = 0;
-      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);      
-    
+      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
+
       // use data on GPU
       const unsigned num_blocks = (dataSizeBytes + threadsPerBlock - 1) / threadsPerBlock;
-      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes);  
-    
+      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes);
+
       // encourage data to move back to CPU
       location = {.type = cudaMemLocationTypeHost};
-      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);      
-      
+      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
+
       cudaStreamSynchronize(s);
-    
+
       // use data on CPU
-      use_data(data, dataSizeBytes);                                      
+      use_data(data, dataSizeBytes);
       free(data);
     }
-    
+
 
 Managed
-    
-    
+
+
     void test_prefetch_managed(const cudaStream_t& s) {
       // initialize data on CPU
       char *data;
       cudaMallocManaged(&data, dataSizeBytes);
-      init_data(data, dataSizeBytes);                                     
+      init_data(data, dataSizeBytes);
       cudaMemLocation location = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
-    
+
       // encourage data to move to GPU before use
       const unsigned int flags = 0;
       cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
-    
+
       // use data on GPU
       const uinsigned num_blocks = (dataSizeBytes + threadsPerBlock - 1) / threadsPerBlock;
-      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes); 
-    
+      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes);
+
       // encourage data to move back to CPU
       location = {.type = cudaMemLocationTypeHost};
-      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s); 
-    
+      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
+
       cudaStreamSynchronize(s);
-    
+
       // use data on CPU
       use_data(data, dataSizeBytes);
       cudaFree(data);
     }
-    
+
 
 ### 4.1.4.2. Data Usage Hints
 
 When multiple processors simultaneously access the same data, `cudaMemAdvise` may be used to hint how the data at `[devPtr, devPtr + count)` will be accessed:
-    
-    
+
+
     cudaError_t cudaMemAdvise(const void *devPtr,
                               size_t count,
                               enum cudaMemoryAdvise advice,
                               struct cudaMemLocation location);
-    
+
 
 The example shows how to use `cudaMemAdvise`:
-    
-    
-      init_data(data, dataSizeBytes);                                     
+
+
+      init_data(data, dataSizeBytes);
       cudaMemLocation location = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
-    
+
       // encourage data to move to GPU before use
       const unsigned int flags = 0;
       cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
-    
+
       // use data on GPU
       const uinsigned num_blocks = (dataSizeBytes + threadsPerBlock - 1) / threadsPerBlock;
-      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes); 
-    
+      mykernel<<<num_blocks, threadsPerBlock, 0, s>>>(data, dataSizeBytes);
+
       // encourage data to move back to CPU
       location = {.type = cudaMemLocationTypeHost};
-      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s); 
-    
+      cudaMemPrefetchAsync(data, dataSizeBytes, location, flags, s);
+
       cudaStreamSynchronize(s);
-    
+
       // use data on CPU
       use_data(data, dataSizeBytes);
       cudaFree(data);
     }
     // test-prefetch-managed-end
-    
+
     static const int maxDevices = 1;
     static const int maxOuterLoopIter = 3;
     static const int maxInnerLoopIter = 4;
-    
+
     // test-advise-managed-begin
     void test_advise_managed(cudaStream_t stream) {
       char *dataPtr;
       size_t dataSize = 64 * threadsPerBlock;  // 16 KiB
-    
+
 
 Where `advice` may take the following values:
 
   * `cudaMemAdviseSetReadMostly`:
-    
+
 
 This implies that the data is mostly going to be read from and only occasionally written to. In general, it allows trading off read bandwidth for write bandwidth on this region.
 
 
   * `cudaMemAdviseSetPreferredLocation`:
-    
+
 
 This hint sets the preferred location for the data to be the specified device’s physical memory. This hint encourages the system to keep the data at the preferred location, but does not guarantee it. Passing in a value of `cudaMemLocationTypeHost` for location.type sets the preferred location as CPU memory. Other hints, like `cudaMemPrefetchAsync`, may override this hint and allow the memory to migrate away from its preferred location.
 
 
   * `cudaMemAdviseSetAccessedBy`:
-    
+
 
 In some systems, it may be beneficial for performance to establish a mapping into memory before accessing the data from a given processor. This hint tells the system that the data will be frequently accessed by `location.id` when `location.type` is `cudaMemLocationTypeDevice`, enabling the system to assume that creating these mappings pays off. This hint does not imply where the data should reside, but it can be combined with `cudaMemAdviseSetPreferredLocation` to specify that. On hardware-coherent systems, this hint switches on access counter migration, see [Access Counter Migration](#um-access-counters).
 
@@ -1016,24 +1026,24 @@ Each advice can be also unset by using one of the following values: `cudaMemAdvi
 The example shows how to use `cudaMemAdvise`:
 
 System Allocator
-    
-    
+
+
     void test_advise_sam(cudaStream_t stream) {
       char *dataPtr;
       size_t dataSize = 64 * threadsPerBlock;  // 16 KiB
-      
+
       // Allocate memory using malloc or cudaMallocManaged
       dataPtr = (char*)malloc(dataSize);
-    
+
       // Set the advice on the memory region
       cudaMemLocation loc = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
       cudaMemAdvise(dataPtr, dataSize, cudaMemAdviseSetReadMostly, loc);
-    
+
       int outerLoopIter = 0;
       while (outerLoopIter < maxOuterLoopIter) {
         // The data is written by the CPU each outer loop iteration
         init_data(dataPtr, dataSize);
-    
+
         // The data is made available to all GPUs by prefetching.
         // Prefetching here causes read duplication of data instead
         // of data migration
@@ -1044,7 +1054,7 @@ System Allocator
           const unsigned int flags = 0;
           cudaMemPrefetchAsync(dataPtr, dataSize, location, flags, stream);
         }
-    
+
         // The kernel only reads this data in the inner loop
         int innerLoopIter = 0;
         while (innerLoopIter < maxInnerLoopIter) {
@@ -1053,31 +1063,31 @@ System Allocator
         }
         outerLoopIter++;
       }
-    
+
       free(dataPtr);
     }
-    
+
 
 Managed
-    
-    
+
+
     void test_advise_managed(cudaStream_t stream) {
       char *dataPtr;
       size_t dataSize = 64 * threadsPerBlock;  // 16 KiB
-    
+
       // Allocate memory using cudaMallocManaged
       // (malloc may be used on systems with full CUDA Unified memory support)
       cudaMallocManaged(&dataPtr, dataSize);
-    
+
       // Set the advice on the memory region
       cudaMemLocation loc = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
       cudaMemAdvise(dataPtr, dataSize, cudaMemAdviseSetReadMostly, loc);
-    
+
       int outerLoopIter = 0;
       while (outerLoopIter < maxOuterLoopIter) {
         // The data is written by the CPU each outer loop iteration
         init_data(dataPtr, dataSize);
-    
+
         // The data is made available to all GPUs by prefetching.
         // Prefetching here causes read duplication of data instead
         // of data migration
@@ -1088,7 +1098,7 @@ Managed
           const unsigned int flags = 0;
           cudaMemPrefetchAsync(dataPtr, dataSize, location, flags, stream);
         }
-    
+
         // The kernel only reads this data in the inner loop
         int innerLoopIter = 0;
         while (innerLoopIter < maxInnerLoopIter) {
@@ -1097,28 +1107,28 @@ Managed
         }
         outerLoopIter++;
       }
-      
+
       cudaFree(dataPtr);
     }
-    
+
 
 ### 4.1.4.3. Memory Discarding
 
 The `cudaMemDiscardBatchAsync` API allows applications to inform the CUDA runtime that the contents of specified memory ranges are no longer useful. The Unified Memory driver performs automatic memory transfers due to fault-based migration or memory evictions to support device memory oversubscription. These automatic memory transfers can sometimes be redundant, which severely decreases performance. Marking an address range as ‘discard’ will inform the Unified Memory driver that the application has consumed the contents in the range and there is no need to migrate this data on prefetches or page evictions in order to make room for other allocations. Reading a discarded page without a subsequent write access or prefetch will yield an indeterminate value. Whereas any new writes after the discard operation is guaranteed to be seen by a subsequent read access. Concurrent accesses or prefetches to address ranges being discarded will result in undefined behavior.
-    
-    
+
+
     cudaError_t cudaMemDiscardBatchAsync(void **dptrs,
                                         size_t *sizes,
                                         size_t count,
                                         unsigned long long flags,
                                         cudaStream_t stream);
-    
+
 
 The function performs a batch of memory discards on address ranges specified in `dptrs` and `sizes` arrays. Both arrays must be of the same length as specified by `count`. Each memory range must refer to managed memory allocated via `cudaMallocManaged` or declared via `__managed__` variables.
 
 The `cudaMemDiscardAndPrefetchBatchAsync` API combines both discard and prefetch operations. Calling `cudaMemDiscardAndPrefetchBatchAsync` is semantically equivalent to calling `cudaMemDiscardBatchAsync` followed by `cudaMemPrefetchBatchAsync`, but is more optimal. This is useful when the application needs the memory to be on the target location but does not need the contents of the memory.
-    
-    
+
+
     cudaError_t cudaMemDiscardAndPrefetchBatchAsync(void **dptrs,
                                                    size_t *sizes,
                                                    size_t count,
@@ -1127,7 +1137,7 @@ The `cudaMemDiscardAndPrefetchBatchAsync` API combines both discard and prefetch
                                                    size_t numPrefetchLocs,
                                                    unsigned long long flags,
                                                    cudaStream_t stream);
-    
+
 
 The `prefetchLocs` array specifies the destinations for prefetching, while `prefetchLocIdxs` indicates which operations each prefetch location applies to. For example, if a batch has 10 operations and the first 6 should be prefetched to one location while the remaining 4 to another, then `numPrefetchLocs` would be 2, `prefetchLocIdxs` would be {0, 6}, and `prefetchLocs` would contain the two destination locations.
 
@@ -1145,14 +1155,14 @@ The `prefetchLocs` array specifies the destinations for prefetching, while `pref
 ### 4.1.4.4. Querying Data Usage Attributes on Managed Memory
 
 A program can query memory range attributes assigned through `cudaMemAdvise` or `cudaMemPrefetchAsync` on CUDA managed memory by using the following API:
-    
-    
+
+
     cudaMemRangeGetAttribute(void *data,
                              size_t dataSize,
                              enum cudaMemRangeAttribute attribute,
                              const void *devPtr,
                              size_t count);
-    
+
 
 This function queries an attribute of the memory range starting at `devPtr` with a size of `count` bytes. The memory range must refer to managed memory allocated via `cudaMallocManaged` or declared via `__managed__` variables. It is possible to query the following attributes:
 

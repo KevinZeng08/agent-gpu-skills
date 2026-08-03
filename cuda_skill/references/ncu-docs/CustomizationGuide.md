@@ -60,7 +60,7 @@ __[NsightCompute](../index.html)
 
   * [](../index.html) »
   * 1\. Customization Guide
-  *   * v2026.1.0 | [Archive](https://developer.nvidia.com/nsight-compute-history)
+  *   * v2026.2.1 | [Archive](https://developer.nvidia.com/nsight-compute-history)
 
 
 * * *
@@ -86,8 +86,8 @@ The [Details](../NsightCompute/index.html#profiler-report-details-page) page con
 The section files delivered with the tool are stored in the `sections` sub-folder of the NVIDIA Nsight Compute install directory. Each section is defined in a separate file with the `.section` file extension. At runtime, the installed stock sections (and rules) are deployed to a user-writable directory. This can be disabled with an [environment variable](../NsightComputeCli/index.html#environment-variables). Section files from the deployment directory are loaded automatically at the time the UI connects to a target application or the command line profiler is launched. This way, any changes to section files become immediately available in the next profile run.
 
 A section file is a text representation of a _Google Protocol Buffer_ message. The full definition of all available fields of a section message is given in [Section Definition](index.html#section-definition). In short, each section consists of a unique _Identifier_ (no spaces allowed), a _Display Name_ , an optional _Order_ value (for sorting the sections in the [Details page](../NsightCompute/index.html#profiler-report-details-page)), an optional _Description_ providing guidance to the user, an optional header table, an optional list of metrics to be collected but not displayed, optional bodies with additional UI elements, and other elements. See `ProfilerSection.proto` for the exact list of available elements. A small example of a very simple section is:
-    
-    
+
+
     Identifier: "SampleSection"
     DisplayName: "Sample Section"
     Description: "This sample section shows information on active warps and cycles."
@@ -101,7 +101,7 @@ A section file is a text representation of a _Google Protocol Buffer_ message. T
         Name: "smsp__active_cycles_avg"
       }
     }
-    
+
 
 On data collection, this section will cause the two PerfWorks metrics `smsp__active_warps_avg` and `smsp__active_cycles_avg` to be collected.
 
@@ -114,8 +114,8 @@ By default, when not available, metrics specified in section files will only gen
 More advanced elements can be used in the body of a section. See the `ProfilerSection.proto` file for which elements are available. The following example shows how to use these in a slightly more complex example. The usage of regexes is allowed in tables and charts in the section _Body_ only and follows the format `regex:` followed by the actual regex to match _PerfWorks_ metric names.
 
 The supported list of metrics that can be used in sections can be queried using the [command line interface](../NsightComputeCli/index.html#command-line-options-profile) with the `--query-metrics` option. Each of these metrics can be used in any section and will be automatically collected if they appear in any enabled section. Note that even if a metric is used in multiple sections, it will only be collected once. Look at all the shipped sections to see how they are implemented.
-    
-    
+
+
     Identifier: "SampleSection"
     DisplayName: "Sample Section"
     Description: "This sample section shows various metrics."
@@ -170,7 +170,7 @@ The supported list of metrics that can be used in sections can be queried using 
         }
       }
     }
-    
+
 
 ![../_images/section-files-2.png](https://docs.nvidia.com/nsight-compute/_images/section-files-2.png)
 
@@ -189,8 +189,8 @@ Sections allow the user to specify alternative _options_ for metrics that have a
 In addition to its options, the base metric can be filtered by the same criteria. This is useful for metrics that are only available for certain architectures or in limited collection scopes. See `ProfilerMetricOptions.proto` for which filter options are available.
 
 In the below example, the metric `dram__cycles_elapsed.avg.per_second` is collected on SM 7.0 and SM 7.5-8.6, but not on any in between. It uses the same metric name on these architectures.
-    
-    
+
+
     Metrics {
         Label: "DRAM Frequency"
         Name: "dram__cycles_elapsed.avg.per_second"
@@ -205,11 +205,11 @@ In the below example, the metric `dram__cycles_elapsed.avg.per_second` is collec
           }
         }
     }
-    
+
 
 In the next example, the metric in the section header is only collected for launch-based collection scopes (i.e. kernel- and application replay for CUDA kernels or CUDA Graph nodes), but not in range-based scopes.
-    
-    
+
+
     Header {
       Metrics {
         Label: "Theoretical Occupancy"
@@ -221,11 +221,11 @@ In the next example, the metric in the section header is only collected for laun
         }
       }
     }
-    
+
 
 Similarly, `CollectionFilter`s can be used to set the `Importance` of a metric, which specifies an expectation on its availability during data collection. `Required` metrics, for instance, are expected to be collectable and would generate an error in case they are not available, whereas `Optional` metrics would only generate a warning. Here is a minimal example, illustrating the functionality:
-    
-    
+
+
     Metrics {
       Label: "Compute (SM) Throughput"
       Name: "sm__throughput.avg.pct_of_peak_sustained_elapsed"
@@ -235,21 +235,21 @@ Similarly, `CollectionFilter`s can be used to set the `Importance` of a metric, 
         }
       }
     }
-    
+
 
 Filters can be applied to an entire section instead of or in addition to being set for individual metrics. If both types of filters are specified, they are combined, such that `Metrics`-scope filters take precedence over section-scope filters.
 
 ### 1.2.4. Custom Descriptions
 
 Section files support to specify custom descriptions in many places where metrics can be used. Specifying custom descriptions should only be required when creating [derived metrics](index.html#derived-metrics) or when adding new metrics through the [rule system](index.html#rule-system). When setting this for a metric that would otherwise have a description, the existing one is overriden by the custom value.
-    
-    
+
+
     Metrics {
       Label: "Custom Metric"
       Name: "custom_metric"
       Description: "Metric added when the rule associated with this section file is triggered."
     }
-    
+
 
 Note that the `Description` field is currently only supported for the section `Metrics` field, but not for individual [Options](index.html#metric-options-and-filters).
 
@@ -258,8 +258,8 @@ Note that the `Description` field is currently only supported for the section `M
 PM sampling metrics in section files should be specified in timeline fields. Timelines are items of section Body fields. Timeslines are composed of any number of MetricGroups with any number of MetricRows, each. MetricGroups can be expanded or collapsed in the timeline UI. Each MetricRow can contain any number of Metrics. If a row contains multiple metrics, their values are aggregated.
 
 Each timeline metric should be associated with a Groups field. All metrics in the same group are collected in the same replay pass. Metrics can have optional Multiplier fields. The value of the metric is multiplied with it before being recorded in the report.
-    
-    
+
+
     Timeline {
       MetricGroups {
         Label: "Overview"
@@ -280,7 +280,7 @@ Each timeline metric should be associated with a Groups field. All metrics in th
           }
         }
       }
-    
+
       MetricGroups {
         Label: "SM"
         Expanded: true
@@ -291,20 +291,20 @@ Each timeline metric should be associated with a Groups field. All metrics in th
             Groups: "sampling_1"
           }
       }
-    
+
 
 ### 1.2.6. Counter Domains
 
 PM sampling metrics are composed of one or more raw counter dependencies internally. Each counter is associated with a [counter domain](../ProfilingGuide/index.html#pm-sampling), which describes how and where in the hardware the counter is collected. For metrics specified in section files, the automatic domain selection can be overwritten when needed to form more optimal PM sampling metric groups.
-    
-    
+
+
     Metrics {
       Label: "Short Scoreboard"
       Name: "pmsampling:smsp__warps_issue_stalled_short_scoreboard.avg"
       Groups: "sampling_ws4"
       CtrDomains: "gpu_sm_c"
     }
-    
+
 
 Note that the `CtrDomains` field is currently only supported for the section `Metrics` field, but not for individual [Options](index.html#metric-options-and-filters).
 
@@ -321,8 +321,8 @@ If new or updated section files are not used by NVIDIA Nsight Compute, it is mos
 Derived Metrics allow you to define new metrics composed of constants or existing metrics directly in a section file. The new metrics are computed at collection time and added permanently to the profile result in the report. They can then subsequently be used for any tables, charts, rules, etc.
 
 NVIDIA Nsight Compute currently supports the following syntax for defining derived metrics in section files:
-    
-    
+
+
     MetricDefinitions {
       MetricDefinitions {
         Name: "derived_metric_name"
@@ -333,11 +333,11 @@ NVIDIA Nsight Compute currently supports the following syntax for defining deriv
       }
       ...
     }
-    
+
 
 The actual metric expression is defined as follows:
-    
-    
+
+
     derived_metric_expr ::= operand operator operand
     operator            ::= + | - | * | /
     operand             ::= metric | constant
@@ -345,48 +345,48 @@ The actual metric expression is defined as follows:
     constant            ::= double | uint64
     double              ::= (double-precision number of the form "N.(M)?", e.g. "5." or "0.3109")
     uint64              ::= (64-bit unsigned integer number of the form "N", e.g. "2029")
-    
+
 
 Operators are defined as follows:
-    
-    
+
+
     For op in (+ | - | *): For each element in a metric it is applied to, the expression left-hand side op-combined with expression right-hand side.
     For op in (/): For each element in a metric it is applied to, the expression left-hand side op-combined with expression right-hand side. If the right-hand side operand is of integer-type, and 0, the result is the left-hand side value.
-    
+
 
 Since metrics can contain regular values and/or [instanced values](../ProfilingGuide/index.html#metrics-structure), elements are combined as below. Constants are treated as metrics with only a regular value.
-    
-    
+
+
     1. Regular values are operator-combined.
     a + b
-    
+
     2. If both metrics have no correlation ids, the first N values are operator-combined, where N is the minimum of the number of elements in both metrics.
     a1 + b1
     a2 + b2
     a3
     a4
-    
+
     3. Else if both metrics have correlation ids, the sets of correlation ids from both metrics are joined and then operator-combined as applicable.
     a1 + b1
     a2
     b3
     a4 + b4
     b5
-    
+
     4. Else if only the left-hand side metric has correlation ids, the right-hand side regular metric value is operator-combined with every element of the left-hand side metric.
     a1 + b
     a2 + b
     a3 + b
-    
+
     5. Else if only the right-hand side metric has correlation ids, the right-hand side element values are operator-combined with the regular metric value of the left-hand side metric.
     a + b1 + b2 + b3
-    
+
 
 In all operations, the value kind of the left-hand side operand is used. If the right-hand side operand has a different value kind, it is converted. If the left-hand side operand is a string-kind, it is returned unchanged.
 
 Examples for derived metrics are `derived__avg_thread_executed`, which provides a hint on the number of threads executed on average at each instruction, and `derived__uncoalesced_l2_transactions_global`, which indicates the ratio of actual L2 transactions vs. ideal L2 transactions at each applicable instruction.
-    
-    
+
+
     MetricDefinitions {
       MetricDefinitions {
         Name: "derived__avg_thread_executed"
@@ -401,7 +401,7 @@ Examples for derived metrics are `derived__avg_thread_executed`, which provides 
         Expression: "sm__sass_thread_inst_executed_op_ffma_pred_on.sum.peak_sustained * 2"
       }
     }
-    
+
 
 ## 1.3. Rule System
 
@@ -486,19 +486,19 @@ The full API for the _Frontend_ is documented in the [IFrontend API documentatio
 ### 1.3.7. Rule Examples
 
 The following example rule determines on which major GPU architecture a kernel was running.
-    
-    
+
+
     import NvRules
-    
+
     def get_identifier():
       return "GpuArch"
-    
+
     def apply(handle):
       ctx = NvRules.get_context(handle)
       action = ctx.range_by_idx(0).action_by_idx(0)
       ccMajor = action.metric_by_name("device__attribute_compute_capability_major").as_uint64()
       ctx.frontend().message("Running on major compute capability " + str(ccMajor))
-    
+
 
 ## 1.4. Source Counters
 
@@ -507,8 +507,8 @@ The _Source_ page provides correlation of various metrics with CUDA-C, PTX and S
 ![../_images/source-counters.png](https://docs.nvidia.com/nsight-compute/_images/source-counters.png)
 
 Which source metrics are collected and the order in which they are displayed in this page is controlled using section files, specifically using _SourceMetrics_ entries. Each _SourceMetrics_ entry defines one ordered group of metrics, and can be assigned an optional _Order_ value. This value defines the ordering among those groups in the Source page. This allows you to define a group of memory-related source counters in one and a group of instruction-related counters in another section file.
-    
-    
+
+
     Identifier: "CustomSourceMetrics"
     DisplayName: "Custom Source Metrics"
     SourceMetrics {
@@ -538,7 +538,7 @@ Which source metrics are collected and the order in which they are displayed in 
         Label: "Uint64-value metric"
         Name: "uint64_value_metric"
     }
-    
+
 
 If a _Source Counter_ metric is given an empty label attribute in the section file, it will be collected but not shown on the page. Default visibility can also be set through the _DisplayProperties_ field as shown in the example above. The _Metrics_ groups has been deprecated to define metrics that should be shown on the Source page, and _SourceMetrics_ groups should be used instead, as the former only supports metrics with uint64-type instance values.
 
@@ -556,32 +556,32 @@ Report files can optionally be compressed using [zstd](https://facebook.github.i
 
 Reports of version 7 are a combination of raw binary data and serialized Google Protocol Buffer version 2 messages (proto). All binary entries are stored as little endian. Protocol buffer definitions are in the NVIDIA Nsight Compute installation directory under `extras/FileFormat`.
 
-Top-level report file format Offset [bytes] | Entry | Type | Value  
----|---|---|---  
-0 | Magic Number | Binary | NVR\0  
-4 | Integer | Binary | sizeof(File Header)  
-8 | File Header | Proto | Report version  
-8 + sizeof(File Header) | Block 0 | Mixed | CUDA CUBIN source, profile results, session information  
-8 + sizeof(File Header) + sizeof(Block 0) | Block 1 | Mixed | CUDA CUBIN source, profile results, session information  
-… | … | … | …  
-Per-Block report file format Offset [bytes] | Entry | Type | Value  
----|---|---|---  
-0 | Integer | Binary | sizeof(Block Header)  
-4 | Block Header | Proto | Number of entries per payload type, payload size  
-4 + sizeof(Block Header) | Block Payload | Mixed | Payload (CUDA CUBIN sources, profile results, session information, string table)  
-Block payload report file format Offset [bytes] | Entry | Type | Value  
----|---|---|---  
-0 | Integer | Binary | sizeof(Payload type 1, entry 1)  
-4 | Payload type 1, entry 1 | Proto |   
-4 + sizeof(Payload type 1, entry 1) | Integer | Binary | sizeof(Payload type 1, entry 2)  
-8 + sizeof(Payload type 1, entry 1) | Payload type 1, entry 2 | Proto |   
-… | … | … | …  
-… | Integer | Binary | sizeof(Payload type 2, entry 1)  
-… | Payload type 2, entry 1 | Proto |   
-… | … | … | …  
-  
+Top-level report file format Offset [bytes] | Entry | Type | Value
+---|---|---|---
+0 | Magic Number | Binary | NVR\0
+4 | Integer | Binary | sizeof(File Header)
+8 | File Header | Proto | Report version
+8 + sizeof(File Header) | Block 0 | Mixed | CUDA CUBIN source, profile results, session information
+8 + sizeof(File Header) + sizeof(Block 0) | Block 1 | Mixed | CUDA CUBIN source, profile results, session information
+… | … | … | …
+Per-Block report file format Offset [bytes] | Entry | Type | Value
+---|---|---|---
+0 | Integer | Binary | sizeof(Block Header)
+4 | Block Header | Proto | Number of entries per payload type, payload size
+4 + sizeof(Block Header) | Block Payload | Mixed | Payload (CUDA CUBIN sources, profile results, session information, string table)
+Block payload report file format Offset [bytes] | Entry | Type | Value
+---|---|---|---
+0 | Integer | Binary | sizeof(Payload type 1, entry 1)
+4 | Payload type 1, entry 1 | Proto |
+4 + sizeof(Payload type 1, entry 1) | Integer | Binary | sizeof(Payload type 1, entry 2)
+8 + sizeof(Payload type 1, entry 1) | Payload type 1, entry 2 | Proto |
+… | … | … | …
+… | Integer | Binary | sizeof(Payload type 2, entry 1)
+… | Payload type 2, entry 1 | Proto |
+… | … | … | …
+
 Proto files are currently deployed in a flat directory but may need to be arranged in the following directory structure during compilation for their `import` directives to work:
-    
+
 
   * CpuStacktrace/CpuStacktrace.proto
 

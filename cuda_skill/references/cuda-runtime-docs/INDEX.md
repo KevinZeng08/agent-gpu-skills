@@ -1,7 +1,7 @@
 # CUDA Runtime API Documentation Index
 
-**Modules:** 37  
-**Data structures:** 66  
+**Modules:** 38
+**Data structures:** 67
 
 ## Modules
 
@@ -22,6 +22,7 @@
 - [Group__Cudart__Execution__Context](modules/group__cudart__execution__context.md)
 - [Group__Cudart__Execution__Deprecated](modules/group__cudart__execution__deprecated.md)
 - [Group__Cudart__Extres__Interop](modules/group__cudart__extres__interop.md)
+- [Group__Cudart__Fabric](modules/group__cudart__fabric.md)
 - [Group__Cudart__Graph](modules/group__cudart__graph.md)
 - [Group__Cudart__Highlevel](modules/group__cudart__highlevel.md)
 - [Group__Cudart__Interop](modules/group__cudart__interop.md)
@@ -79,6 +80,7 @@
 - [Structcudagraphinstantiateparams](data-structures/structcudagraphinstantiateparams.md)
 - [Structcudagraphkernelnodeupdate](data-structures/structcudagraphkernelnodeupdate.md)
 - [Structcudagraphnodeparams](data-structures/structcudagraphnodeparams.md)
+- [Structcudagraphrecapturecallbackdata](data-structures/structcudagraphrecapturecallbackdata.md)
 - [Structcudahostnodeparams](data-structures/structcudahostnodeparams.md)
 - [Structcudahostnodeparamsv2](data-structures/structcudahostnodeparamsv2.md)
 - [Structcudaipceventhandle__T](data-structures/structcudaipceventhandle__t.md)

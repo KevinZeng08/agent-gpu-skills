@@ -19,7 +19,7 @@ _Parallel Thread Execution_ (PTX), the virtual machine instruction set architect
 
 `cuda::ptx` **namespace**
 
-One way to use PTX directly in your code is to use the `cuda::ptx` namespace from [libcu++](https://nvidia.github.io/cccl/libcudacxx/). This namespace provides C++ functions that map directly to PTX instructions, simplifying their use within a C++ application. For more information, please refer to the [cuda::ptx namespace](https://nvidia.github.io/cccl/libcudacxx/ptx_api.html) documentation.
+One way to use PTX directly in your code is to use the `cuda::ptx` namespace from [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/). This namespace provides C++ functions that map directly to PTX instructions, simplifying their use within a C++ application. For more information, please refer to the [cuda::ptx namespace](https://nvidia.github.io/cccl/unstable/libcudacxx/ptx_api.html) documentation.
 
 **Inline PTX**
 
@@ -74,7 +74,7 @@ The total number of warps in a block is defined as follows:
 
 [![A thread block is partitioned into warps of 32 threads.](https://docs.nvidia.com/cuda/cuda-programming-guide/_images/warps-in-a-block.png) ](../_images/warps-in-a-block.png)
 
-Figure 19 A thread block is partitioned into warps of 32 threads.
+Figure 22 A thread block is partitioned into warps of 32 threads.
 
 The execution context (program counters, registers, etc.) for each warp processed by an SM is maintained on-chip throughout the warp’s lifetime. Therefore, switching between warps incurs no cost. At each instruction issue cycle, a warp scheduler selects a warp with threads ready to execute its next instruction (the [active threads](#simt-architecture-notes) of the warp) and issues the instruction to those threads.
 
@@ -82,7 +82,7 @@ Each SM has a set of 32-bit registers that are partitioned among the warps, and 
 
 ### 3.2.2.3. Asynchronous Execution Features
 
-Recent NVIDIA GPU generations have included asynchronous execution capabilities to allow more overlap of data movement, computation, and synchronization within the GPU. These capabilities enable certain operations invoked from GPU code to execute asynchronously to other GPU code in the same thread block. This asynchronous execution should not be confused with asynchronous CUDA APIs discussed in [Section 2.3](../02-basics/asynchronous-execution.html#asynchronous-execution), which enable GPU kernel launches or memory operations to operate asynchronously to each other or to the CPU.
+Recent NVIDIA GPU generations have included asynchronous execution capabilities to allow more overlap of data movement, computation, and synchronization within the GPU. These capabilities enable certain operations invoked from GPU code to execute asynchronously to other GPU code in the same thread block. This asynchronous execution should not be confused with asynchronous CUDA APIs discussed in [Section 2.5](../02-basics/asynchronous-execution.html#asynchronous-execution), which enable GPU kernel launches or memory operations to operate asynchronously to each other or to the CPU.
 
 Compute capability 8.0 (The NVIDIA Ampere GPU Architecture) introduced hardware-accelerated asynchronous data copies from global to shared memory and asynchronous barriers (see [NVIDIA A100 Tensor Core GPU Architecture](https://images.nvidia.com/aem-dam/en-zz/Solutions/data-center/nvidia-ampere-architecture-whitepaper.pdf) ).
 
@@ -108,16 +108,16 @@ For more details on these concepts, see the [PTX ISA](https://docs.nvidia.com/cu
 
 CUDA threads form a [Thread Hierarchy](../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review), and using this hierarchy is essential for writing both correct and performant CUDA kernels. Within this hierarchy, the visibility and synchronization scope of memory operations can vary. To account for this non-uniformity, the CUDA programming model introduces the concept of _thread scopes_. A thread scope defines which threads can observe a thread’s loads and stores and specifies which threads can synchronize with each other using synchronization primitives such as atomic operations and barriers. Each scope has an associated point of coherency in the memory hierarchy.
 
-Thread scopes are exposed in [CUDA PTX](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope) and are also available as extensions in the [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes) library. The following table defines the thread scopes available:
+Thread scopes are exposed in [CUDA PTX](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope) and are also available as extensions in the [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/memory_model.html#thread-scopes) library. The following table defines the thread scopes available:
 
-CUDA C++ Thread Scope | CUDA PTX Thread Scope | Description | Point of Coherency in Memory Hierarchy  
----|---|---|---  
-`cuda::thread_scope_thread` |  | Memory operations are visible only to the local thread. | –  
-`cuda::thread_scope_block` | `.cta` | Memory operations are visible to other threads in the same thread block. | L1  
-| `.cluster` | Memory operations are visible to other threads in the same thread block cluster. | L2  
-`cuda::thread_scope_device` | `.gpu` | Memory operations are visible to other threads in the same GPU device. | L2  
-`cuda::thread_scope_system` | `.sys` | Memory operations are visible to other threads in the same system (CPU, other GPUs). | L2 + connected caches  
-  
+CUDA C++ Thread Scope | CUDA PTX Thread Scope | Description | Point of Coherency in Memory Hierarchy
+---|---|---|---
+`cuda::thread_scope_thread` |  | Memory operations are visible only to the local thread. | –
+`cuda::thread_scope_block` | `.cta` | Memory operations are visible to other threads in the same thread block. | L1
+| `.cluster` | Memory operations are visible to other threads in the same thread block cluster. | L2
+`cuda::thread_scope_device` | `.gpu` | Memory operations are visible to other threads in the same GPU device. | L2
+`cuda::thread_scope_system` | `.sys` | Memory operations are visible to other threads in the same system (CPU, other GPUs). | L2 + connected caches
+
 Sections [Advanced Synchronization Primitives](#advanced-kernels-advanced-sync-primitives) and [Asynchronous Data Copies](#advanced-kernels-async-copies) demonstrate use of thread scopes.
 
 ## 3.2.4. Advanced Synchronization Primitives
@@ -133,7 +133,7 @@ This section introduces three families of synchronization primitives:
 
 ### 3.2.4.1. Scoped Atomics
 
-[Section 5.4.5](../05-appendices/cpp-language-extensions.html#atomic-functions) gives an overview of atomic functions available in CUDA. In this section, we will focus on _scoped_ atomics that support [C++ standard atomic memory](https://en.cppreference.com/w/cpp/atomic/memory_order.html) semantics, available through the [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html) library or through compiler built-in functions. Scoped atomics provide the tools for efficient synchronization at the appropriate level of the CUDA thread hierarchy, enabling both correctness and performance in complex parallel algorithms.
+[Section 5.4.5](../05-appendices/cpp-language-extensions.html#atomic-functions) gives an overview of atomic functions available in CUDA. In this section, we will focus on _scoped_ atomics that support [C++ standard atomic memory](https://en.cppreference.com/w/cpp/atomic/memory_order.html) semantics, available through the [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives.html) library or through compiler built-in functions. Scoped atomics provide the tools for efficient synchronization at the appropriate level of the CUDA thread hierarchy, enabling both correctness and performance in complex parallel algorithms.
 
 #### 3.2.4.1.1. Thread Scope and Memory Ordering
 
@@ -145,34 +145,34 @@ Scoped atomics combine two key concepts:
 
 
 CUDA C++ `cuda::atomic`
-    
-    
+
+
     #include <cuda/atomic>
-    
+
     __global__ void block_scoped_counter() {
         // Shared atomic counter visible only within this block
         __shared__ cuda::atomic<int, cuda::thread_scope_block> counter;
-    
+
         // Initialize counter (only one thread should do this)
         if (threadIdx.x == 0) {
             counter.store(0, cuda::memory_order_relaxed);
         }
         __syncthreads();
-    
+
         // All threads in block atomically increment
         int old_value = counter.fetch_add(1, cuda::memory_order_relaxed);
-    
+
         // Use old_value...
     }
-    
+
 
 Built-in Atomic Functions
-    
-    
+
+
     __global__ void block_scoped_counter() {
         // Shared counter visible only within this block
         __shared__ int counter;
-    
+
         // Initialize counter (only one thread should do this)
         if (threadIdx.x == 0) {
             __nv_atomic_store_n(&counter, 0,
@@ -180,15 +180,15 @@ Built-in Atomic Functions
                                 __NV_THREAD_SCOPE_BLOCK);
         }
         __syncthreads();
-    
+
         // All threads in block atomically increment
         int old_value = __nv_atomic_fetch_add(&counter, 1,
                                               __NV_ATOMIC_RELAXED,
                                               __NV_THREAD_SCOPE_BLOCK);
-    
+
         // Use old_value...
     }
-    
+
 
 This example implements a _block-scoped atomic counter_ that demonstrates the fundamental concepts of scoped atomics:
 
@@ -208,12 +208,12 @@ This example implements a _block-scoped atomic counter_ that demonstrates the fu
 For producer-consumer patterns, acquire-release semantics ensure proper ordering:
 
 CUDA C++ `cuda::atomic`
-    
-    
+
+
     __global__ void producer_consumer() {
         __shared__ int data;
         __shared__ cuda::atomic<bool, cuda::thread_scope_block> ready;
-    
+
         if (threadIdx.x == 0) {
             // Producer: write data then signal ready
             data = 42;
@@ -227,15 +227,15 @@ CUDA C++ `cuda::atomic`
             // Process value...
         }
     }
-    
+
 
 Built-in Atomic Functions
-    
-    
+
+
     __global__ void producer_consumer() {
         __shared__ int data;
         __shared__ bool ready; // Only ready flag needs atomic operations
-    
+
         if (threadIdx.x == 0) {
             // Producer: write data then signal ready
             data = 42;
@@ -253,7 +253,7 @@ Built-in Atomic Functions
             // Process value...
         }
     }
-    
+
 
 #### 3.2.4.1.2. Performance Considerations
 
@@ -270,38 +270,38 @@ An asynchronous barrier differs from a typical single-stage barrier (`__syncthre
 
 Asynchronous barriers are available on devices of compute capability 7.0 or higher. Devices of compute capability 8.0 or higher provide hardware acceleration for asynchronous barriers in shared-memory and a significant advancement in synchronization granularity, by allowing hardware-accelerated synchronization of any subset of CUDA threads within the block. Previous architectures only accelerate synchronization at a whole-warp (`__syncwarp()`) or whole-block (`__syncthreads()`) level.
 
-The CUDA programming model provides asynchronous barriers via `cuda::std::barrier`, an ISO C++-conforming barrier available in the [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html) library. In addition to implementing [std::barrier](https://en.cppreference.com/w/cpp/thread/barrier.html), the library offers CUDA-specific extensions to select a barrier’s thread scope to improve performance and exposes a lower-level [cuda::ptx](https://nvidia.github.io/cccl/libcudacxx/ptx_api.html) API. A `cuda::barrier` can interoperate with `cuda::ptx` by using the `friend` function `cuda::device::barrier_native_handle()` to retrieve the barrier’s native handle and pass it to `cuda::ptx` functions. CUDA also provides a [primitives API](../05-appendices/device-callable-apis.html#async-barriers-primitives-api) for asynchronous barriers in shared memory at thread-block scope.
+The CUDA programming model provides asynchronous barriers via `cuda::std::barrier`, an ISO C++-conforming barrier available in the [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives/barrier.html) library. In addition to implementing [std::barrier](https://en.cppreference.com/w/cpp/thread/barrier.html), the library offers CUDA-specific extensions to select a barrier’s thread scope to improve performance and exposes a lower-level [cuda::ptx](https://nvidia.github.io/cccl/unstable/libcudacxx/ptx_api.html) API. A `cuda::barrier` can interoperate with `cuda::ptx` by using the `friend` function `cuda::device::barrier_native_handle()` to retrieve the barrier’s native handle and pass it to `cuda::ptx` functions. CUDA also provides a [primitives API](../05-appendices/device-callable-apis.html#async-barriers-primitives-api) for asynchronous barriers in shared memory at thread-block scope.
 
 The following table gives an overview of asynchronous barriers available for synchronizing at different thread scopes.
 
-> Thread Scope | Memory Location | Arrive on Barrier | Wait on Barrier | Hardware-accelerated | CUDA APIs  
-> ---|---|---|---|---|---  
-> block | local shared memory | allowed | allowed | yes (8.0+) | `cuda::barrier`, `cuda::ptx`, primitives  
-> cluster | local shared memory | allowed | allowed | yes (9.0+) | `cuda::barrier`, `cuda::ptx`  
-> cluster | remote shared memory | allowed | not allowed | yes (9.0+) | `cuda::barrier`, `cuda::ptx`  
-> device | global memory | allowed | allowed | no | `cuda::barrier`  
-> system | global/unified memory | allowed | allowed | no | `cuda::barrier`  
-  
+> Thread Scope | Memory Location | Arrive on Barrier | Wait on Barrier | Hardware-accelerated | CUDA APIs
+> ---|---|---|---|---|---
+> block | local shared memory | allowed | allowed | yes (8.0+) | `cuda::barrier`, `cuda::ptx`, primitives
+> cluster | local shared memory | allowed | allowed | yes (9.0+) | `cuda::barrier`, `cuda::ptx`
+> cluster | remote shared memory | allowed | not allowed | yes (9.0+) | `cuda::barrier`, `cuda::ptx`
+> device | global memory | allowed | allowed | no | `cuda::barrier`
+> system | global/unified memory | allowed | allowed | no | `cuda::barrier`
+
 Temporal Splitting of Synchronization
 
 Without the asynchronous arrive-wait barriers, synchronization within a thread block is achieved using `__syncthreads()` or `block.sync()` when using [Cooperative Groups](../04-special-topics/cooperative-groups.html#cooperative-groups).
-    
-    
+
+
     #include <cooperative_groups.h>
-    
+
     __global__ void simple_sync(int iteration_count) {
         auto block = cooperative_groups::this_thread_block();
-    
+
         for (int i = 0; i < iteration_count; ++i) {
             /* code before arrive */
-    
+
              // Wait for all threads to arrive here.
             block.sync();
-    
+
             /* code after wait */
         }
     }
-    
+
 
 Threads are blocked at the synchronization point (`block.sync()`) until all threads have reached the synchronization point. In addition, memory updates that happened before the synchronization point are guaranteed to be visible to all threads in the block after the synchronization point.
 
@@ -317,123 +317,123 @@ This pattern has three stages:
 Using asynchronous barriers instead, the temporally-split synchronization pattern is as follows.
 
 CUDA C++ `cuda::barrier`
-    
-    
+
+
     #include <cuda/barrier>
     #include <cooperative_groups.h>
-    
+
     __device__ void compute(float *data, int iteration);
-    
+
     __global__ void split_arrive_wait(int iteration_count, float *data)
     {
       using barrier_t = cuda::barrier<cuda::thread_scope_block>;
       __shared__ barrier_t bar;
       auto block = cooperative_groups::this_thread_block();
-    
+
       if (block.thread_rank() == 0)
       {
         // Initialize barrier with expected arrival count.
         init(&bar, block.size());
       }
       block.sync();
-    
+
       for (int i = 0; i < iteration_count; ++i)
       {
         /* code before arrive */
-    
+
         // This thread arrives. Arrival does not block a thread.
         barrier_t::arrival_token token = bar.arrive();
-    
+
         compute(data, i);
-    
+
         // Wait for all threads participating in the barrier to complete bar.arrive().
         bar.wait(std::move(token));
-    
+
         /* code after wait */
       }
     }
-      
-  
----  
-  
+
+
+---
+
 CUDA C++ `cuda::ptx`
-    
-    
+
+
     #include <cuda/ptx>
     #include <cooperative_groups.h>
-    
+
     __device__ void compute(float *data, int iteration);
-    
+
     __global__ void split_arrive_wait(int iteration_count, float *data)
     {
       __shared__ uint64_t bar;
       auto block = cooperative_groups::this_thread_block();
-    
+
       if (block.thread_rank() == 0)
       {
         // Initialize barrier with expected arrival count.
         cuda::ptx::mbarrier_init(&bar, block.size());
       }
       block.sync();
-    
+
       for (int i = 0; i < iteration_count; ++i)
       {
         /* code before arrive */
-    
+
         // This thread arrives. Arrival does not block a thread.
         uint64_t token = cuda::ptx::mbarrier_arrive(&bar);
-    
+
         compute(data, i);
-    
+
         // Wait for all threads participating in the barrier to complete mbarrier_arrive().
         while(!cuda::ptx::mbarrier_try_wait(&bar, token)) {}
-    
+
         /* code after wait */
       }
     }
-      
-  
----  
-  
+
+
+---
+
 CUDA C primitives
-    
-    
+
+
     #include <cuda_awbarrier_primitives.h>
     #include <cooperative_groups.h>
-    
+
     __device__ void compute(float *data, int iteration);
-    
+
     __global__ void split_arrive_wait(int iteration_count, float *data)
     {
       __shared__ __mbarrier_t bar;
       auto block = cooperative_groups::this_thread_block();
-    
+
       if (block.thread_rank() == 0)
       {
         // Initialize barrier with expected arrival count.
         __mbarrier_init(&bar, block.size());
       }
       block.sync();
-    
+
       for (int i = 0; i < iteration_count; ++i)
       {
         /* code before arrive */
-    
+
         // This thread arrives. Arrival does not block a thread.
         __mbarrier_token_t token = __mbarrier_arrive(&bar);
-    
+
         compute(data, i);
-    
+
         // Wait for all threads participating in the barrier to complete __mbarrier_arrive().
         while(!__mbarrier_try_wait(&bar, token, 1000)) {}
-    
+
         /* code after wait */
       }
     }
-      
-  
----  
-  
+
+
+---
+
 In this pattern, the synchronization point is split into an arrive point (`bar.arrive()`) and a wait point (`bar.wait(std::move(token))`). A thread begins participating in a `cuda::barrier` with its first call to `bar.arrive()`. When a thread calls `bar.wait(std::move(token))` it will be blocked until participating threads have completed `bar.arrive()` the expected number of times, which is the expected arrival count argument passed to `init()`. Memory updates that happen before participating threads’ call to `bar.arrive()` are guaranteed to be visible to participating threads after their call to `bar.wait(std::move(token))`. Note that the call to `bar.arrive()` does not block a thread, it can proceed with other work that does not depend upon memory updates that happen before other participating threads’ call to `bar.arrive()`.
 
 The _arrive and wait_ pattern has five stages:
@@ -455,21 +455,21 @@ For a comprehensive guide on how to use asynchronous barriers, see [Asynchronous
 
 The CUDA programming model provides the pipeline synchronization object as a coordination mechanism to sequence asynchronous memory copies into multiple stages, facilitating the implementation of double- or multi-buffering producer-consumer patterns. A pipeline is a double-ended queue with a _head_ and a _tail_ that processes work in a first-in first-out (FIFO) order. Producer threads commit work to the pipeline’s head, while consumer threads pull work from the pipeline’s tail.
 
-Pipelines are exposed through the `cuda::pipeline` API in the [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/pipeline.html) library, as well as through a [primitives API](../05-appendices/device-callable-apis.html#pipeline-primitives-interface). The following tables describe the main functionality of the two APIs.
+Pipelines are exposed through the `cuda::pipeline` API in the [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives/pipeline.html) library, as well as through a [primitives API](../05-appendices/device-callable-apis.html#pipeline-primitives-interface). The following tables describe the main functionality of the two APIs.
 
-`cuda::pipeline` API | Description  
----|---  
-`producer_acquire` | Acquires an available stage in the pipeline’s internal queue.  
-`producer_commit` | Commits the asynchronous operations issued after the `producer_acquire` call on the currently acquired stage of the pipeline.  
-`consumer_wait` | Waits for completion of asynchronous operations in the oldest stage of the pipeline.  
-`consumer_release` | Releases the oldest stage of the pipeline to the pipeline object for reuse. The released stage can be then acquired by a producer.  
-  
-Primitives API | Description  
----|---  
-`__pipeline_memcpy_async` | Request a memory copy from global to shared memory to be submitted for asynchronous evaluation.  
-`__pipeline_commit` | Commits the asynchronous operations issued before the call on the current stage of the pipeline.  
-`__pipeline_wait_prior(N)` | Waits for completion of asynchronous operations in all but the last N commits to the pipeline.  
-  
+`cuda::pipeline` API | Description
+---|---
+`producer_acquire` | Acquires an available stage in the pipeline’s internal queue.
+`producer_commit` | Commits the asynchronous operations issued after the `producer_acquire` call on the currently acquired stage of the pipeline.
+`consumer_wait` | Waits for completion of asynchronous operations in the oldest stage of the pipeline.
+`consumer_release` | Releases the oldest stage of the pipeline to the pipeline object for reuse. The released stage can be then acquired by a producer.
+
+Primitives API | Description
+---|---
+`__pipeline_memcpy_async` | Request a memory copy from global to shared memory to be submitted for asynchronous evaluation.
+`__pipeline_commit` | Commits the asynchronous operations issued before the call on the current stage of the pipeline.
+`__pipeline_wait_prior(N)` | Waits for completion of asynchronous operations in all but the last N commits to the pipeline.
+
 The `cuda::pipeline` API has a richer interface with less restrictions, while the primitives API only supports tracking asynchronous copies from global memory to shared memory with specific size and alignment requirements. The primitives API provides equivalent functionality to a `cuda::pipeline` object with `cuda::thread_scope_thread`.
 
 For detailed usage patterns and examples, see [Pipelines](../04-special-topics/pipelines.html#pipelines).
@@ -498,86 +498,86 @@ To understand how asynchronous copies can improve performance, it is helpful to 
 The _copy_ phase of this pattern is typically expressed as `shared[local_idx] = global[global_idx]`. This global to shared memory copy is expanded by the compiler to a read from global memory into a register followed by a write to shared memory from the register.
 
 When this pattern occurs within an iterative algorithm, each thread block needs to synchronize after the `shared[local_idx] = global[global_idx]` assignment, to ensure all writes to shared memory have completed before the compute phase can begin. The thread block also needs to synchronize again after the compute phase, to prevent overwriting shared memory before all threads have completed their computations. This pattern is illustrated in the following code snippet.
-    
-    
+
+
     #include <cooperative_groups.h>
-    
+
     __device__ void compute(int* global_out, int const* shared_in) {
         // Computes using all values of current batch from shared memory.
         // Stores this thread's result back to global memory.
     }
-    
+
     __global__ void without_async_copy(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
       auto grid = cooperative_groups::this_grid();
       auto block = cooperative_groups::this_thread_block();
       assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
-    
+
       extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
-    
+
       size_t local_idx = block.thread_rank();
-    
+
       for (size_t batch = 0; batch < batch_sz; ++batch) {
         // Compute the index of the current batch for this block in global memory.
         size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
         size_t global_idx = block_batch_idx + threadIdx.x;
         shared[local_idx] = global_in[global_idx];
-    
+
         // Wait for all copies to complete.
         block.sync();
-    
+
         // Compute and write result to global memory.
         compute(global_out + block_batch_idx, shared);
-    
+
         // Wait for compute using shared memory to finish.
         block.sync();
       }
     }
-    
+
 
 With asynchronous data copies, data movement from global memory to shared memory can be done asynchronously to enable more efficient use of the SM while waiting for data to arrive.
-    
-    
+
+
     #include <cooperative_groups.h>
     #include <cooperative_groups/memcpy_async.h>
-    
+
     __device__ void compute(int* global_out, int const* shared_in) {
         // Computes using all values of current batch from shared memory.
         // Stores this thread's result back to global memory.
     }
-    
+
     __global__ void with_async_copy(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
       auto grid = cooperative_groups::this_grid();
       auto block = cooperative_groups::this_thread_block();
       assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
-    
+
       extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
-    
+
       size_t local_idx = block.thread_rank();
-    
+
       for (size_t batch = 0; batch < batch_sz; ++batch) {
         // Compute the index of the current batch for this block in global memory.
         size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
-    
+
         // Whole thread-group cooperatively copies whole batch to shared memory.
         cooperative_groups::memcpy_async(block, shared, global_in + block_batch_idx, block.size());
-    
+
         // Compute on different data while waiting.
-    
+
         // Wait for all copies to complete.
         cooperative_groups::wait(block);
-    
+
         // Compute and write result to global memory.
         compute(global_out + block_batch_idx, shared);
-    
+
         // Wait for compute using shared memory to finish.
         block.sync();
       }
     }
-    
+
 
 The [cooperative_groups::memcpy_async](../05-appendices/device-callable-apis.html#cg-api-async-memcpy) function copies `block.size()` elements from global memory to the `shared` data. This operation happens as-if performed by another thread, which synchronizes with the current thread’s call to [cooperative_groups::wait](../05-appendices/device-callable-apis.html#cg-api-async-wait) after the copy has completed. Until the copy operation completes, modifying the global data or reading or writing the shared data introduces a data race.
 
-This example illustrates the fundamental concept behind all asynchronous copy operations: they decouple memory transfer initiation from completion, allowing threads to perform other work while data moves in the background. The CUDA programming model provides several APIs to access these capabilities, including `memcpy_async` functions available in [Cooperative Groups](../05-appendices/device-callable-apis.html#cg-api-async-memcpy) and the [libcu++](https://nvidia.github.io/cccl/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html) library, as well as lower-level `cuda::ptx` and primitives APIs. These APIs share similar semantics: they copy objects from source to destination as-if performed by another thread which, on completion of the copy, can be synchronized using different completion mechanisms.
+This example illustrates the fundamental concept behind all asynchronous copy operations: they decouple memory transfer initiation from completion, allowing threads to perform other work while data moves in the background. The CUDA programming model provides several APIs to access these capabilities, including `memcpy_async` functions available in [Cooperative Groups](../05-appendices/device-callable-apis.html#cg-api-async-memcpy) and the [libcu++](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html) library, as well as lower-level `cuda::ptx` and primitives APIs. These APIs share similar semantics: they copy objects from source to destination as-if performed by another thread which, on completion of the copy, can be synchronized using different completion mechanisms.
 
 Modern GPU architectures provide multiple hardware mechanisms for asynchronous data movement.
 
@@ -590,17 +590,17 @@ Modern GPU architectures provide multiple hardware mechanisms for asynchronous d
 
 These mechanisms support different data paths, transfer sizes, and alignment requirements, allowing developers to choose the most appropriate approach for their specific data access patterns. The following table gives an overview of the supported data paths for asynchronous copies within the GPU.
 
-Table 5 Asynchronous copies with possible source and destination memory spaces. An empty cell indicates that a source-destination pair is not supported. Direction | Copy Mechanism  
----|---  
-Source | Destination | Asynchronous Copy | Bulk-Asynchronous Copy  
-global | global |  |   
-shared::cta | global |  | supported (TMA, 9.0+)  
-global | shared::cta | supported (LDGSTS, 8.0+) | supported (TMA, 9.0+)  
-global | shared::cluster |  | supported (TMA, 9.0+)  
-shared::cluster | shared::cta |  | supported (TMA, 9.0+)  
-shared::cta | shared::cta |  |   
-registers | shared::cluster | supported (STAS, 9.0+) |   
-  
+Table 5 Asynchronous copies with possible source and destination memory spaces. An empty cell indicates that a source-destination pair is not supported. Direction | Copy Mechanism
+---|---
+Source | Destination | Asynchronous Copy | Bulk-Asynchronous Copy
+global | global |  |
+shared::cta | global |  | supported (TMA, 9.0+)
+global | shared::cta | supported (LDGSTS, 8.0+) | supported (TMA, 9.0+)
+global | shared::cluster |  | supported (TMA, 9.0+)
+shared::cluster | shared::cta |  | supported (TMA, 9.0+)
+shared::cta | shared::cta |  |
+registers | shared::cluster | supported (STAS, 9.0+) |
+
 Sections [Using LDGSTS](../04-special-topics/async-copies.html#async-copies-ldgsts), [Using the Tensor Memory Accelerator (TMA)](../04-special-topics/async-copies.html#async-copies-tma) and [Using STAS](../04-special-topics/async-copies.html#async-copies-stas) will go into more details about each mechanism.
 
 ## 3.2.6. Configuring L1/Shared Memory Balance
@@ -608,10 +608,10 @@ Sections [Using LDGSTS](../04-special-topics/async-copies.html#async-copies-ldgs
 As mentioned in [L1 data cache](../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-caches), the L1 and shared memory on an SM use the same physical resource, known as the unified data cache. On most architectures, if a kernel uses little or no shared memory, the unified data cache can be configured to provide the maximal amount of L1 cache allowed by the architecture.
 
 The unified data cache reserved for shared memory is configurable on a per-kernel basis. An application can set the `carveout`, or preferred shared memory capacity, with the [cudaFuncSetAttribute](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g317e77d2657abf915fd9ed03e75f3eb0) function called before the kernel is launched.
-    
-    
+
+
     cudaFuncSetAttribute(kernel_name, cudaFuncAttributePreferredSharedMemoryCarveout, carveout);
-    
+
 
 The application can set the `carveout` as an integer percentage of the maximum supported shared memory capacity of that architecture. In addition to an integer percentage, three convenience enums are provided as carveout values.
 
@@ -633,15 +633,15 @@ Note
 Another CUDA API, `cudaFuncSetCacheConfig`, also allows an application to adjust the balance between L1 and shared memory for a kernel. However, this API set a hard requirements on shared/L1 balance for kernel launch. As a result, interleaving kernels with different shared memory configurations would needlessly [serialize launches](advanced-host-programming.html#advanced-host-implicit-synchronization) behind shared memory reconfigurations. `cudaFuncSetAttribute` is preferred because driver may choose a different configuration if required to execute the function or to avoid thrashing.
 
 Kernels relying on shared memory allocations over 48 KB per block are architecture-specific. As such they must use [dynamic shared memory](../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-dynamic-allocation-shared-memory) rather than statically-sized arrays and require an explicit opt-in using `cudaFuncSetAttribute` as follows.
-    
-    
+
+
     // Device code
     __global__ void MyKernel(...)
     {
       extern __shared__ float buffer[];
       ...
     }
-    
+
     // Host code
     int maxbytes = 98304; // 96 KB
     cudaFuncSetAttribute(MyKernel, cudaFuncAttributeMaxDynamicSharedMemorySize, maxbytes);

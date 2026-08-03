@@ -1,7 +1,7 @@
 # CUDA Driver API Documentation Index
 
-**Modules:** 49  
-**Data structures:** 81  
+**Modules:** 50
+**Data structures:** 84
 
 ## Modules
 
@@ -31,6 +31,7 @@
 - [Group__Cuda__Green__Contexts](modules/group__cuda__green__contexts.md)
 - [Group__Cuda__Initialize](modules/group__cuda__initialize.md)
 - [Group__Cuda__Library](modules/group__cuda__library.md)
+- [Group__Cuda__Logical__Endpoint](modules/group__cuda__logical__endpoint.md)
 - [Group__Cuda__Logs](modules/group__cuda__logs.md)
 - [Group__Cuda__Malloc__Async](modules/group__cuda__malloc__async.md)
 - [Group__Cuda__Mem](modules/group__cuda__mem.md)
@@ -73,6 +74,7 @@
 - [Structcuda__Array__Memory__Requirements__V1](data-structures/structcuda__array__memory__requirements__v1.md)
 - [Structcuda__Array__Sparse__Properties__V1](data-structures/structcuda__array__sparse__properties__v1.md)
 - [Structcuda__Batch__Mem__Op__Node__Params__V1](data-structures/structcuda__batch__mem__op__node__params__v1.md)
+- [Structcuda__Batch__Mem__Op__Node__Params__V2](data-structures/structcuda__batch__mem__op__node__params__v2.md)
 - [Structcuda__Child__Graph__Node__Params](data-structures/structcuda__child__graph__node__params.md)
 - [Structcuda__Conditional__Node__Params](data-structures/structcuda__conditional__node__params.md)
 - [Structcuda__Event__Record__Node__Params](data-structures/structcuda__event__record__node__params.md)
@@ -124,6 +126,8 @@
 - [Structculaunchattribute](data-structures/structculaunchattribute.md)
 - [Structculaunchconfig](data-structures/structculaunchconfig.md)
 - [Structculaunchmemsyncdomainmap](data-structures/structculaunchmemsyncdomainmap.md)
+- [Structculogicalendpointfabrichandle](data-structures/structculogicalendpointfabrichandle.md)
+- [Structculogicalendpointprop](data-structures/structculogicalendpointprop.md)
 - [Structcumemaccessdesc__V1](data-structures/structcumemaccessdesc__v1.md)
 - [Structcumemallocationprop__V1](data-structures/structcumemallocationprop__v1.md)
 - [Structcumemcpy3Doperand__V1](data-structures/structcumemcpy3doperand__v1.md)

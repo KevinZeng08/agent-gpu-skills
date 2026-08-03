@@ -1,4 +1,4 @@
-# 7.61. cudaPitchedPtr
+# 7.62. cudaPitchedPtr
 
 **Source:** structcudaPitchedPtr.html#structcudaPitchedPtr
 

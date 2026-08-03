@@ -1,4 +1,4 @@
-# 7.45. cudaLaunchMemSyncDomainMap
+# 7.46. cudaLaunchMemSyncDomainMap
 
 **Source:** structcudaLaunchMemSyncDomainMap.html#structcudaLaunchMemSyncDomainMap
 

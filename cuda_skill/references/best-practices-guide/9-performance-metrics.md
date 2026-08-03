@@ -4,11 +4,11 @@
 When attempting to optimize CUDA code, it pays to know how to measure performance accurately and to understand the role that bandwidth plays in performance measurement. This chapter discusses how to correctly measure performance using CPU timers and CUDA events. It then explores how bandwidth affects performance metrics and how to mitigate some of the challenges it poses.
 
 
-##  9.1. Timing 
+##  9.1. Timing
 
 CUDA calls and kernel executions can be timed using either CPU or GPU timers. This section examines the functionality, advantages, and pitfalls of both approaches.
 
-###  9.1.1. Using CPU Timers 
+###  9.1.1. Using CPU Timers
 
 Any CPU timer can be used to measure the elapsed time of a CUDA call or kernel execution. The details of various CPU timing approaches are outside the scope of this document, but developers should always be aware of the resolution their timing calls provide.
 
@@ -20,34 +20,34 @@ Because the default stream, stream 0, exhibits serializing behavior for work on 
 
 Be aware that CPU-to-GPU synchronization points such as those mentioned in this section imply a stall in the GPU’s processing pipeline and should thus be used sparingly to minimize their performance impact.
 
-###  9.1.2. Using CUDA GPU Timers 
+###  9.1.2. Using CUDA GPU Timers
 
 The CUDA event API provides calls that create and destroy events, record events (including a timestamp), and convert timestamp differences into a floating-point value in milliseconds. [How to time code using CUDA events](#how-to-time-code-using-cuda-events-figure) illustrates their use.
 
 How to time code using CUDA events
-    
-    
+
+
     cudaEvent_t start, stop;
     float time;
-    
+
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
-    
+
     cudaEventRecord( start, 0 );
     kernel<<<grid,threads>>> ( d_odata, d_idata, size_x, size_y,
                                NUM_REPS);
     cudaEventRecord( stop, 0 );
     cudaEventSynchronize( stop );
-    
+
     cudaEventElapsedTime( &time, start, stop );
     cudaEventDestroy( start );
     cudaEventDestroy( stop );
-    
+
 
 Here `cudaEventRecord()` is used to place the `start` and `stop` events into the default stream, stream 0. The device will record a timestamp for the event when it reaches that event in the stream. The `cudaEventElapsedTime()` function returns the time elapsed between the recording of the `start` and `stop` events. This value is expressed in milliseconds and has a resolution of approximately half a microsecond. Like the other calls in this listing, their specific operation, parameters, and return values are described in the _CUDA Toolkit Reference Manual_. Note that the timings are measured on the GPU clock, so the timing resolution is operating-system-independent.
 
 
-##  9.2. Bandwidth 
+##  9.2. Bandwidth
 
 Bandwidth - the rate at which data can be transferred - is one of the most important gating factors for performance. Almost all changes to code should be made in the context of how they affect bandwidth. As described in [Memory Optimizations](#memory-optimizations) of this guide, bandwidth can be dramatically affected by the choice of memory in which data is stored, how the data is laid out and the order in which it is accessed, as well as other factors.
 
@@ -57,7 +57,7 @@ Note
 
 **High Priority:** Use the effective bandwidth of your computation as a metric when measuring performance and optimization benefits.
 
-###  9.2.1. Theoretical Bandwidth Calculation 
+###  9.2.1. Theoretical Bandwidth Calculation
 
 Theoretical bandwidth can be calculated using hardware specifications available in the product literature. For example, the NVIDIA Tesla V100 uses HBM2 (double data rate) RAM with a memory clock rate of 877 MHz and a 4096-bit-wide memory interface.
 
@@ -75,7 +75,7 @@ Note
 
 On GPUs with GDDR memory with ECC enabled the available DRAM is reduced by 6.25% to allow for the storage of ECC bits. Fetching ECC bits for each memory transaction also reduced the effective bandwidth by approximately 20% compared to the same GPU with ECC disabled, though the exact impact of ECC on bandwidth can be higher and depends on the memory access pattern. HBM2 memories, on the other hand, provide dedicated ECC resources, allowing overhead-free ECC protection.[2](#fn2)
 
-###  9.2.2. Effective Bandwidth Calculation 
+###  9.2.2. Effective Bandwidth Calculation
 
 Effective bandwidth is calculated by timing specific program activities and by knowing how data is accessed by the program. To do so, use this equation:
 
@@ -89,7 +89,7 @@ For example, to compute the effective bandwidth of a 2048 x 2048 matrix copy, th
 
 The number of elements is multiplied by the size of each element (4 bytes for a float), multiplied by 2 (because of the read _and_ write), divided by 109 (or 1,0243) to obtain GB of memory transferred. This number is divided by the time in seconds to obtain GB/s.
 
-###  9.2.3. Throughput Reported by Visual Profiler 
+###  9.2.3. Throughput Reported by Visual Profiler
 
 For devices with [compute capability](#cuda-compute-capability) of 2.0 or greater, the Visual Profiler can be used to collect several different memory throughput measures. The following throughput metrics can be displayed in the Details or Detail Graphs view:
 
@@ -113,6 +113,6 @@ Because the minimum memory transaction size is larger than most word sizes, the 
 It’s important to note that both numbers are useful. The actual memory throughput shows how close the code is to the hardware limit, and a comparison of the effective or requested bandwidth to the actual bandwidth presents a good estimate of how much bandwidth is wasted by suboptimal coalescing of memory accesses (see [Coalesced Access to Global Memory](#coalesced-access-to-global-memory)). For global memory accesses, this comparison of requested memory bandwidth to actual memory bandwidth is reported by the Global Memory Load Efficiency and Global Memory Store Efficiency metrics.
 
 [2](#id24)
-    
+
 
 As an exception, scattered writes to HBM2 see some overhead from ECC but much less than the overhead with similar access patterns on ECC-protected GDDR5 memory.

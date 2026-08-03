@@ -19,7 +19,7 @@ nccl_skill/
   build_nccl_skill.sh   # regenerates references/ from the in-repo doc source
   update-nccl.sh        # fetches matching NCCL source into repos/nccl/ (gitignored)
   references/
-    INDEX.md            # curated topic map + search recipes
+    REFERENCE_INDEX.md  # curated topic map + search recipes
     index.md            # full auto-generated deep table of contents
     overview.md  setup.md  nccl1.md  examples.md  mpi.md  env.md
     usage/              # NCCL concepts (communicators, collectives, p2p, device API, ...)
@@ -46,7 +46,7 @@ rg -rl "fault tolerance" references/
 ```
 
 Start from [`SKILL.md`](SKILL.md) (quick reference) or
-[`references/INDEX.md`](references/INDEX.md) (topic map). The full deep table of
+[`references/REFERENCE_INDEX.md`](references/REFERENCE_INDEX.md) (topic map). The full deep table of
 contents is [`references/index.md`](references/index.md).
 
 ## Reading the source alongside the docs
@@ -99,7 +99,7 @@ The script:
 4. copies the result into `references/`, copies diagram images, fixes image
    links, and re-inserts the one admonition the Markdown builder drops.
 
-`SKILL.md`, `README.md`, and `references/INDEX.md` are hand-written and are not
+`SKILL.md`, `README.md`, and `references/REFERENCE_INDEX.md` are hand-written and are not
 overwritten by the build.
 
 ### Why Sphinx (not a regex converter)

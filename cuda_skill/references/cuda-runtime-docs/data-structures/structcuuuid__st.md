@@ -1,4 +1,4 @@
-# 7.67. CUuuid_st
+# 7.68. CUuuid_st
 
 **Source:** structCUuuid__st.html#structCUuuid__st
 

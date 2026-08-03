@@ -1,7 +1,7 @@
 # 20. nvcc Compiler Switches
 
 
-##  20.1. nvcc 
+##  20.1. nvcc
 
 The NVIDIA `nvcc` compiler driver converts `.cu` files into C++ for the host system and CUDA assembly or binary instructions for the device. It supports a number of command-line parameters, of which the following are especially useful for optimization and related best practices:
 

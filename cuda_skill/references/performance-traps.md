@@ -1,107 +1,72 @@
-# Common Performance Traps in CUDA
+# CUDA Performance Traps
 
-*Lessons from real-world GPU optimization projects*
+Use this page as a hypothesis checklist, not as a diagnosis table. Measure the affected kernel and verify metric availability on the active GPU before drawing conclusions.
 
-Plans help you start, but profiling reveals the real bottlenecks. The problems below are frequently discovered through systematic profiling but often missed in initial designs.
+## Uncoalesced global memory access
 
-## Bank Conflicts in Shared Memory
+Symptoms can include excess memory sectors, poor useful-byte efficiency, and low achieved bandwidth.
 
-### Symptoms
-- ncu shows high bank conflict rate (e.g., "16-way bank conflicts")
-- Most cycles stalled on shared memory operations
-- Low effective bandwidth despite using shared memory
+Check thread-to-address mapping, alignment, stride, vector width, and partial-warp behavior. Reshape the data or map adjacent lanes to adjacent elements when possible.
 
-### Common Causes
-- Strided access patterns that map multiple threads to the same bank
-- Transposing data in shared memory without accounting for bank layout
-- Writing in one pattern, reading in another (both can't be conflict-free simultaneously)
+Do not use a universal sectors-per-request threshold. Transaction behavior depends on access width, cache path, architecture, and instruction.
 
-### Investigation
-```bash
-# Check bank conflicts and wavefronts
-ncu --metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum \
-    --metrics l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum \
-    ./program
+## Shared-memory bank conflicts
 
-# Divide conflicts by wavefronts to get average conflicts per operation
-# >1 per operation indicates conflicts
-```
+Conflicts serialize accesses within a warp when multiple lanes target different addresses in the same bank.
 
-### Solutions
-- Pad shared memory arrays (e.g., `[32][33]` instead of `[32][32]`)
-- Change thread-to-data mapping to avoid stride patterns
-- Optimize for the more frequent operation if both read and write can't be conflict-free
-- For transpose operations, accept conflicts on one dimension
+Check the element size, leading dimension, lane mapping, broadcasts, and architecture-specific bank organization. Padding or swizzling can help, but may increase footprint or address arithmetic.
 
-Can give 2-3× speedup when memory-bound.
+Confirm with a current shared-memory section or queried metric. Metric names differ across NCU versions and chips.
 
-## Memory Coalescing
+## Warp divergence
 
-### Symptoms
-- ncu shows high sector/request ratio (e.g., "32 sectors/request" vs optimal 1-4)
-- Low global memory throughput despite high demand
-- Memory-bound kernel with poor bandwidth utilization
+Divergence matters when active lanes follow different paths for enough instructions to affect useful issue throughput.
 
-### Common Causes
-- Strided access patterns (every thread reads every Nth element)
-- Transposed access patterns (reading column-major when stored row-major)
-- Unaligned access or indirection through index arrays
+Check branch distribution, predication, loop trip counts, early exits, and whether work can be grouped by path. Reordering work may improve control flow while harming memory locality, so measure both.
 
-### Investigation
-```bash
-# Check memory transactions
-ncu --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum ./program
-# Divide sectors by requests: 1-4 is good, 8-16 is poor, 32+ is essentially random
-```
+## Register pressure and occupancy
 
-### Solutions
-- Use vectorized loads (`float4`, `uint4`) when threads access adjacent memory
-- Structure of Arrays (SoA) over Array of Structures (AoS)
-- Transpose in shared memory if global access must be strided
-- Ensure proper alignment (128-byte for vector loads)
+High register use can reduce resident warps or trigger spills. Lowering register use can also increase instructions and make code slower.
 
-Can give 1.5-2× speedup for severe coalescing issues.
+Inspect ptxas resource output, local-memory traffic, launch limits, and achieved occupancy. Treat occupancy as a capacity constraint, not an optimization objective by itself.
 
-## Scale-Dependent Optimizations
+## Excess synchronization
 
-### The Problem
-**Optimization techniques that work at large scale can hurt at small scale, and vice versa.**
+Block barriers, memory fences, atomics, host synchronizations, and implicit stream dependencies can serialize work.
 
-### Common Examples
-- **Warp specialization:** Fixed setup cost only amortizes with large workloads
-- **Async operations:** Only hide latency if you have compute to overlap
-- **Advanced features (TMA, etc.):** Benefit at high utilization, overhead at low
+Use Nsight Systems to locate gaps and blocking API calls. Use the programming guide and PTX memory model to determine whether weaker scope, different ordering, or pipeline restructuring is correct.
 
-### Rule
-**Always profile at YOUR target scale.** "Best practices" from papers may not apply to your problem size.
+Never remove synchronization based only on timing. Run compute-sanitizer and correctness tests after any change.
 
-### Questions to Ask
-- This optimization helped at scale X. What's my scale?
-- What's the overhead, and does my workload amortize it?
-- Should I verify this applies before implementing?
+## Small kernels and launch overhead
 
-## Documenting What Doesn't Work
+Many short kernels can be dominated by CPU dispatch, framework overhead, or dependency gaps.
 
-**Document negative results to prevent retrying failed approaches:**
+Consider fusion, batching, persistent execution, or CUDA Graphs only after the timeline shows launch overhead is material. Fusion can increase registers, reduce occupancy, or duplicate work.
 
-```markdown
-## Attempted Optimizations
+## Copy and allocation overhead
 
-### Warp Specialization (Stage 9)
-- Context: 64×64 tiles
-- Result: Slower than baseline
-- Reason: Setup overhead > benefit at small scale
-- Decision: Don't retry until workload >128×128
-```
+Repeated allocation, pageable transfers, unnecessary format conversion, and serialized copies can dominate end-to-end time even when kernels are efficient.
 
-This prevents loops where you try the same optimization again after losing context. Failed experiments are valuable knowledge if documented.
+Profile the whole request with Nsight Systems. Check memory-pool reuse, pinned-memory policy, copy direction, stream dependencies, and overlap.
 
-## Summary
+## Cache assumptions
 
-1. **Profile first, always** — Intuition about bottlenecks is usually wrong
-2. **Measure at your scale** — Advice from papers may not apply to your problem size
-3. **One change at a time** — Compound changes make diagnosis impossible
-4. **Document failures** — Prevent retrying what already failed
-5. **Verify with metrics** — "Should work" ≠ "does work"
+A high cache hit rate is not automatically useful, and a low hit rate is not automatically bad. Streaming kernels may perform well with little reuse.
 
-The profile → hypothesis → fix → verify loop is the core optimization methodology.
+Measure requested bytes, transferred bytes, latency exposure, and overall throughput. Avoid tuning cache hints without a reproducible access pattern and architecture-specific evidence.
+
+## Measurement discipline
+
+Before and after comparisons should keep input, warmup, launch selection, clocks, and software build fixed.
+
+Discover supported NCU data before scripting:
+
+    ncu --list-sections
+    ncu --query-metrics
+
+Profile one representative launch:
+
+    ncu --kernel-name regex:myKernel +      --launch-count 1 +      -o kernel-report +      ./program
+
+Use ncu-guide.md for collection strategy, nsys-guide.md for system-level analysis, and the Best Practices Guide for general optimization rationale.

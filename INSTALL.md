@@ -17,6 +17,8 @@ bash install.sh                    # Cursor (默认，已验证)
 bash install.sh --agent claude     # Claude Code
 bash install.sh --agent codex      # Codex
 bash install.sh --agent gemini     # Gemini CLI
+bash install.sh --agent codex --skill cuda-skill
+bash install.sh --target-dir /custom/skills --skill cuda-skill
 ```
 
 | 工具 | Skill 安装路径 | 验证状态 | 官方文档 |
@@ -47,6 +49,8 @@ bash install.sh --agent gemini     # Gemini CLI
 
 使用 `--copy` 进行全量复制（适用于无法软链接的场景）。
 
+安装器不会删除旧目录或改写指向其他位置的软链接。遇到路径冲突时会退出，由用户决定如何处理已有内容。`--skill` 可只更新一个 skill，`--target-dir` 可覆盖默认安装根目录。
+
 ## 更新
 
 ```bash
@@ -59,17 +63,24 @@ bash update-repos.sh cutlass
 bash update-repos.sh sglang
 bash update-repos.sh nccl     # 委托给 nccl_skill/update-nccl.sh
 
-# 更新 CUDA 文档库
-uv run scrape_docs.py all --force
+# 抓取 CUDA 文档到暂存目录
+uv run scrape_docs.py all \
+  --output-dir /tmp/cuda-docs-staging \
+  --force
+
+# 比较暂存与正式快照，再决定如何合并
+diff -qr cuda_skill/references/ptx-docs \
+  /tmp/cuda-docs-staging/ptx-docs
 
 # 同步 SKILL.md（修改源文件后重新安装）
-bash install.sh                    # 或 --agent claude 等
+bash install.sh --skill cuda-skill # 可同时指定 --agent 或 --target-dir
 ```
 
 ## 验证
 
 ```bash
 bash install.sh   # 安装时自动运行验证
+python3 scripts/validate_cuda_skill.py
 ```
 
 ## Skill 发现规则

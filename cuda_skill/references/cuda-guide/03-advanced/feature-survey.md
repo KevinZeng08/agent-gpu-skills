@@ -20,7 +20,7 @@ The features outlined in this section are all intended to aid kernel developers 
 
 ### 3.5.1.2. Asynchronous Data Copies and the Tensor Memory Accelerator (TMA)
 
-[Asynchronous data copies](../04-special-topics/async-copies.html#async-copies) in the context of CUDA kernel code refers to the ability to move data between shared memory and GPU DRAM while still carrying out computations. This should not be confused with asynchronous memory copies between the CPU and GPU. This feature makes used of asynchronous barriers. [Section 4.11](../04-special-topics/async-copies.html#async-copies) covers the use of asynchronous copies in detail.
+[Asynchronous data copies](../04-special-topics/async-copies.html#async-copies) in the context of CUDA kernel code refers to the ability to move data between shared memory and GPU DRAM while still carrying out computations. This should not be confused with asynchronous memory copies between the CPU and GPU. This feature makes use of asynchronous barriers. [Section 4.11](../04-special-topics/async-copies.html#async-copies) covers the use of asynchronous copies in detail.
 
 ### 3.5.1.3. Pipelines
 
@@ -96,7 +96,7 @@ It is also common to use separate host processes spanning either a single comput
 
 ### 3.5.5.1. Virtual Memory Management
 
-As mentioned in [Section 2.4.1](../02-basics/understanding-memory.html#memory-unified-virtual-address-space), all GPUs in a system, along with the CPU memory, share a single unified virtual address space. Most applications can use the default memory management provided by CUDA without the need to change its behavior. However, [the CUDA driver API](driver-api.html#driver-api) provides advanced and detailed controls over the layout of this virtual memory space for those that need it. This is mostly applicable for controlling the behavior of buffers when sharing between GPUs both within and across multiple systems.
+As mentioned in [Section 2.6.1](../02-basics/understanding-memory.html#memory-unified-virtual-address-space), all GPUs in a system, along with the CPU memory, share a single unified virtual address space. Most applications can use the default memory management provided by CUDA without the need to change its behavior. However, [the CUDA driver API](driver-api.html#driver-api) provides advanced and detailed controls over the layout of this virtual memory space for those that need it. This is mostly applicable for controlling the behavior of buffers when sharing between GPUs both within and across multiple systems.
 
 [Section 4.16](../04-special-topics/virtual-memory-management.html#virtual-memory-management) covers the controls offered by the CUDA driver API, how they work and when a developer may find them advantageous.
 

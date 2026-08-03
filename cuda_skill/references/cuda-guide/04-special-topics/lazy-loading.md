@@ -10,12 +10,12 @@ Lazy loading reduces program initialization time by waiting to load CUDA modules
 
 ## 4.7.2. Change History
 
-Table 17 Select Lazy Loading Changes by CUDA Version CUDA Version | Change  
----|---  
-12.3 | Lazy loading performance improved. Now enabled by default for Windows.  
-12.2 | Lazy loading enabled by default for Linux.  
-11.7 | Lazy loading first introduced, disabled by default.  
-  
+Table 17 Select Lazy Loading Changes by CUDA Version CUDA Version | Change
+---|---
+12.3 | Lazy loading performance improved. Now enabled by default for Windows.
+12.2 | Lazy loading enabled by default for Linux.
+11.7 | Lazy loading first introduced, disabled by default.
+
 ## 4.7.3. Requirements for Lazy Loading
 
 Lazy loading is a joint feature of both the CUDA runtime and driver. Lazy loading is only available when the runtime and driver version requirements are satisfied.
@@ -45,23 +45,23 @@ Lazy loading is enabled by setting the `CUDA_MODULE_LOADING` environment variabl
 ### 4.7.4.2. Checking if Lazy Loading is Enabled at Runtime
 
 The `cuModuleGetLoadingMode` API in the CUDA driver API can be used to determine if lazy loading is enabled. Note that CUDA must be initialized before running this function. Sample usage is shown in the snippet below.
-    
-    
+
+
     #include "<cuda.h>"
     #include "<assert.h>"
     #include "<iostream>"
-    
+
     int main() {
             CUmoduleLoadingMode mode;
-    
+
             assert(CUDA_SUCCESS == cuInit(0));
             assert(CUDA_SUCCESS == cuModuleGetLoadingMode(&mode));
-    
+
             std::cout << "CUDA Module Loading Mode is " << ((mode == CU_MODULE_LAZY_LOADING) ? "lazy" : "eager") << std::endl;
-    
+
             return 0;
     }
-    
+
 
 ### 4.7.4.3. Forcing a Module to Load Eagerly at Runtime
 

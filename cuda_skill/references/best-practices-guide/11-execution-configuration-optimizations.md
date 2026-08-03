@@ -10,7 +10,7 @@ Hardware utilization can also be improved in some cases by designing your applic
 Another important concept is the management of system resources allocated for a particular task. How to manage this resource utilization is discussed in the final sections of this chapter.
 
 
-##  11.1. Occupancy 
+##  11.1. Occupancy
 
 Thread instructions are executed sequentially in CUDA, and, as a result, executing other warps when one warp is paused or stalled is the only way to hide latencies and keep the hardware busy. Some metric related to the number of active warps on a multiprocessor is therefore important in determining how effectively the hardware is kept busy. This metric is _occupancy_.
 
@@ -20,7 +20,7 @@ Higher occupancy does not always equate to higher performance-there is a point a
 
 Per thread resources required by a CUDA kernel might limit the maximum block size in an unwanted way. In order to maintain forward compatibility to future hardware and toolkits and to ensure that at least one thread block can run on an SM, developers should include the single argument `__launch_bounds__(maxThreadsPerBlock)` which specifies the largest block size that the kernel will be launched with. Failure to do so could lead to “too many resources requested for launch” errors. Providing the two argument version of `__launch_bounds__(maxThreadsPerBlock,minBlocksPerMultiprocessor)` can improve performance in some cases. The right value for `minBlocksPerMultiprocessor` should be determined using a detailed per kernel analysis.
 
-###  11.1.1. Calculating Occupancy 
+###  11.1.1. Calculating Occupancy
 
 One of several factors that determine occupancy is register availability. Register storage enables threads to keep local variables nearby for low-latency access. However, the set of registers (known as the _register file_) is a limited commodity that all threads resident on a multiprocessor must share. Registers are allocated to an entire block all at once. So, if each thread block uses many registers, the number of thread blocks that can be resident on a multiprocessor is reduced, thereby lowering the occupancy of the multiprocessor. The maximum number of registers per thread can be set manually at compilation time per-file using the `-maxrregcount` option or per-kernel using the `__launch_bounds__` qualifier (see [Register Pressure](#register-pressure)).
 
@@ -35,7 +35,7 @@ Figure 15 Using the CUDA Occupancy Calculator to project GPU multiprocessor occu
 An application can also use the Occupancy API from the CUDA Runtime, e.g. `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, to dynamically select launch configurations based on runtime parameters.
 
 
-##  11.2. Hiding Register Dependencies 
+##  11.2. Hiding Register Dependencies
 
 Note
 
@@ -44,7 +44,7 @@ Note
 Register dependencies arise when an instruction uses a result stored in a register written by an instruction before it. The latency of most arithmetic instructions is typically 4 cycles on devices of compute capability 7.0. So threads must wait approximatly 4 cycles before using an arithmetic result. However, this latency can be completely hidden by the execution of threads in other warps. See [Registers](index.html#registers) for details.
 
 
-##  11.3. Thread and Block Heuristics 
+##  11.3. Thread and Block Heuristics
 
 Note
 
@@ -74,28 +74,28 @@ There are many such factors involved in selecting block size, and inevitably som
 Note that when a thread block allocates more registers than are available on a multiprocessor, the kernel launch fails, as it will when too much shared memory or too many threads are requested.
 
 
-##  11.4. Effects of Shared Memory 
+##  11.4. Effects of Shared Memory
 
 Shared memory can be helpful in several situations, such as helping to coalesce or eliminate redundant access to global memory. However, it also can act as a constraint on occupancy. In many cases, the amount of shared memory required by a kernel is related to the block size that was chosen, but the mapping of threads to shared memory elements does not need to be one-to-one. For example, it may be desirable to use a 64x64 element shared memory array in a kernel, but because the maximum number of threads per block is 1024, it is not possible to launch a kernel with 64x64 threads per block. In such cases, kernels with 32x32 or 64x16 threads can be launched with each thread processing four elements of the shared memory array. The approach of using a single thread to process multiple elements of a shared memory array can be beneficial even if limits such as threads per block are not an issue. This is because some operations common to each element can be performed by the thread once, amortizing the cost over the number of shared memory elements processed by the thread.
 
 A useful technique to determine the sensitivity of performance to occupancy is through experimentation with the amount of dynamically allocated shared memory, as specified in the third parameter of the execution configuration. By simply increasing this parameter (without modifying the kernel), it is possible to effectively reduce the occupancy of the kernel and measure its effect on performance.
 
 
-##  11.5. Concurrent Kernel Execution 
+##  11.5. Concurrent Kernel Execution
 
 As described in [Asynchronous and Overlapping Transfers with Computation](index.html#asynchronous-transfers-and-overlapping-transfers-with-computation), CUDA streams can be used to overlap kernel execution with data transfers. On devices that are capable of concurrent kernel execution, streams can also be used to execute multiple kernels simultaneously to more fully take advantage of the device’s multiprocessors. Whether a device has this capability is indicated by the `concurrentKernels` field of the `cudaDeviceProp` structure (or listed in the output of the `deviceQuery` CUDA Sample). Non-default streams (streams other than stream 0) are required for concurrent execution because kernel calls that use the default stream begin only after all preceding calls on the device (in any stream) have completed, and no operation on the device (in any stream) commences until they are finished.
 
 The following example illustrates the basic technique. Because `kernel1` and `kernel2` are executed in different, non-default streams, a capable device can execute the kernels at the same time.
-    
-    
+
+
     cudaStreamCreate(&stream1);
     cudaStreamCreate(&stream2);
     kernel1<<<grid, block, 0, stream1>>>(data_1);
     kernel2<<<grid, block, 0, stream2>>>(data_2);
-    
 
 
-##  11.6. Multiple contexts 
+
+##  11.6. Multiple contexts
 
 CUDA work occurs within a process space for a particular GPU known as a _context_. The context encapsulates kernel launches and memory allocations for that GPU as well as supporting constructs such as the page tables. The context is explicit in the CUDA Driver API but is entirely implicit in the CUDA Runtime API, which creates and manages contexts automatically.
 
@@ -104,20 +104,20 @@ With the CUDA Driver API, a CUDA application process can potentially create more
 While multiple contexts (and their associated resources such as global memory allocations) can be allocated concurrently on a given GPU, only one of these contexts can execute work at any given moment on that GPU; contexts sharing the same GPU are time-sliced. Creating additional contexts incurs memory overhead for per-context data and time overhead for context switching. Furthermore, the need for context switching can reduce utilization when work from several contexts could otherwise execute concurrently (see also [Concurrent Kernel Execution](index.html#concurrent-kernel-execution)).
 
 Therefore, it is best to avoid multiple contexts per GPU within the same CUDA application. To assist with this, the CUDA Driver API provides methods to access and manage a special context on each GPU called the _primary context_. These are the same contexts used implicitly by the CUDA Runtime when there is not already a current context for a thread.
-    
-    
+
+
     // When initializing the program/library
     CUcontext ctx;
     cuDevicePrimaryCtxRetain(&ctx, dev);
-    
+
     // When the program/library launches work
     cuCtxPushCurrent(ctx);
     kernel<<<...>>>(...);
     cuCtxPopCurrent(&ctx);
-    
+
     // When the program/library is finished with the context
     cuDevicePrimaryCtxRelease(dev);
-    
+
 
 Note
 
